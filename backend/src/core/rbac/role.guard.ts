@@ -11,7 +11,6 @@ export const roleGuard = (roleName: string) => {
 		}
 
 		try {
-			// Use user.userId from the JWT payload
 			const hasRole = await rbacService.hasRole(user.userId, roleName);
 			if (!hasRole) {
 				return res.status(403).json({ message: `Acesso negado: Papel necessário ${roleName}` });
