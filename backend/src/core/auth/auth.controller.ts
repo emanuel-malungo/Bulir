@@ -8,20 +8,23 @@ import { z } from "zod";
 export class AuthController {
   static async register(req: Request, res: Response<IRegisterResponse | IApiError>) {
     try {
+      if (!req.body) {
+        throw new ValidationError("Dados inválidos");
+      }
       const validatedData = registerSchema.parse(req.body);
       const user = await AuthService.register(validatedData);
       res.status(201).json({ message: "Usuário registrado com sucesso", user });
     } catch (err) {
-      if (err instanceof z.ZodError) {
-        return res.status(400).json({ 
-          errors: err.issues
-        });
+      if (err instanceof ValidationError) {
+        return res.status(400).json({ error: err.message });
       }
       if (err instanceof ConflictError) {
         return res.status(409).json({ error: err.message });
       }
-      if (err instanceof ValidationError) {
-        return res.status(400).json({ error: err.message });
+      if (err instanceof z.ZodError) {
+        return res.status(400).json({ 
+          errors: err.issues
+        });
       }
       if (err instanceof Error) {
         return res.status(400).json({ error: err.message });
@@ -40,13 +43,13 @@ export class AuthController {
       const result = await AuthService.login(validatedData, userAgent, ipAddress);
       res.status(200).json(result);
     } catch (err) {
+      if (err instanceof ValidationError) {
+        return res.status(401).json({ error: err.message });
+      }
       if (err instanceof z.ZodError) {
         return res.status(400).json({ 
           errors: err.issues
         });
-      }
-      if (err instanceof ValidationError) {
-        return res.status(401).json({ error: err.message });
       }
       if (err instanceof Error) {
         return res.status(401).json({ error: err.message });

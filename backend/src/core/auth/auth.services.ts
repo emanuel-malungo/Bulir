@@ -57,12 +57,12 @@ export class AuthService {
 
   // LOGIN
   static async login(loginData: ILoginRequest, userAgent: string, ipAddress: string): Promise<ILoginResponse> {
-    // Tenta encontrar o usuário por email ou NIF
+    const invalidCredentialsError = new ValidationError("Credenciais inválidas");
+    
     let user = await prisma.user.findUnique({
       where: { email: loginData.identifier }
     });
 
-    // Se não encontrou por email, tenta por NIF
     if (!user) {
       const formattedNIF = NIFService.formatNIF(loginData.identifier);
       user = await prisma.user.findUnique({
@@ -70,15 +70,13 @@ export class AuthService {
       });
     }
 
-    // Valida se o usuário existe
     if (!user) {
-      throw new ValidationError("Email ou NIF inválido");
+      throw invalidCredentialsError;
     }
 
-    // Valida a senha
     const isPasswordValid = await comparePassword(loginData.password, user.passwordHash);
     if (!isPasswordValid) {
-      throw new ValidationError("Senha inválida");
+      throw invalidCredentialsError;
     }
 
     // Gera tokens
