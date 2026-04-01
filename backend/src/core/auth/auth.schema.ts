@@ -24,3 +24,13 @@ export const loginSchema = z.object({
     .min(8, "Senha inválida")
     .max(50, "Senha inválida")
 }) satisfies z.ZodType<ILoginRequest>;
+
+export const refreshSchema = z.object({
+  refreshToken: z.string()
+    .min(1, "Refresh token é obrigatório")
+});
+
+export const logoutSchema = z.object({
+  refreshToken: z.string()
+    .min(1, "Refresh token é obrigatório")
+});

@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import { AuthService } from "./auth.services.js";
-import { registerSchema, loginSchema } from "./auth.schema.js";
-import type { IRegisterResponse, ILoginResponse, IApiError } from "./auth.types.js";
+import { registerSchema, loginSchema, refreshSchema, logoutSchema } from "./auth.schema.js";
+import type { IRegisterResponse, ILoginResponse, IRefreshResponse, ILogoutResponse, IApiError } from "./auth.types.js";
 import { ConflictError, ValidationError } from "../../utils/errors.js";
 import { z } from "zod";
 
@@ -53,6 +53,45 @@ export class AuthController {
       }
       if (err instanceof Error) {
         return res.status(401).json({ error: err.message });
+      }
+      res.status(500).json({ error: "Erro interno do servidor" });
+    }
+  }
+
+  static async refresh(req: Request, res: Response<IRefreshResponse | IApiError>) {
+    try {
+      const validatedData = refreshSchema.parse(req.body);
+      const result = await AuthService.refresh(validatedData.refreshToken);
+      res.status(200).json(result);
+    } catch (err) {
+      if (err instanceof ValidationError) {
+        return res.status(401).json({ error: err.message });
+      }
+      if (err instanceof z.ZodError) {
+        return res.status(400).json({ 
+          errors: err.issues
+        });
+      }
+      if (err instanceof Error) {
+        return res.status(401).json({ error: err.message });
+      }
+      res.status(500).json({ error: "Erro interno do servidor" });
+    }
+  }
+
+  static async logout(req: Request, res: Response<ILogoutResponse | IApiError>) {
+    try {
+      const validatedData = logoutSchema.parse(req.body);
+      await AuthService.logout(validatedData.refreshToken);
+      res.status(200).json({ message: "Logout realizado com sucesso" });
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return res.status(400).json({ 
+          errors: err.issues
+        });
+      }
+      if (err instanceof Error) {
+        return res.status(400).json({ error: err.message });
       }
       res.status(500).json({ error: "Erro interno do servidor" });
     }

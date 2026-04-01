@@ -33,6 +33,14 @@ export interface IRegisterResponse {
   user: IUser;
 }
 
+export interface IRefreshResponse {
+  accessToken: string;
+}
+
+export interface ILogoutResponse {
+  message: string;
+}
+
 // ===== ERROR TYPES =====
 export interface IApiError {
   error?: string;

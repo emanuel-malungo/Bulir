@@ -107,4 +107,36 @@ export class AuthService {
     };
   }
 
+  static async refresh(refreshToken: string): Promise<{ accessToken: string }> {
+    const session = await prisma.session.findUnique({
+      where: { refreshToken }
+    });
+
+    if (!session || session.isRevoked) {
+      throw new ValidationError("Token de refresh inválido");
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: session.userId }
+    });
+
+    if (!user) {
+      throw new ValidationError("Usuário não encontrado");
+    }
+
+    const newAccessToken = signAccessToken({
+      userId: user.id,
+      email: user.email
+    });
+
+    return { accessToken: newAccessToken };
+  }
+
+  static async logout(refreshToken: string): Promise<void> {
+    await prisma.session.update({
+      where: { refreshToken },
+      data: { isRevoked: true }
+    });
+  }
+
 }
