@@ -17,6 +17,17 @@ export interface IUser {
   createdAt: Date;
 }
 
+export interface ILoginRequest {
+  identifier: string; // email ou nif
+  password: string;
+}
+
+export interface ILoginResponse {
+  user: IUser;
+  accessToken: string;
+  refreshToken: string;
+}
+
 export interface IRegisterResponse {
   message: string;
   user: IUser;

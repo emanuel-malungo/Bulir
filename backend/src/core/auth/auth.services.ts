@@ -1,8 +1,9 @@
 import prisma from "../../config/prisma.js"
-import { hashPassword } from "../../utils/hash.utils.js";
+import { hashPassword, comparePassword } from "../../utils/hash.utils.js";
+import { signAccessToken, signRefreshToken } from "../../utils/jwt.utils.js";
 import { ConflictError, ValidationError } from "../../utils/errors.js";
 import { NIFService } from "../../utils/nif.utils.js";
-import type { IRegisterRequest, IUser } from "./auth.types.js";
+import type { IRegisterRequest, ILoginRequest, IUser, ILoginResponse } from "./auth.types.js";
 
 export class AuthService {
   // REGISTER
@@ -53,4 +54,59 @@ export class AuthService {
 
     return user;
   }
+
+  // LOGIN
+  static async login(loginData: ILoginRequest, userAgent: string, ipAddress: string): Promise<ILoginResponse> {
+    // Tenta encontrar o usuário por email ou NIF
+    let user = await prisma.user.findUnique({
+      where: { email: loginData.identifier }
+    });
+
+    // Se não encontrou por email, tenta por NIF
+    if (!user) {
+      const formattedNIF = NIFService.formatNIF(loginData.identifier);
+      user = await prisma.user.findUnique({
+        where: { nif: formattedNIF }
+      });
+    }
+
+    // Valida se o usuário existe
+    if (!user) {
+      throw new ValidationError("Email ou NIF inválido");
+    }
+
+    // Valida a senha
+    const isPasswordValid = await comparePassword(loginData.password, user.passwordHash);
+    if (!isPasswordValid) {
+      throw new ValidationError("Senha inválida");
+    }
+
+    // Gera tokens
+    const accessToken = signAccessToken({
+      userId: user.id,
+      email: user.email
+    });
+
+    const refreshToken = signRefreshToken({
+      userId: user.id
+    });
+
+    // Salva a sessão
+    await prisma.session.create({
+      data: {
+        userId: user.id,
+        refreshToken,
+        userAgent,
+        ipAddress: ipAddress,
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+      }
+    });
+
+    return {
+      user,
+      accessToken,
+      refreshToken
+    };
+  }
+
 }

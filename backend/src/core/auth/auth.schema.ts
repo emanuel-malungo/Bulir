@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { IRegisterRequest } from "./auth.types.js";
+import type { IRegisterRequest, ILoginRequest } from "./auth.types.js";
 
 export const registerSchema = z.object({
   fullName: z.string()
@@ -16,3 +16,11 @@ export const registerSchema = z.object({
     .regex(/[a-z]/, "Senha deve conter minúsculas")
     .regex(/[0-9]/, "Senha deve conter números")
 }) satisfies z.ZodType<IRegisterRequest>;
+
+export const loginSchema = z.object({
+  identifier: z.string()
+    .min(3, "Email ou NIF inválido"),
+  password: z.string()
+    .min(8, "Senha inválida")
+    .max(50, "Senha inválida")
+}) satisfies z.ZodType<ILoginRequest>;
