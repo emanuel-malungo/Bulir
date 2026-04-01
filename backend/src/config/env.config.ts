@@ -20,7 +20,10 @@ const ENV = {
   JWT_REFRESH_EXPIRES_IN: process.env['JWT_REFRESH_EXPIRES_IN'] || "7d",
 
   // ===== Security =====
-  BCRYPT_SALT_ROUNDS: Number(process.env['BCRYPT_SALT_ROUNDS']) || 10
+  BCRYPT_SALT_ROUNDS: Number(process.env['BCRYPT_SALT_ROUNDS']) || 10,
+
+  // ===== External APIs =====
+  NIF_API_URL: process.env['NIF_API_URL'] || "https://consulta.edgarsingui.ao/consultar"
 };
 
 export default ENV;

@@ -1,6 +1,7 @@
 import prisma from "../../config/prisma.js"
 import { hashPassword } from "../../utils/hash.utils.js";
-import { ConflictError } from "../../utils/errors.js";
+import { ConflictError, ValidationError } from "../../utils/errors.js";
+import { NIFService } from "../../utils/nif.utils.js";
 import type { IRegisterRequest, IUser } from "./auth.types.js";
 
 export class AuthService {
@@ -14,12 +15,21 @@ export class AuthService {
       throw new ConflictError("Email já está registrado");
     }
 
+    // Formata o NIF antes de qualquer validação
+    const formattedNIF = NIFService.formatNIF(data.nif);
+
     const existingNif = await prisma.user.findUnique({
-      where: { nif: data.nif }
+      where: { nif: formattedNIF }
     });
 
     if (existingNif) {
       throw new ConflictError("NIF já está registrado");
+    }
+
+    // Verificar se o NIF existe na API
+    const biDetails = await NIFService.verifyNIF(formattedNIF);
+    if (!biDetails) {
+      throw new ValidationError("NIF não encontrado ou inválido");
     }
 
     const passwordHash = await hashPassword(data.password);
@@ -28,7 +38,7 @@ export class AuthService {
       data: {
         fullName: data.fullName,
         email: data.email,
-        nif: data.nif,
+        nif: formattedNIF,
         passwordHash
       },
       select: {

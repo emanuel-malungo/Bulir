@@ -8,7 +8,7 @@ export const registerSchema = z.object({
   email: z.email("Formato de email inválido"),
   nif: z.string()
     .min(9, "NIF deve ter no mínimo 9 caracteres")
-    .max(12, "NIF não pode exceder 12 caracteres"),
+    .max(14, "NIF não pode exceder 14 caracteres"),
   password: z.string()
     .min(8, "Senha deve ter no mínimo 8 caracteres")
     .max(50, "Senha não pode exceder 50 caracteres")
