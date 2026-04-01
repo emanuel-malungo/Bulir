@@ -1,5 +1,6 @@
 import prisma from "../../config/prisma.js"
 import { hashPassword } from "../../utils/hash.utils.js";
+import { ConflictError } from "../../utils/errors.js";
 import type { IRegisterRequest, IUser } from "./auth.types.js";
 
 export class AuthService {
@@ -10,7 +11,7 @@ export class AuthService {
     });
 
     if (existingUser) {
-      throw new Error("Email already registered");
+      throw new ConflictError("Email já está registrado");
     }
 
     const existingNif = await prisma.user.findUnique({
@@ -18,7 +19,7 @@ export class AuthService {
     });
 
     if (existingNif) {
-      throw new Error("NIF already registered");
+      throw new ConflictError("NIF já está registrado");
     }
 
     const passwordHash = await hashPassword(data.password);

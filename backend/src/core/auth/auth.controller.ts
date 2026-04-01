@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import { AuthService } from "./auth.services.js";
 import { registerSchema } from "./auth.schema.js";
 import type { IRegisterResponse, IApiError } from "./auth.types.js";
+import { ConflictError } from "../../utils/errors.js";
 import { z } from "zod";
 
 export class AuthController {
@@ -15,6 +16,9 @@ export class AuthController {
         return res.status(400).json({ 
           errors: err.issues
         });
+      }
+      if (err instanceof ConflictError) {
+        return res.status(409).json({ error: err.message });
       }
       if (err instanceof Error) {
         return res.status(400).json({ error: err.message });
