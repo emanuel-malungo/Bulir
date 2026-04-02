@@ -7,25 +7,29 @@ import { useState } from 'react';
 import Image from 'next/image';
 import icon from '@/assets/images/bulir.svg';
 import ReCaptchaV3 from '@/app/components/common/ReCaptchaV3';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { loginSchema, type LoginFormData } from '@/modules/auth/auth.schema';
 
 export default function Login() {
   const [recaptchaToken, setRecaptchaToken] = useState<string>('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+      recaptchaToken: '',
+    },
+  });
 
+  const onSubmit = async (data: LoginFormData) => {
     if (!recaptchaToken) {
-      setError('Por favor, complete o reCAPTCHA antes de entrar');
-      return;
-    }
-
-    if (!email || !password) {
-      setError('Email e senha são obrigatórios');
       return;
     }
 
@@ -38,38 +42,56 @@ export default function Login() {
       {/* Gradiente de fundo com cor accent */}
       <div className="absolute inset-0 bg-linear-to-t from-accent/20 via-transparent to-transparent"></div>
 
-      <form onSubmit={handleSubmit} className="relative z-10 flex min-h-screen items-center justify-center flex-col">
+      <form onSubmit={handleSubmit(onSubmit)} className="relative z-10 flex min-h-screen items-center justify-center flex-col">
         <div className="flex items-center space-x-2 mb-8">
           <Image src={icon} alt="Bulir" />
           <span className="text-xl font-medium">Bulir</span>
         </div>
-        <div className="w-full max-w-sm rounded-lg bg-white p-8 shadow-md">
+        <div className="w-full max-w-xs rounded-lg bg-white p-8 shadow-md">
             <h1 className='text-center font-medium text-xl' >Entrar na Bulir</h1>
             
-            {error && (
+            {(errors.email || errors.password) && (
               <div className="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 text-xs rounded">
-                {error}
+                {errors.email?.message || errors.password?.message}
               </div>
             )}
             <div>
               <div>
-              <label className="block text-sm font-medium text-gray-500 mt-4">Email ou nif</label>
-              <input 
-                type="text" 
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="bulir@email.com"
-                className='w-full border border-gray-300 rounded px-3 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-accent/50' 
+              <label className="block text-sm font-medium text-gray-500 mt-4">Email</label>
+              <Controller
+                name="email"
+                control={control}
+                render={({ field }) => (
+                  <input 
+                    {...field}
+                    type="email" 
+                    placeholder="seu@email.com"
+                    className={`w-full border rounded px-3 py-1 text-sm focus:outline-none focus:ring-1 ${
+                      errors.email 
+                        ? 'border-red-500 focus:ring-red-500' 
+                        : 'border-gray-300 focus:ring-accent/50'
+                    }`}
+                  />
+                )}
               />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-500 mt-4">Senha</label>
-                <input 
-                  type="password" 
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="xxxxxxxxxx"
-                  className='w-full border border-gray-300 rounded px-3 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-accent/50' 
+                <Controller
+                  name="password"
+                  control={control}
+                  render={({ field }) => (
+                    <input 
+                      {...field}
+                      type="password" 
+                      placeholder="sua senha"
+                      className={`w-full border rounded px-3 py-1 text-sm focus:outline-none focus:ring-1 ${
+                        errors.password 
+                          ? 'border-red-500 focus:ring-red-500' 
+                          : 'border-gray-300 focus:ring-accent/50'
+                      }`}
+                    />
+                  )}
                 />
               </div>
             </div>
