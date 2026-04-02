@@ -1,6 +1,7 @@
 import express from 'express';
 import authRoutes from "./core/auth/auth.routes.js";
 import userRoutes from "./modules/user/user.routes.js";
+import serviceRoutes from "./modules/service/service.routes.js";
 
 const app = express();
 
@@ -11,6 +12,7 @@ app.use(express.urlencoded({ extended: true }));
 // =========== Routes ===========
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/services', serviceRoutes);
 
 app.get('/', (_req, res) => {
   res.send('Hello, World!');
