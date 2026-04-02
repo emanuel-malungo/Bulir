@@ -30,32 +30,6 @@ export default function Login() {
     }
 
     setIsLoading(true);
-
-    try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-          password,
-          recaptchaToken,
-        }),
-      });
-
-      if (response.ok) {
-        alert('Login realizado com sucesso!');
-        // Redirecionar ou fazer algo após sucesso
-      } else {
-        const data = await response.json();
-        setError(data.error || 'Erro ao fazer login');
-      }
-    } catch (error) {
-      setError('Erro ao conectar com servidor');
-    } finally {
-      setIsLoading(false);
-    }
   };
 
   return (
@@ -84,7 +58,7 @@ export default function Login() {
                 type="text" 
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="seu@email.com"
+                placeholder="bulir@email.com"
                 className='w-full border border-gray-300 rounded px-3 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-accent/50' 
               />
               </div>
@@ -94,7 +68,7 @@ export default function Login() {
                   type="password" 
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="sua senha"
+                  placeholder="xxxxxxxxxx"
                   className='w-full border border-gray-300 rounded px-3 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-accent/50' 
                 />
               </div>
