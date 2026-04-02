@@ -3,7 +3,7 @@ import { hashPassword, comparePassword } from "../../utils/hash.utils.js";
 import { signAccessToken, signRefreshToken } from "../../utils/jwt.utils.js";
 import { ConflictError, ValidationError } from "../../utils/errors.js";
 import { NIFService } from "../../utils/nif.utils.js";
-import type { IRegisterRequest, ILoginRequest, IUser, ILoginResponse, IRegisterResponse, IRole } from "./auth.types.js";
+import type { IRegisterRequest, ILoginRequest, IUser, ILoginResponse, IRegisterResponse, IRole, IRolePermissionsResponse } from "./auth.types.js";
 
 export class AuthService {
   // REGISTER
@@ -87,11 +87,13 @@ export class AuthService {
       }
     });
 
-    // Prepara o objeto user com informações do role
+    // Prepara o objeto user com informações do role e permissões
+    const permissions = await this.getPermissionNames(data.roleId);
     const userWithRole: IUser = {
       ...user,
       roleId: data.roleId,
-      role: role.name
+      role: role.name,
+      permissions
     };
 
     return {
@@ -126,6 +128,14 @@ export class AuthService {
       throw invalidCredentialsError;
     }
 
+    // Busca o role e permissões do usuário
+    const userRole = await prisma.userRole.findFirst({
+      where: { userId: user.id },
+      include: {
+        role: true
+      }
+    });
+
     // Gera tokens
     const accessToken = signAccessToken({
       userId: user.id,
@@ -147,8 +157,27 @@ export class AuthService {
       }
     });
 
+    // Prepara o objeto user com role e permissões
+    if (!userRole) {
+      throw new ValidationError("Usuário não possui role atribuído");
+    }
+
+    const permissions = await this.getPermissionNames(userRole.role.id);
+
+    const userResponse: IUser = {
+      id: user.id,
+      fullName: user.fullName,
+      email: user.email,
+      nif: user.nif,
+      isActive: user.isActive,
+      createdAt: user.createdAt,
+      roleId: userRole.role.id,
+      role: userRole.role.name,
+      permissions
+    };
+
     return {
-      user,
+      user: userResponse,
       accessToken,
       refreshToken
     };
@@ -207,4 +236,51 @@ export class AuthService {
     return roles;
   }
 
+  // GET PERMISSIONS POR ROLE (público, para cache no frontend)
+  static async getPermissionsByRole(roleId: number): Promise<IRolePermissionsResponse> {
+    // Valida se o role existe e é PROVIDER ou CLIENT
+    const role = await prisma.role.findUnique({
+      where: { id: roleId }
+    });
+
+    if (!role || !['PROVIDER', 'CLIENT'].includes(role.name)) {
+      throw new ValidationError(`Role com ID ${roleId} não encontrado ou não disponível`);
+    }
+
+    // Busca as permissões do role
+    const rolePermissions = await prisma.rolePermission.findMany({
+      where: { roleId },
+      include: {
+        permission: {
+          select: {
+            id: true,
+            name: true,
+            description: true
+          }
+        }
+      }
+    });
+
+    const permissions = rolePermissions.map(rp => rp.permission);
+
+    return {
+      roleId,
+      role: role.name,
+      permissions
+    };
+  }
+
+  // Método auxiliar para obter apenas os nomes das permissões
+  private static async getPermissionNames(roleId: number): Promise<string[]> {
+    const rolePermissions = await prisma.rolePermission.findMany({
+      where: { roleId },
+      include: {
+        permission: {
+          select: { name: true }
+        }
+      }
+    });
+
+    return rolePermissions.map(rp => rp.permission.name);
+  }
 }

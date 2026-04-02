@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import { AuthService } from "./auth.services.js";
 import { registerSchema, loginSchema, refreshSchema, logoutSchema } from "./auth.schema.js";
-import type { IRegisterResponse, ILoginResponse, IRefreshResponse, ILogoutResponse, IApiError, IRolesResponse } from "./auth.types.js";
+import type { IRegisterResponse, ILoginResponse, IRefreshResponse, ILogoutResponse, IApiError, IRolesResponse, IRolePermissionsResponse } from "./auth.types.js";
 import { ConflictError, ValidationError } from "../../utils/errors.js";
 import { z } from "zod";
 
@@ -101,10 +101,34 @@ export class AuthController {
     }
   }
 
-  static async getRoles(req: Request, res: Response<IRolesResponse | IApiError>) {
+  static async getRoles(_req: Request, res: Response<IRolesResponse | IApiError>) {
     try {
       const roles = await AuthService.getRoles();
       res.status(200).json({ roles });
+    } catch (err) {
+      if (err instanceof Error) {
+        return res.status(400).json({ error: err.message });
+      }
+      res.status(500).json({ error: "Erro interno do servidor" });
+    }
+  }
+
+  static async getRolePermissions(req: Request, res: Response<IRolePermissionsResponse | IApiError>) {
+    try {
+      const { roleId } = req.params;
+
+      if (!roleId || Array.isArray(roleId)) {
+        return res.status(400).json({ error: "Role ID é obrigatório e deve ser um número" });
+      }
+
+      const roleIdNum = parseInt(roleId as string, 10);
+
+      if (isNaN(roleIdNum)) {
+        return res.status(400).json({ error: "Role ID deve ser um número" });
+      }
+
+      const result = await AuthService.getPermissionsByRole(roleIdNum);
+      res.status(200).json(result);
     } catch (err) {
       if (err instanceof Error) {
         return res.status(400).json({ error: err.message });

@@ -18,6 +18,7 @@ export interface IUser {
   createdAt: Date;
   roleId?: number;
   role?: string;
+  permissions?: string[];
 }
 
 export interface ILoginRequest {
@@ -54,6 +55,18 @@ export interface IRole {
 
 export interface IRolesResponse {
   roles: IRole[];
+}
+
+export interface IPermission {
+  id: number;
+  name: string;
+  description: string;
+}
+
+export interface IRolePermissionsResponse {
+  roleId: number;
+  role: string;
+  permissions: IPermission[];
 }
 
 // ===== ERROR TYPES =====
