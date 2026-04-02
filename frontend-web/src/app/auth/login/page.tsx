@@ -2,11 +2,10 @@
 
 'use client';
 
-import Link from 'next/link';
 import { useState } from 'react';
 import Image from 'next/image';
 import icon from '@/assets/images/bulir.svg';
-import ReCaptchaV3 from '@/app/components/common/ReCaptchaV3';
+import { Button, Input, ReCaptchaV3 } from '@/app/components/common';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { loginSchema, type LoginFormData } from '@/modules/auth/auth.schema';
@@ -47,49 +46,35 @@ export default function Login() {
           <Image src={icon} alt="Bulir" />
           <span className="text-xl font-medium">Bulir</span>
         </div>
-        <div className="w-full max-w-xs rounded-lg bg-white p-8 shadow-md">
+        <div className="w-full max-w-sm rounded-lg bg-white p-8 shadow-md">
             <h1 className='text-center font-medium text-xl' >Entrar na Bulir</h1>
-            
-            {(errors.email || errors.password) && (
-              <div className="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 text-xs rounded">
-                {errors.email?.message || errors.password?.message}
-              </div>
-            )}
             <div>
               <div>
-              <label className="block text-sm font-medium text-gray-500 mt-4">Email</label>
-              <Controller
-                name="email"
-                control={control}
-                render={({ field }) => (
-                  <input 
-                    {...field}
-                    type="email" 
-                    placeholder="seu@email.com"
-                    className={`w-full border rounded px-3 py-1 text-sm focus:outline-none focus:ring-1 ${
-                      errors.email 
-                        ? 'border-red-500 focus:ring-red-500' 
-                        : 'border-gray-300 focus:ring-accent/50'
-                    }`}
-                  />
-                )}
-              />
+                <Controller
+                  name="email"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      type="email"
+                      label="Email"
+                      placeholder="seu@email.com"
+                      error={errors.email?.message}
+                    />
+                  )}
+                />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-500 mt-4">Senha</label>
+              <div className="mt-4">
                 <Controller
                   name="password"
                   control={control}
                   render={({ field }) => (
-                    <input 
+                    <Input
                       {...field}
-                      type="password" 
+                      type="password"
+                      label="Senha"
                       placeholder="sua senha"
-                      className={`w-full border rounded px-3 py-1 text-sm focus:outline-none focus:ring-1 ${
-                        errors.password 
-                          ? 'border-red-500 focus:ring-red-500' 
-                          : 'border-gray-300 focus:ring-accent/50'
-                      }`}
+                      error={errors.password?.message}
                     />
                   )}
                 />
@@ -108,13 +93,17 @@ export default function Login() {
             </div>
             
             <ReCaptchaV3 onToken={setRecaptchaToken} />
-            <button 
-              type="submit" 
-              disabled={isLoading || !recaptchaToken}
-              className="w-full bg-accent text-white py-1 px-4 rounded-md hover:bg-accent/80 focus:outline-none focus:ring-2 mt-6 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            
+            <Button
+              type="submit"
+              disabled={!recaptchaToken}
+              isLoading={isLoading}
+              variant="primary"
+              size="md"
+              className="w-full mt-6"
             >
-              {isLoading ? 'Entrando...' : 'Entrar'}
-            </button>
+              Entrar
+            </Button>
 
             <div className="text-center mt-6 space-y-2">
               <span className="text-xs text-gray-600">ou</span>
