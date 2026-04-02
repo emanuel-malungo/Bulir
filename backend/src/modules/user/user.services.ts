@@ -87,5 +87,68 @@ export class UserService {
       },
     };
   }
+
+  static async getById(id: number) {
+    const user = await prisma.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        fullName: true,
+        email: true,
+        nif: true,
+        balance: true,
+        isActive: true,
+        createdAt: true,
+        updatedAt: true,
+        userRoles: {
+          include: {
+            role: true,
+          },
+        },
+      },
+    });
+
+    if (!user) {
+      throw new Error("Usuário não encontrado");
+    }
+
+    return user;
+  }
+
+  static async update(id: number, data?: { fullName?: string | undefined; email?: string | undefined; nif?: string | undefined }) {
+    const userExists = await prisma.user.findUnique({
+      where: { id },
+    });
+
+    if (!userExists) {
+      throw new Error("Usuário não encontrado");
+    }
+
+    if (!data || Object.keys(data).length === 0) {
+      throw new Error("Nenhum campo fornecido para atualização");
+    }
+
+    const updatedUser = await prisma.user.update({
+      where: { id },
+      data: data as any,
+      select: {
+        id: true,
+        fullName: true,
+        email: true,
+        nif: true,
+        balance: true,
+        isActive: true,
+        createdAt: true,
+        updatedAt: true,
+        userRoles: {
+          include: {
+            role: true,
+          },
+        },
+      },
+    });
+
+    return updatedUser;
+  }
 }
 

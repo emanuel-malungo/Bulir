@@ -19,7 +19,7 @@ export interface IUserDetail {
   fullName: string;
   email: string;
   nif: string;
-  balance: number;
+  balance: any;
   isActive: boolean;
   roleId?: number;
   role?: string;
