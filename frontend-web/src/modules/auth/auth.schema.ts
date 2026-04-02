@@ -11,7 +11,8 @@ export const loginSchema = z.object({
     .min(1, 'reCAPTCHA é obrigatório'),
 });
 
-export const registerSchema = z.object({
+// Schema completo do formulário de registro com validações do frontend
+export const registerFormSchema = z.object({
   fullName: z.string()
     .min(3, 'Nome deve ter no mínimo 3 caracteres')
     .max(60, 'Nome não pode exceder 60 caracteres'),
@@ -28,14 +29,17 @@ export const registerSchema = z.object({
     .regex(/[0-9]/, 'Senha deve conter números'),
   confirmPassword: z.string()
     .min(8, 'Confirmação de senha é obrigatória'),
-  roleId: z.coerce.number()
+  roleId: z.number()
     .int('Role ID deve ser um número inteiro')
     .positive('Role ID deve ser positivo'),
-  recaptchaToken: z.string()
-    .min(1, 'reCAPTCHA é obrigatório'),
 }).refine((data) => data.password === data.confirmPassword, {
   message: 'As senhas não correspondem',
   path: ['confirmPassword'],
+});
+
+// Schema para os dados que serão enviados ao backend (sem campos de UI)
+export const registerSchema = registerFormSchema.omit({ 
+  confirmPassword: true 
 });
 
 export const refreshSchema = z.object({
@@ -49,5 +53,7 @@ export const logoutSchema = z.object({
 });
 
 // ===== INFERRED TYPES =====
+// ===== INFERRED TYPES =====
 export type LoginFormData = z.infer<typeof loginSchema>;
 export type RegisterFormData = z.infer<typeof registerSchema>;
+export type RegisterFormInput = z.infer<typeof registerFormSchema>;
