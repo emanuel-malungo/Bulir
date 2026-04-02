@@ -12,8 +12,12 @@ export class AuthController {
         throw new ValidationError("Dados inválidos");
       }
       const validatedData = registerSchema.parse(req.body);
-      const user = await AuthService.register(validatedData);
-      res.status(201).json({ message: "Usuário registrado com sucesso", user });
+      
+      const userAgent = req.get("user-agent") || "unknown";
+      const ipAddress = req.ip || "unknown";
+      
+      const result = await AuthService.register(validatedData, userAgent, ipAddress);
+      res.status(201).json(result);
     } catch (err) {
       if (err instanceof ValidationError) {
         return res.status(400).json({ error: err.message });

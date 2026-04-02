@@ -3,11 +3,11 @@ import { hashPassword, comparePassword } from "../../utils/hash.utils.js";
 import { signAccessToken, signRefreshToken } from "../../utils/jwt.utils.js";
 import { ConflictError, ValidationError } from "../../utils/errors.js";
 import { NIFService } from "../../utils/nif.utils.js";
-import type { IRegisterRequest, ILoginRequest, IUser, ILoginResponse } from "./auth.types.js";
+import type { IRegisterRequest, ILoginRequest, IUser, ILoginResponse, IRegisterResponse } from "./auth.types.js";
 
 export class AuthService {
   // REGISTER
-  static async register(data: IRegisterRequest): Promise<IUser> {
+  static async register(data: IRegisterRequest, userAgent: string = "unknown", ipAddress: string = "unknown"): Promise<IRegisterResponse> {
     const existingUser = await prisma.user.findUnique({
       where: { email: data.email }
     });
@@ -66,7 +66,40 @@ export class AuthService {
       }
     });
 
-    return user;
+    // Gera tokens
+    const accessToken = signAccessToken({
+      userId: user.id,
+      email: user.email
+    });
+
+    const refreshToken = signRefreshToken({
+      userId: user.id
+    });
+
+    // Salva a sessão
+    await prisma.session.create({
+      data: {
+        userId: user.id,
+        refreshToken,
+        userAgent,
+        ipAddress,
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+      }
+    });
+
+    // Prepara o objeto user com informações do role
+    const userWithRole: IUser = {
+      ...user,
+      roleId: data.roleId,
+      role: role.name
+    };
+
+    return {
+      message: "Usuário registrado com sucesso",
+      user: userWithRole,
+      accessToken,
+      refreshToken
+    };
   }
 
   // LOGIN

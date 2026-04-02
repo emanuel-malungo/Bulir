@@ -16,6 +16,8 @@ export interface IUser {
   nif: string;
   isActive: boolean;
   createdAt: Date;
+  roleId?: number;
+  role?: string;
 }
 
 export interface ILoginRequest {
@@ -32,6 +34,8 @@ export interface ILoginResponse {
 export interface IRegisterResponse {
   message: string;
   user: IUser;
+  accessToken: string;
+  refreshToken: string;
 }
 
 export interface IRefreshResponse {
