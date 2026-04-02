@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import { AuthService } from "./auth.services.js";
 import { registerSchema, loginSchema, refreshSchema, logoutSchema } from "./auth.schema.js";
-import type { IRegisterResponse, ILoginResponse, IRefreshResponse, ILogoutResponse, IApiError } from "./auth.types.js";
+import type { IRegisterResponse, ILoginResponse, IRefreshResponse, ILogoutResponse, IApiError, IRolesResponse } from "./auth.types.js";
 import { ConflictError, ValidationError } from "../../utils/errors.js";
 import { z } from "zod";
 
@@ -94,6 +94,18 @@ export class AuthController {
           errors: err.issues
         });
       }
+      if (err instanceof Error) {
+        return res.status(400).json({ error: err.message });
+      }
+      res.status(500).json({ error: "Erro interno do servidor" });
+    }
+  }
+
+  static async getRoles(req: Request, res: Response<IRolesResponse | IApiError>) {
+    try {
+      const roles = await AuthService.getRoles();
+      res.status(200).json({ roles });
+    } catch (err) {
       if (err instanceof Error) {
         return res.status(400).json({ error: err.message });
       }

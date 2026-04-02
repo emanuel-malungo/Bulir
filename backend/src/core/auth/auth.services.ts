@@ -3,7 +3,7 @@ import { hashPassword, comparePassword } from "../../utils/hash.utils.js";
 import { signAccessToken, signRefreshToken } from "../../utils/jwt.utils.js";
 import { ConflictError, ValidationError } from "../../utils/errors.js";
 import { NIFService } from "../../utils/nif.utils.js";
-import type { IRegisterRequest, ILoginRequest, IUser, ILoginResponse, IRegisterResponse } from "./auth.types.js";
+import type { IRegisterRequest, ILoginRequest, IUser, ILoginResponse, IRegisterResponse, IRole } from "./auth.types.js";
 
 export class AuthService {
   // REGISTER
@@ -184,6 +184,27 @@ export class AuthService {
       where: { refreshToken },
       data: { isRevoked: true }
     });
+  }
+
+  // GET PUBLIC ROLES (apenas para registro)
+  static async getRoles(): Promise<IRole[]> {
+    const roles = await prisma.role.findMany({
+      where: {
+        name: {
+          in: ['PROVIDER', 'CLIENT']
+        }
+      },
+      select: {
+        id: true,
+        name: true,
+        description: true
+      },
+      orderBy: {
+        id: 'asc'
+      }
+    });
+
+    return roles;
   }
 
 }

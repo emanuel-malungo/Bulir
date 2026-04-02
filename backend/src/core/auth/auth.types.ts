@@ -46,6 +46,16 @@ export interface ILogoutResponse {
   message: string;
 }
 
+export interface IRole {
+  id: number;
+  name: string;
+  description: string;
+}
+
+export interface IRolesResponse {
+  roles: IRole[];
+}
+
 // ===== ERROR TYPES =====
 export interface IApiError {
   error?: string;
