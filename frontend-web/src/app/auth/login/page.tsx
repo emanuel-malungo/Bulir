@@ -48,16 +48,20 @@ export default function Login() {
               Entrar
             </button>
 
-            <div className="text-center mt-4">
-              <span className="text-sm text-gray-600">Não tem uma conta? </span>
-              <a href="/auth/register" className="text-sm text-accent hover:underline">
+            <div className="text-center mt-6 space-y-2">
+              <span className="text-xs text-gray-600">ou</span>
+              <p className="text-xs text-gray-600 mt-6">Não tem uma conta? <a href="/auth/register" className="text-xs text-accent hover:underline">
                 Registre-se
-              </a>
+              </a></p>
             </div>
         </div>
       </form>
 
-    
+      <footer className="absolute bottom-0 w-full text-center py-4">
+        <p className="text-xs text-gray-500">©2026 Bulir. Todos os direitos reservados. · <a href="#" className="hover:underline">Termos de uso</a> · <a href="#" className="hover:underline">Política de privacidade</a></p>
+      </footer>
+
+      
     </div>
   );
 }
