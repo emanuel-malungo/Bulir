@@ -14,7 +14,10 @@ export const registerSchema = z.object({
     .max(50, "Senha não pode exceder 50 caracteres")
     .regex(/[A-Z]/, "Senha deve conter maiúsculas")
     .regex(/[a-z]/, "Senha deve conter minúsculas")
-    .regex(/[0-9]/, "Senha deve conter números")
+    .regex(/[0-9]/, "Senha deve conter números"),
+  roleId: z.coerce.number()
+    .int("Role ID deve ser um número inteiro")
+    .positive("Role ID deve ser positivo")
 }) satisfies z.ZodType<IRegisterRequest>;
 
 export const loginSchema = z.object({

@@ -35,12 +35,26 @@ export class AuthService {
 
     const passwordHash = await hashPassword(data.password);
 
+    // Verifica se o role existe
+    const role = await prisma.role.findUnique({
+      where: { id: data.roleId }
+    });
+
+    if (!role) {
+      throw new ValidationError(`Role com ID ${data.roleId} não encontrado`);
+    }
+
     const user = await prisma.user.create({
       data: {
         fullName: data.fullName,
         email: data.email,
         nif: formattedNIF,
-        passwordHash
+        passwordHash,
+        userRoles: {
+          create: {
+            roleId: data.roleId
+          }
+        }
       },
       select: {
         id: true,

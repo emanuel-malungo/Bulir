@@ -5,6 +5,7 @@ export interface IRegisterRequest {
   email: string;
   nif: string;
   password: string;
+  roleId: number;
 }
 
 // ===== RESPONSE TYPES =====
