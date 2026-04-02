@@ -1,7 +1,20 @@
 import type { Request, Response } from "express";
 import { UserService } from "./user.services.js";
-import { updateUserSchema, getUserByIdSchema } from "./user.schema.js";
-import type { IApiError, IGetUserResponse, IUpdateUserResponse } from "./user.types.js";
+import {
+  updateUserSchema,
+  getUserByIdSchema,
+  changePasswordSchema,
+  sessionIdSchema,
+} from "./user.schema.js";
+import type {
+  IApiError,
+  IGetUserResponse,
+  IUpdateUserResponse,
+  IChangePasswordResponse,
+  ISessionsResponse,
+  ILogoutSessionResponse,
+  ILogoutAllSessionsResponse,
+} from "./user.types.js";
 import { z } from "zod";
 
 export class UserController {
@@ -87,7 +100,13 @@ export class UserController {
     res: Response<IUpdateUserResponse | IApiError>
   ) {
     try {
-      const validatedId = getUserByIdSchema.parse({ id: req.params.id });
+      const { id } = req.params;
+
+      if (!id || id.trim() === "") {
+        return res.status(400).json({ error: "ID do usuário é obrigatório" });
+      }
+
+      const validatedId = getUserByIdSchema.parse({ id });
       const validatedData = updateUserSchema.parse(req.body);
 
       const user = await UserService.update(validatedId.id, validatedData);
@@ -99,6 +118,157 @@ export class UserController {
     } catch (err) {
       if (err instanceof z.ZodError) {
         return res.status(400).json({
+          error: "Dados inválidos",
+          errors: err.issues,
+        });
+      }
+      if (err instanceof Error) {
+        return res.status(404).json({ error: err.message });
+      }
+      res.status(500).json({ error: "Erro interno do servidor" });
+    }
+  }
+
+  static async changePassword(
+    req: Request<{ id: string }, {}, any>,
+    res: Response<IChangePasswordResponse | IApiError>
+  ) {
+    try {
+      const { id } = req.params;
+
+      if (!id || id.trim() === "") {
+        return res.status(400).json({ error: "ID do usuário é obrigatório" });
+      }
+
+      const validatedId = getUserByIdSchema.parse({ id });
+      const validatedData = changePasswordSchema.parse(req.body);
+
+      await UserService.changePassword(
+        validatedId.id,
+        validatedData.currentPassword,
+        validatedData.newPassword
+      );
+
+      res.status(200).json({
+        message: "Senha alterada com sucesso. Você foi desconectado de todos os dispositivos.",
+      });
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return res.status(400).json({
+          error: "Dados de senha inválidos",
+          errors: err.issues,
+        });
+      }
+      if (err instanceof Error) {
+        const statusCode = err.message.includes("não encontrado")
+          ? 404
+          : err.message.includes("incorreta")
+          ? 401
+          : 400;
+        return res.status(statusCode).json({ error: err.message });
+      }
+      res.status(500).json({ error: "Erro interno do servidor" });
+    }
+  }
+
+  static async getSessions(
+    req: Request<{ id: string }>,
+    res: Response<ISessionsResponse | IApiError>
+  ) {
+    try {
+      const { id } = req.params;
+
+      if (!id || id.trim() === "") {
+        return res.status(400).json({ error: "ID do usuário é obrigatório" });
+      }
+
+      const validatedId = getUserByIdSchema.parse({ id });
+      const sessions = await UserService.getSessions(validatedId.id);
+
+      res.status(200).json(sessions);
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return res.status(400).json({
+          error: "ID inválido",
+          errors: err.issues,
+        });
+      }
+      if (err instanceof Error) {
+        return res.status(404).json({ error: err.message });
+      }
+      res.status(500).json({ error: "Erro interno do servidor" });
+    }
+  }
+
+  static async revokeSession(
+    req: Request<{ id: string; sessionId: string }>,
+    res: Response<ILogoutSessionResponse | IApiError>
+  ) {
+    try {
+      const { id, sessionId } = req.params;
+
+      if (!id || id.trim() === "") {
+        return res.status(400).json({ error: "ID do usuário é obrigatório" });
+      }
+
+      if (!sessionId || sessionId.trim() === "") {
+        return res.status(400).json({ error: "ID da sessão é obrigatório" });
+      }
+
+      const validatedUserId = getUserByIdSchema.parse({ id });
+      const validatedSessionId = sessionIdSchema.parse({ id: sessionId });
+
+      await UserService.revokeSession(
+        validatedUserId.id,
+        validatedSessionId.id
+      );
+
+      res.status(200).json({
+        message: "Sessão encerrada com sucesso",
+      });
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return res.status(400).json({
+          error: "IDs inválidos",
+          errors: err.issues,
+        });
+      }
+      if (err instanceof Error) {
+        const statusCode = err.message.includes("não encontrada")
+          ? 404
+          : err.message.includes("Não autorizado")
+          ? 403
+          : 400;
+        return res.status(statusCode).json({ error: err.message });
+      }
+      res.status(500).json({ error: "Erro interno do servidor" });
+    }
+  }
+
+  static async revokeAllSessions(
+    req: Request<{ id: string }>,
+    res: Response<ILogoutAllSessionsResponse | IApiError>
+  ) {
+    try {
+      const { id } = req.params;
+
+      if (!id || id.trim() === "") {
+        return res.status(400).json({ error: "ID do usuário é obrigatório" });
+      }
+
+      const validatedId = getUserByIdSchema.parse({ id });
+      const sessionsTerminated = await UserService.revokeAllSessions(
+        validatedId.id
+      );
+
+      res.status(200).json({
+        message: "Todas as sessões foram encerradas com sucesso",
+        sessionsTerminated,
+      });
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return res.status(400).json({
+          error: "ID inválido",
           errors: err.issues,
         });
       }

@@ -9,6 +9,12 @@ export interface IUpdateUserRequest {
   nif?: string;
 }
 
+export interface IChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}
+
 export interface IDeleteUserRequest {
   id: number;
 }
@@ -37,6 +43,21 @@ export interface IUserListItem {
   createdAt: Date;
 }
 
+export interface ISessionDetail {
+  id: number;
+  userAgent?: string | null;
+  ipAddress?: string | null;
+  deviceId?: string | null;
+  isRevoked: boolean;
+  createdAt: Date;
+  expiresAt: Date;
+}
+
+export interface ISessionsResponse {
+  sessions: ISessionDetail[];
+  total: number;
+}
+
 export interface IListUsersResponse {
   users: IUserListItem[];
   total: number;
@@ -49,6 +70,19 @@ export interface IGetUserResponse {
 export interface IUpdateUserResponse {
   message: string;
   user: IUserDetail;
+}
+
+export interface IChangePasswordResponse {
+  message: string;
+}
+
+export interface ILogoutSessionResponse {
+  message: string;
+}
+
+export interface ILogoutAllSessionsResponse {
+  message: string;
+  sessionsTerminated: number;
 }
 
 export interface IDeleteUserResponse {

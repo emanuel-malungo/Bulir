@@ -1,4 +1,5 @@
 import prisma from "../../config/prisma.js";
+import { comparePassword, hashPassword } from "../../utils/hash.utils.js";
 
 export class UserService {
   static async findAll(
@@ -149,6 +150,111 @@ export class UserService {
     });
 
     return updatedUser;
+  }
+
+  static async changePassword(id: number, currentPassword: string, newPassword: string) {
+    const user = await prisma.user.findUnique({
+      where: { id },
+      select: { id: true, passwordHash: true },
+    });
+
+    if (!user) {
+      throw new Error("Usuário não encontrado");
+    }
+
+    const isPasswordValid = await comparePassword(currentPassword, user.passwordHash);
+    if (!isPasswordValid) {
+      throw new Error("Senha atual incorreta");
+    }
+
+    const hashedPassword = await hashPassword(newPassword);
+
+    await prisma.user.update({
+      where: { id },
+      data: { passwordHash: hashedPassword },
+    });
+
+    // Revoga todas as sessões do usuário após mudança de senha (segurança)
+    await prisma.session.updateMany({
+      where: { userId: id },
+      data: { isRevoked: true },
+    });
+
+    return;
+  }
+
+  static async getSessions(id: number) {
+    const user = await prisma.user.findUnique({
+      where: { id },
+      select: { id: true },
+    });
+
+    if (!user) {
+      throw new Error("Usuário não encontrado");
+    }
+
+    const sessions = await prisma.session.findMany({
+      where: { userId: id, isRevoked: false },
+      select: {
+        id: true,
+        userAgent: true,
+        ipAddress: true,
+        deviceId: true,
+        isRevoked: true,
+        createdAt: true,
+        expiresAt: true,
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    return {
+      sessions,
+      total: sessions.length,
+    };
+  }
+
+  static async revokeSession(userId: number, sessionId: number) {
+    const session = await prisma.session.findUnique({
+      where: { id: sessionId },
+      select: { userId: true, isRevoked: true },
+    });
+
+    if (!session) {
+      throw new Error("Sessão não encontrada");
+    }
+
+    if (session.userId !== userId) {
+      throw new Error("Não autorizado a revogar esta sessão");
+    }
+
+    if (session.isRevoked) {
+      throw new Error("Sessão já foi revogada");
+    }
+
+    await prisma.session.update({
+      where: { id: sessionId },
+      data: { isRevoked: true },
+    });
+
+    return;
+  }
+
+  static async revokeAllSessions(id: number) {
+    const user = await prisma.user.findUnique({
+      where: { id },
+      select: { id: true },
+    });
+
+    if (!user) {
+      throw new Error("Usuário não encontrado");
+    }
+
+    const result = await prisma.session.updateMany({
+      where: { userId: id, isRevoked: false },
+      data: { isRevoked: true },
+    });
+
+    return result.count;
   }
 }
 
