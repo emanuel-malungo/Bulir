@@ -57,7 +57,13 @@ export class UserController {
     res: Response<IGetUserResponse | IApiError>
   ) {
     try {
-      const validatedId = getUserByIdSchema.parse({ id: req.params.id });
+      const { id } = req.params;
+
+      if (!id || id.trim() === "") {
+        return res.status(400).json({ error: "ID do usuário é obrigatório" });
+      }
+
+      const validatedId = getUserByIdSchema.parse({ id });
 
       const user = await UserService.getById(validatedId.id);
 
@@ -65,6 +71,7 @@ export class UserController {
     } catch (err) {
       if (err instanceof z.ZodError) {
         return res.status(400).json({
+          error: "ID deve ser um número inteiro positivo",
           errors: err.issues,
         });
       }
