@@ -24,7 +24,7 @@ const menuItems = [
     id: 'conta',
     label: 'Minha Conta',
     icon: User,
-    href: '/client/conta',
+    href: '/client/profile',
   },
 ];
 
