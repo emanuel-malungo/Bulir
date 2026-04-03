@@ -153,6 +153,25 @@ export class AuthService {
     );
     return response.data;
   }
+
+  /**
+   * Verify if current session is valid
+   * - Calls refresh endpoint
+   * - If successful, session is valid and access token is updated
+   */
+  static async verifySession(): Promise<ILoginResponse['user']> {
+    try {
+      const response = await api.post<ILoginResponse>('/auth/refresh');
+      // A resposta do refresh no backend atual parece retornar { accessToken }
+      // Mas o login retorna { user, accessToken, refreshToken }
+      // Vamos assumir que se o refresh funcionar, a sessão está ativa.
+      // Se precisarmos dos dados do usuário atualizados, teríamos que implementar /auth/me
+      // Por ora, vamos retornar o usuário do store se o refresh funcionar
+      return useAuthStore.getState().user!;
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
 

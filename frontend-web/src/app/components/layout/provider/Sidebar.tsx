@@ -12,7 +12,7 @@ const menuItems = [
     id: 'home',
     label: 'Home',
     icon: Briefcase,
-    href: '/provider/services',
+    href: '/provider',
   },
   {
     id: 'reservas',

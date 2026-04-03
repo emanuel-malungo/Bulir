@@ -27,6 +27,8 @@ interface AuthStore {
   isAuthenticated: () => boolean;
   hasPermission: (permission: string) => boolean;
   hasRole: (role: string) => boolean;
+  checkAuth: () => Promise<void>;
+  isCheckingAuth: boolean;
 }
 
 export const useAuthStore = create<AuthStore>()(
@@ -34,6 +36,7 @@ export const useAuthStore = create<AuthStore>()(
     (set, get) => ({
       user: null,
       isLoading: false,
+      isCheckingAuth: true,
       error: null,
 
       setUser: (user) => set({ user, error: null }),
@@ -61,6 +64,30 @@ export const useAuthStore = create<AuthStore>()(
         const { user } = get();
         if (!user || !user.role) return false;
         return user.role === role;
+      },
+
+      checkAuth: async () => {
+        const { user } = get();
+        if (!user) {
+          set({ isCheckingAuth: false });
+          return;
+        }
+
+        try {
+          // Import dynamic para evitar dependência circular
+          const { AuthService } = await import('./auth.services');
+          const updatedUser = await AuthService.verifySession();
+          if (updatedUser) {
+            set({ user: updatedUser });
+          }
+        } catch (error) {
+          console.error('Falha na verificação de sessão:', error);
+          // O interceptor já trata o logout em caso de 401, 
+          // mas por segurança limpamos se falhar aqui também
+          set({ user: null });
+        } finally {
+          set({ isCheckingAuth: false });
+        }
       },
     }),
     {

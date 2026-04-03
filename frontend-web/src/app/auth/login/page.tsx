@@ -14,6 +14,8 @@ import { AuthService } from '@/modules/auth/auth.services';
 import { useAuthStore } from '@/modules/auth/auth.store';
 import { AlertCircle } from 'lucide-react';
 
+import { AuthGuard } from '@/modules/auth/auth-guard';
+
 export default function Login() {
   const router = useRouter();
   const { error: authError } = useAuthStore();
@@ -113,102 +115,102 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-white relative overflow-hidden">
-      
-      {/* Gradiente de fundo com cor accent */}
-      <div className="absolute inset-0 bg-linear-to-t from-accent/20 via-transparent to-transparent"></div>
+    <AuthGuard>
+      <div className="min-h-screen w-full bg-white relative overflow-hidden">
+        
+        {/* Gradiente de fundo com cor accent */}
+        <div className="absolute inset-0 bg-linear-to-t from-accent/20 via-transparent to-transparent"></div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="relative z-10 flex min-h-screen items-center justify-center flex-col">
-        <div className="flex items-center space-x-2 mb-8">
-          <Image src={icon} alt="Bulir" />
-          <span className="text-xl font-medium">Bulir</span>
-        </div>
-        <div className="w-full max-w-sm rounded-lg bg-white p-8 shadow-md">
-            <h1 className='text-center font-medium text-xl' >Entrar na Bulir</h1>
-            
-            {/* Erro de autenticação */}
-            {(localError) && (
-              <div className="mt-4 p-3 bg-red-100 border border-red-300 rounded-lg flex items-start gap-2">
-                <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
-                <p className="text-sm text-red-700">{localError}</p>
-              </div>
-            )}
+        <form onSubmit={handleSubmit(onSubmit)} className="relative z-10 flex min-h-screen items-center justify-center flex-col">
+          <div className="flex items-center space-x-2 mb-8">
+            <Image src={icon} alt="Bulir" />
+            <span className="text-xl font-medium">Bulir</span>
+          </div>
+          <div className="w-full max-w-sm rounded-lg bg-white p-8 shadow-md">
+              <h1 className='text-center font-medium text-xl' >Entrar na Bulir</h1>
+              
+              {/* Erro de autenticação */}
+              {(localError) && (
+                <div className="mt-4 p-3 bg-red-100 border border-red-300 rounded-lg flex items-start gap-2">
+                  <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+                  <p className="text-sm text-red-700">{localError}</p>
+                </div>
+              )}
 
-            <div className="mt-4">
-              <div>
-                <Controller
-                  name="email"
-                  control={control}
-                  render={({ field }) => (
-                    <Input
-                      {...field}
-                      type="email"
-                      label="Email"
-                      placeholder="seu@email.com"
-                      error={errors.email?.message}
-                      disabled={isLoading}
-                    />
-                  )}
-                />
-              </div>
               <div className="mt-4">
-                <Controller
-                  name="password"
-                  control={control}
-                  render={({ field }) => (
-                    <Input
-                      {...field}
-                      type="password"
-                      label="Senha"
-                      placeholder="sua senha"
-                      error={errors.password?.message}
+                <div>
+                  <Controller
+                    name="email"
+                    control={control}
+                    render={({ field }) => (
+                      <Input
+                        {...field}
+                        type="email"
+                        label="Email"
+                        placeholder="seu@email.com"
+                        error={errors.email?.message}
+                        disabled={isLoading}
+                      />
+                    )}
+                  />
+                </div>
+                <div className="mt-4">
+                  <Controller
+                    name="password"
+                    control={control}
+                    render={({ field }) => (
+                      <Input
+                        {...field}
+                        type="password"
+                        label="Senha"
+                        placeholder="sua senha"
+                        error={errors.password?.message}
+                        disabled={isLoading}
+                      />
+                    )}
+                  />
+                </div>
+              </div>
+              <div>
+                <div className="flex items-center justify-between mt-4">
+                  <label className="inline-flex items-center">
+                    <input 
+                      type="checkbox" 
+                      className="form-checkbox text-accent" 
                       disabled={isLoading}
                     />
-                  )}
-                />
+                    <span className="ml-2 text-xs text-gray-600">Lembrar-me</span>
+                  </label>
+                  <a href="#" className="text-xs text-gray-500 hover:underline">
+                    Esqueci minha senha
+                  </a>
+                </div>
               </div>
-            </div>
-            <div>
-              <div className="flex items-center justify-between mt-4">
-                <label className="inline-flex items-center">
-                  <input 
-                    type="checkbox" 
-                    className="form-checkbox text-accent" 
-                    disabled={isLoading}
-                  />
-                  <span className="ml-2 text-xs text-gray-600">Lembrar-me</span>
-                </label>
-                <a href="#" className="text-xs text-gray-500 hover:underline">
-                  Esqueci minha senha
-                </a>
+              
+              <ReCaptchaV3 onToken={handleRecaptchaToken} />
+              
+              <Button
+                type="submit"
+                disabled={!recaptchaToken || isLoading}
+                isLoading={isLoading}
+                variant="primary"
+                size="md"
+                className="w-full mt-6"
+              >
+                Entrar
+              </Button>
+
+              <div className="text-center mt-6 space-y-2">
+                <span className="text-xs text-gray-600">ou</span>
+                <p className="text-xs text-gray-600 mt-6">Não tem uma conta? <a href="/auth/register" className="text-xs text-accent hover:underline">
+                  Registre-se
+                </a></p>
               </div>
-            </div>
-            
-            <ReCaptchaV3 onToken={handleRecaptchaToken} />
-            
-            <Button
-              type="submit"
-              disabled={!recaptchaToken || isLoading}
-              isLoading={isLoading}
-              variant="primary"
-              size="md"
-              className="w-full mt-6"
-            >
-              Entrar
-            </Button>
+          </div>
+        </form>
 
-            <div className="text-center mt-6 space-y-2">
-              <span className="text-xs text-gray-600">ou</span>
-              <p className="text-xs text-gray-600 mt-6">Não tem uma conta? <a href="/auth/register" className="text-xs text-accent hover:underline">
-                Registre-se
-              </a></p>
-            </div>
-        </div>
-      </form>
-
-      <AuthFooter />
-
-      
-    </div>
+        <AuthFooter />
+      </div>
+    </AuthGuard>
   );
 }
