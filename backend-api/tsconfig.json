@@ -3,9 +3,9 @@
     "rootDir": "./",
     "outDir": "./dist",
 
-    "target": "ES2022",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+    "target": "ES2023",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
 
     "types": ["node"],
     "lib": ["ES2022"],

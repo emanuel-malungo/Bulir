@@ -101,17 +101,19 @@ export class AuthService {
     store.setError(null);
 
     try {
+      console.log('📤 Enviando registro para API...');
       const response = await api.post<IRegisterResponse>('/auth/register', data);
+      console.log('✅ Resposta do registro:', response.data);
 
       // ✅ Store user (tokens are in HttpOnly cookie)
       store.setUser(response.data.user);
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : 'Erro ao registrar';
-      store.setError(message);
-      throw error;
-    } finally {
       store.setLoading(false);
+    } catch (error) {
+      const message = extractErrorMessage(error);
+      console.error('❌ Erro no registro:', message, error);
+      store.setError(message);
+      store.setLoading(false);
+      throw error;
     }
   }
 
