@@ -26,7 +26,7 @@ interface AuthGuardProps {
 export function AuthGuard({ children, requiredRole }: AuthGuardProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const { user, isAuthenticated, isLoading, isCheckingAuth, hasRole, checkAuth } = useAuthStore();
+  const { user, isAuthenticated, isCheckingAuth, hasRole, checkAuth } = useAuthStore();
 
   useEffect(() => {
     // Verificar sessão apenas uma vez no mount se estiver "autenticado" no estado local
@@ -39,7 +39,7 @@ export function AuthGuard({ children, requiredRole }: AuthGuardProps) {
   }, []);
 
   useEffect(() => {
-    if (isLoading || isCheckingAuth) return;
+    if (isCheckingAuth) return;
 
     const authenticated = isAuthenticated();
     const isPublicRoute = PUBLIC_ROUTES.some((route) => pathname.startsWith(route));
@@ -75,9 +75,10 @@ export function AuthGuard({ children, requiredRole }: AuthGuardProps) {
       router.push(fallbackPath);
       return;
     }
-  }, [isAuthenticated, isLoading, isCheckingAuth, pathname, router, user, hasRole, requiredRole]);
+  }, [isAuthenticated, isCheckingAuth, pathname, router, user, hasRole, requiredRole]);
 
-  if (isLoading || isCheckingAuth) {
+  // Mostrar loading apenas durante a verificação inicial de sessão
+  if (isCheckingAuth) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">

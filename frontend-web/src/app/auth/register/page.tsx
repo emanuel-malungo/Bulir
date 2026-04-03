@@ -10,13 +10,15 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { registerFormSchema, type RegisterFormInput } from '@/modules/auth/auth.schema';
 import { AuthService } from '@/modules/auth/auth.services';
 import { useAuthStore } from '@/modules/auth/auth.store';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Loader } from 'lucide-react';
 
 import { AuthGuard } from '@/modules/auth/auth-guard';
+import { useRoles } from '@/modules/auth/useRoles';
 
 export default function Register() {
   const router = useRouter();
   const { error: authError } = useAuthStore();
+  const { roles, isLoading: rolesLoading, error: rolesError } = useRoles();
   
   const [recaptchaToken, setRecaptchaTokenState] = useState<string>('');
   
@@ -47,6 +49,7 @@ export default function Register() {
     control,
     handleSubmit,
     formState: { errors },
+    setValue,
   } = useForm<RegisterFormInput>({
     resolver: zodResolver(registerFormSchema),
     defaultValues: {
@@ -54,9 +57,16 @@ export default function Register() {
       email: '',
       nif: '',
       password: '',
-      roleId: 1,
+      roleId: undefined,
     },
   });
+
+  // Definir o primeiro role como padrão quando os roles forem carregados
+  useEffect(() => {
+    if (roles.length > 0 && !control._formValues.roleId) {
+      setValue('roleId', roles[0].id);
+    }
+  }, [roles, setValue, control]);
 
   const onSubmit = async (data: RegisterFormInput) => {
     console.log('🔐 Form enviado:', { email: data.email, hasToken: !!recaptchaToken });
@@ -233,15 +243,32 @@ export default function Register() {
                         <label className="block text-sm font-medium text-gray-700">
                           Tipo de Conta
                         </label>
-                        <select
-                          {...field}
-                          onChange={(e) => field.onChange(Number(e.target.value))}
-                          disabled={isLoading}
-                          className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-accent/50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          <option value="1">Cliente</option>
-                          <option value="2">Prestador de Serviço</option>
-                        </select>
+                        <div className="relative">
+                          <select
+                            {...field}
+                            onChange={(e) => field.onChange(Number(e.target.value))}
+                            disabled={isLoading || rolesLoading}
+                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-accent/50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            <option value="">
+                              {rolesLoading ? 'Carregando tipos de conta...' : 'Selecione um tipo de conta'}
+                            </option>
+                            {roles.map((role) => (
+                              <option key={role.id} value={role.id}>
+                                {role.name}
+                              </option>
+                            ))}
+                          </select>
+                          {rolesLoading && (
+                            <Loader className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 animate-spin text-accent pointer-events-none" />
+                          )}
+                        </div>
+                        {rolesError && (
+                          <p className="text-xs text-red-600 mt-1">{rolesError}</p>
+                        )}
+                        {errors.roleId?.message && (
+                          <p className="text-xs text-red-600 mt-1">{errors.roleId.message}</p>
+                        )}
                       </div>
                     )}
                   />
