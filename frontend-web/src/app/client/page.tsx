@@ -33,15 +33,16 @@ export default function ClientDashboard() {
                     <p className="text-gray-300 text-sm" >Conecte a tua carteira para reservas serviço</p>
                 </div>
 
-                <div className="bg-primary text-white p-8 min-h-80" >
+                <div className="bg-primary rounded-lg text-white p-8 min-h-80" >
                 
-                    <div className="flex items-center justify-between mb-4" >
+                    <div className="flex items-center justify-between mb-4 border-b border-gray-600 pb-4" >
                         <h1 className="font-bold"  >Lista de Serviços</h1>
                         <button className="cursor-pointer p-2 rounded-full bg-accent" >
                             <Search className="w-4 h-4 text-white" />
                         </button>
                     </div>
-                    <div className="border-b border-gray-200 py-4 flex flex-col justify-between" >
+
+                    <div className="border-b border-gray-600 py-4 flex flex-col justify-between" >
                         <div>
                             <h2 className="text-lg font-semibold mb-1" >Corte de cabelo</h2>
                             <p className="text-gray-300 text-sm mb-3" >Serviço de corte profissional</p>
