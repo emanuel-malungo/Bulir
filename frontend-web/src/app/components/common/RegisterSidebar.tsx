@@ -35,7 +35,7 @@ export default function RegisterSidebar() {
               <div className="w-4 h-4 rounded-full bg-accent/20 flex items-center justify-center mt-0.5 shrink-0">
                 <div className="w-1.5 h-1.5 rounded-full bg-accent"></div>
               </div>
-              <span className="text-sm text-gray-700">Potencialize com IA</span>
+              <span className="text-sm text-gray-700">Multiplique suas oportunidades</span>
             </li>
           </ul>
         </div>
