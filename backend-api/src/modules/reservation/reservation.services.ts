@@ -1,4 +1,5 @@
 import prisma from "../../config/prisma.js";
+import { walletService } from "../wallet/wallet.services.js";
 import type {
   ICreateReservationRequest,
   IReservation,
@@ -36,6 +37,21 @@ export class ReservationService {
     if (scheduledDate < new Date()) {
       throw new Error("Data agendada não pode ser no passado");
     }
+
+    // Verificar saldo suficiente
+    const hasSufficientBalance = await walletService.hasSufficientBalance(
+      clientId,
+      Number(service.price)
+    );
+
+    if (!hasSufficientBalance) {
+      throw new Error(
+        `Saldo insuficiente. Preço do serviço: Kz ${Number(service.price).toFixed(2)}`
+      );
+    }
+
+    // Debitar o saldo do cliente
+    await walletService.withdraw(clientId, Number(service.price));
 
     // Criar reserva
     const reservation = await prisma.reservation.create({

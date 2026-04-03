@@ -4,6 +4,7 @@ import userRoutes from "./modules/user/user.routes.js";
 import serviceRoutes from "./modules/service/service.routes.js";
 import reservationRoutes from "./modules/reservation/reservation.routes.js";
 import roleRoutes from "./modules/roles/roles.routes.js";
+import walletRoutes from "./modules/wallet/wallet.routes.js";
 
 const app = express();
 
@@ -17,6 +18,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/services', serviceRoutes);
 app.use('/api/reservations', reservationRoutes);
 app.use('/api/roles', roleRoutes);
+app.use('/api/wallet', walletRoutes);
 
 app.get('/', (_req, res) => {
   res.send('Hello, World!');
