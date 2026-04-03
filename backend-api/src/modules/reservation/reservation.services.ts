@@ -90,7 +90,15 @@ export class ReservationService {
     data: IReservation[];
     pagination: { page: number; limit: number; total: number; totalPages: number };
   }> {
-    const where: any = { clientId };
+    const where: any = {};
+
+    // Se providerId foi especificado E é o usuário autenticado, listar como provedor
+    // Caso contrário, listar como cliente (padrão)
+    if (providerId && providerId === clientId) {
+      where.providerId = clientId;
+    } else {
+      where.clientId = clientId;
+    }
 
     if (status && ["PENDING", "CONFIRMED", "CANCELED"].includes(status)) {
       where.status = status;
@@ -98,10 +106,6 @@ export class ReservationService {
 
     if (serviceId) {
       where.serviceId = serviceId;
-    }
-
-    if (providerId) {
-      where.providerId = providerId;
     }
 
     if (startDate || endDate) {
@@ -135,7 +139,7 @@ export class ReservationService {
     };
   }
 
-  static async getById(id: number, clientId: number): Promise<IReservation> {
+  static async getById(id: number, userId: number): Promise<IReservation> {
     const reservation = await prisma.reservation.findUnique({
       where: { id },
     });
@@ -144,7 +148,8 @@ export class ReservationService {
       throw new Error("Reserva não encontrada");
     }
 
-    if (reservation.clientId !== clientId) {
+    // Cliente ou provider podem ver a reserva
+    if (reservation.clientId !== userId && reservation.providerId !== userId) {
       throw new Error("Você não tem permissão para acessar esta reserva");
     }
 
@@ -153,7 +158,7 @@ export class ReservationService {
 
   static async updateStatus(
     id: number,
-    clientId: number,
+    userId: number,
     newStatus: string
   ): Promise<IReservation> {
     const reservation = await prisma.reservation.findUnique({
@@ -164,11 +169,26 @@ export class ReservationService {
       throw new Error("Reserva não encontrada");
     }
 
-    if (reservation.clientId !== clientId) {
-      throw new Error("Você não tem permissão para modificar esta reserva");
+    // Se mudando para CONFIRMED, deve ser o provider
+    if (newStatus === "CONFIRMED") {
+      if (reservation.providerId !== userId) {
+        throw new Error("Apenas o provider pode confirmar a reserva");
+      }
+      if (reservation.status !== "PENDING") {
+        throw new Error("Apenas reservas pendentes podem ser confirmadas");
+      }
     }
-
-    if (!["PENDING", "CONFIRMED", "CANCELED"].includes(newStatus)) {
+    // Se cancelando, pode ser cliente ou provider
+    else if (newStatus === "CANCELED") {
+      if (reservation.clientId !== userId && reservation.providerId !== userId) {
+        throw new Error("Você não tem permissão para modificar esta reserva");
+      }
+      if (reservation.status === "CANCELED") {
+        throw new Error("Reserva já foi cancelada");
+      }
+    }
+    // Status inválido
+    else if (!["PENDING", "CONFIRMED", "CANCELED"].includes(newStatus)) {
       throw new Error("Status inválido");
     }
 
@@ -189,7 +209,7 @@ export class ReservationService {
     return this.formatReservation(updated);
   }
 
-  static async cancel(id: number, clientId: number): Promise<IReservation> {
+  static async cancel(id: number, userId: number): Promise<IReservation> {
     const reservation = await prisma.reservation.findUnique({
       where: { id },
     });
@@ -198,7 +218,8 @@ export class ReservationService {
       throw new Error("Reserva não encontrada");
     }
 
-    if (reservation.clientId !== clientId) {
+    // Cliente ou provider podem cancelar
+    if (reservation.clientId !== userId && reservation.providerId !== userId) {
       throw new Error("Você não tem permissão para cancelar esta reserva");
     }
 
@@ -222,7 +243,7 @@ export class ReservationService {
     return this.formatReservation(updated);
   }
 
-  static async getHistory(id: number, clientId: number): Promise<any[]> {
+  static async getHistory(id: number, userId: number): Promise<any[]> {
     const reservation = await prisma.reservation.findUnique({
       where: { id },
     });
@@ -231,7 +252,8 @@ export class ReservationService {
       throw new Error("Reserva não encontrada");
     }
 
-    if (reservation.clientId !== clientId) {
+    // Cliente ou provider podem ver o histórico
+    if (reservation.clientId !== userId && reservation.providerId !== userId) {
       throw new Error("Você não tem permissão para acessar o histórico desta reserva");
     }
 

@@ -102,13 +102,13 @@ export default function AddBalanceModal({ isOpen, onClose }: AddBalanceModalProp
             </div>
           )}
 
-          {/* Campos de Erro Gerais */}
-          {(loadBalance.isError || (Object.keys(errors).length > 0 && amount)) && (
+          {/* Erro da API */}
+          {loadBalance.isError && (
             <div className="p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
               <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
               <div>
                 <p className="font-medium text-red-900 text-sm">
-                  {loadBalance.isError ? 'Erro ao adicionar saldo' : 'Validação falhou'}
+                  Erro ao adicionar saldo
                 </p>
                 <p className="text-red-700 text-sm mt-1">
                   {loadBalance.error instanceof Error 
