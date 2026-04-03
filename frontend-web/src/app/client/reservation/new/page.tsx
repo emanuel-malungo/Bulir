@@ -94,16 +94,24 @@ export default function NewReservationPage() {
     try {
       setFormError(null);
 
-      const date = new Date(`${data.date}T${data.time}`);
-      if (isNaN(date.getTime())) {
+      // Construir data no timezone local
+      const [year, month, day] = data.date.split('-').map(Number);
+      const [hours, minutes] = data.time.split(':').map(Number);
+      
+      const localDate = new Date(year, month - 1, day, hours, minutes);
+      
+      if (isNaN(localDate.getTime())) {
         setFormError('Data/Hora inválida');
         return;
       }
 
+      // Converter para ISO 8601
+      const scheduledAt = localDate.toISOString();
+
       const payload = {
         serviceId: serviceId!,
         providerId: providerId!,
-        scheduledAt: date.toISOString(),
+        scheduledAt,
       };
 
       console.log('📤 Enviando agendamento:', payload);
@@ -223,13 +231,13 @@ export default function NewReservationPage() {
               {(createReservation.isError || formError) && (
                 <div className="p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
                   <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-sm text-red-700 mt-1">
+                  <div className="flex-1">
+                    <div className="text-sm text-red-700 mt-2 whitespace-pre-wrap">
                       {formError ||
                         (createReservation.error instanceof Error
                           ? createReservation.error.message
                           : 'Tente novamente mais tarde')}
-                    </p>
+                    </div>
                   </div>
                 </div>
               )}

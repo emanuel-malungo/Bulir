@@ -68,20 +68,23 @@ export class ReservationAPI {
 
       return response.data;
     } catch (error: any) {
-      // Melhorar error message com detalhes da resposta
+      // Se houver erros de validação Zod, extrair apenas as mensagens
+      if (error.response?.data?.errors && Array.isArray(error.response.data.errors)) {
+        const messages = error.response.data.errors
+          .map((err: any) => err.message)
+          .filter(Boolean);
+        
+        if (messages.length > 0) {
+          throw new Error(messages.join('\n'));
+        }
+      }
+
+      // Fallback para outras mensagens de erro
       const errorMessage = error.response?.data?.error || 
                           error.response?.data?.message ||
                           error.message ||
                           'Erro ao criar reserva';
       
-      // Se houver erros de validação Zod, montar mensagem mais clara
-      if (error.response?.data?.errors && Array.isArray(error.response.data.errors)) {
-        const details = error.response.data.errors
-          .map((err: any) => `${err.path?.join('.')}: ${err.message}`)
-          .join('\n');
-        throw new Error(`Validação falhou:\n${details}`);
-      }
-
       throw new Error(errorMessage);
     }
   }

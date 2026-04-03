@@ -151,12 +151,6 @@ export default function ReservasPage() {
                                         <td className="px-6 py-4">
                                             <div className="flex items-center space-x-2">
                                                 <button 
-                                                    disabled={reserva.status === "CANCELED"}
-                                                    className="px-3 py-1 border border-gray-300 rounded text-gray-700 hover:bg-gray-100 transition-colors text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                                                >
-                                                    Remarcar
-                                                </button>
-                                                <button 
                                                     onClick={() => cancelMutation.mutate(reserva.id)}
                                                     disabled={reserva.status === "CANCELED" || cancelMutation.isPending}
                                                     className="px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors text-xs font-medium flex items-center space-x-1 disabled:opacity-50 disabled:cursor-not-allowed"

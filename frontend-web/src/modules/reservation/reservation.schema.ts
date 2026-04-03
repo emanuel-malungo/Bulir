@@ -12,11 +12,7 @@ export const createReservationSchema = z.object({
   providerId: z.number().int().positive('ID do provedor inválido'),
   scheduledAt: z
     .string()
-    .datetime('Data agendada deve estar em formato ISO 8601')
-    .refine(
-      (date) => new Date(date) > new Date(),
-      'Data agendada não pode ser no passado'
-    ),
+    .datetime('Data agendada deve estar em formato ISO 8601'),
 }) satisfies z.ZodType<ICreateReservationRequest>;
 
 // ===== UPDATE RESERVATION STATUS =====
@@ -39,11 +35,6 @@ export const reservationFiltersSchema = z.object({
 export const reservationFormSchema = z.object({
   date: z.string().min(1, 'Selecione uma data'),
   time: z.string().min(1, 'Selecione uma hora'),
-}).transform((data) => {
-  const scheduledAt = new Date(`${data.date}T${data.time}`);
-  return {
-    scheduledAt: scheduledAt.toISOString(),
-  };
 });
 
 export type ReservationFormData = z.infer<typeof reservationFormSchema>;
