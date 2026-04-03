@@ -1,3 +1,4 @@
+import axios, { AxiosError } from 'axios';
 import api from '@/utils/api.utils';
 import { useAuthStore } from './auth.store';
 import type {
@@ -9,6 +10,36 @@ import type {
   IRolePermissionsResponse,
 } from './auth.types';
 
+// Helper para extrair mensagem de erro do axios
+const extractErrorMessage = (error: unknown): string => {
+  console.log('Extratando erro:', error);
+  
+  if (axios.isAxiosError(error)) {
+    console.log('Erro do axios - status:', error.response?.status);
+    console.log('Erro do axios - data:', error.response?.data);
+    
+    // Tentar extrair mensagem do response data
+    if (error.response?.data?.message) {
+      return error.response.data.message;
+    }
+    if (error.response?.data?.error) {
+      return error.response.data.error;
+    }
+    
+    // Usar a mensagem de status se disponível
+    if (error.response?.statusText) {
+      return error.response.statusText;
+    }
+    
+    // Usar o texto do erro se disponível
+    if (error.message) {
+      return error.message;
+    }
+  }
+  
+  return error instanceof Error ? error.message : 'Erro desconhecido';
+};
+
 export class AuthService {
   /**
    * Login user
@@ -19,25 +50,32 @@ export class AuthService {
    */
   static async login(
     email: string,
-    password: string,
-    recaptchaToken?: string
+    password: string
   ): Promise<void> {
     const store = useAuthStore.getState();
     store.setLoading(true);
     store.setError(null);
 
     try {
+      console.log('Chamando API:', {
+        url: '/auth/login',
+        baseURL: api.defaults.baseURL,
+        fullURL: `${api.defaults.baseURL}auth/login`,
+        identifier: email,
+      });
+      
       const response = await api.post<ILoginResponse>('/auth/login', {
         identifier: email,
         password,
-        recaptchaToken,
       });
+      
+      console.log('Resposta da API:', response.data);
 
       // ✅ Store user (tokens are in HttpOnly cookie)
       store.setUser(response.data.user);
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : 'Erro ao fazer login';
+      const message = extractErrorMessage(error);
+      console.error('Erro no login:', message, error);
       store.setError(message);
       throw error;
     } finally {

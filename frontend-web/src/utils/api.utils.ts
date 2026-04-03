@@ -30,7 +30,18 @@ api.interceptors.response.use(
     const originalRequest = error.config as any;
 
     // Se 401 e ainda não tentou refresh
+    // NÃO fazer refresh em rotas de auth (login, register, refresh)
     if (error.response?.status === 401 && !originalRequest._retry) {
+      const urlPath = originalRequest.url || '';
+      const isAuthRoute = urlPath.includes('/auth/login') || 
+                          urlPath.includes('/auth/register') || 
+                          urlPath.includes('/auth/refresh');
+      
+      // Se é rota de auth, apenas rejeitar o erro
+      if (isAuthRoute) {
+        return Promise.reject(error);
+      }
+
       originalRequest._retry = true;
 
       if (isRefreshing) {

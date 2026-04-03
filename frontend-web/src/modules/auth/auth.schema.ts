@@ -7,8 +7,6 @@ export const loginSchema = z.object({
   password: z.string()
     .min(8, 'Senha deve ter no mínimo 8 caracteres')
     .max(50, 'Senha não pode exceder 50 caracteres'),
-  recaptchaToken: z.string()
-    .min(1, 'reCAPTCHA é obrigatório'),
 });
 
 // Schema completo do formulário de registro com validações do frontend
