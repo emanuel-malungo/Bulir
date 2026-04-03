@@ -1,9 +1,74 @@
-
+'use client';
 import iconMoney from '@/assets/images/money-bag.png';
 import iconWallet from '@/assets/images/wallet.png';
 import Image from "next/image";
 // lucide icons icon add +
-import { Plus, Search,  ArrowUpLeft }  from "lucide-react";
+import { Plus, Search,  ArrowUpLeft, Clock, CheckCircle, XCircle }  from "lucide-react";
+
+const reservationHistory = [
+  {
+    id: 1,
+    service: 'Corte de cabelo',
+    provider: 'João Silva',
+    date: '25 Mar 2026',
+    time: '14:30',
+    price: 2500,
+    status: 'confirmada',
+  },
+  {
+    id: 2,
+    service: 'Limpeza residencial',
+    provider: 'Maria Santos',
+    date: '28 Mar 2026',
+    time: '09:00',
+    price: 5000,
+    status: 'pendente',
+  },
+  {
+    id: 3,
+    service: 'Aula de guitarra',
+    provider: 'Carlos Mendes',
+    date: '20 Mar 2026',
+    time: '18:00',
+    price: 3000,
+    status: 'cancelada',
+  },
+  {
+    id: 4,
+    service: 'Manutenção de computador',
+    provider: 'Tech Solutions',
+    date: '01 Abr 2026',
+    time: '15:30',
+    price: 8000,
+    status: 'confirmada',
+  },
+];
+
+const getStatusColor = (status: string) => {
+  switch(status) {
+    case 'confirmada':
+      return 'bg-green-600 text-white';
+    case 'pendente':
+      return 'bg-yellow-500 text-white';
+    case 'cancelada':
+      return 'bg-red-600 text-white';
+    default:
+      return 'bg-gray-600 text-white';
+  }
+};
+
+const getStatusIcon = (status: string) => {
+  switch(status) {
+    case 'confirmada':
+      return CheckCircle;
+    case 'pendente':
+      return Clock;
+    case 'cancelada':
+      return XCircle;
+    default:
+      return Clock;
+  }
+};
 
 export default function ClientDashboard() {
     return (
@@ -34,25 +99,60 @@ export default function ClientDashboard() {
 
                 <div className="bg-primary rounded-lg text-white p-8 min-h-80" >
                 
-                    <div className="flex items-center justify-between mb-4 border-b border-gray-600 pb-4" >
-                        <h1 className="font-bold"  >Lista de Serviços</h1>
-                        <button className="cursor-pointer p-2 rounded-full bg-accent" >
+                    <div className="flex items-center justify-between mb-6 border-b border-gray-600 pb-4" >
+                        <h1 className="font-bold text-lg"  >Histórico de Reservas</h1>
+                        <button className="cursor-pointer p-2 rounded-full bg-accent hover:bg-opacity-80 transition-all" >
                             <Search className="w-4 h-4 text-white" />
                         </button>
                     </div>
 
-                    <div className="border-b border-gray-600 py-4 flex flex-col justify-between" >
-                        <div>
-                            <h2 className="text-lg font-semibold mb-1" >Corte de cabelo</h2>
-                            <p className="text-gray-300 text-sm mb-3" >Serviço de corte profissional</p>
-                        </div>
-                        <div className="flex items-center justify-between">
-                            <span className="text-xl font-bold text-white">Kz 2.00</span>
-                            <button className="w-10 h-10 rounded-full bg-white hover:bg-gray-100 transition-colors flex items-center justify-center" title="Reservar">
-                                <Plus className="w-5 h-5 text-accent" />
-                            </button>
-                        </div>
+                    <div className="space-y-3 max-h-80 overflow-y-auto pr-2 reservation-scroll">
+                        {reservationHistory.map((reservation) => {
+                          const StatusIcon = getStatusIcon(reservation.status);
+                          return (
+                            <div 
+                              key={reservation.id}
+                              className="transition-all border-b border-gray-700 pb-4 cursor-pointer" 
+                            >
+                              <div className="flex items-start justify-between gap-3">
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <h2 className="text-sm font-semibold text-white">{reservation.service}</h2>
+                                  </div>
+                                  <p className="text-gray-400 text-xs mb-2">{reservation.provider}</p>
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-xs text-gray-500">{reservation.date} • {reservation.time}</span>
+                                    <span className="text-sm font-bold text-accent">Kz {reservation.price.toLocaleString()}</span>
+                                  </div>
+                                </div>
+                                <div className="flex flex-col items-end gap-2">
+                                  <div className={`flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(reservation.status)}`}>
+                                    <StatusIcon className="w-3 h-3" />
+                                    <span className="capitalize">{reservation.status}</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
                     </div>
+
+                    <style jsx>{`
+                      .reservation-scroll::-webkit-scrollbar {
+                        width: 6px;
+                      }
+                      .reservation-scroll::-webkit-scrollbar-track {
+                        background: #1f2937;
+                        border-radius: 10px;
+                      }
+                      .reservation-scroll::-webkit-scrollbar-thumb {
+                        background: #4b5563;
+                        border-radius: 10px;
+                      }
+                      .reservation-scroll::-webkit-scrollbar-thumb:hover {
+                        background: #6b7280;
+                      }
+                    `}</style>
                 </div>
 
             </div>
