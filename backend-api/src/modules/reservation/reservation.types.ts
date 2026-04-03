@@ -56,6 +56,11 @@ export interface IReservationHistoryResponse {
   }>;
 }
 
+export interface IProviderStats {
+  totalReservations: number;
+  monthlyEarnings: number;
+}
+
 export interface IApiError {
   error?: string;
   errors?: any[];

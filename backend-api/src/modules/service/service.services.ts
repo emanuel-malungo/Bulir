@@ -242,4 +242,27 @@ export class ServiceService {
       },
     };
   }
+
+  static async delete(id: number, providerId: number) {
+    const service = await prisma.service.findFirst({
+      where: { id, deletedAt: null },
+      select: { providerId: true },
+    });
+
+    if (!service) {
+      throw new Error("Serviço não encontrado");
+    }
+
+    // Validar se o usuário é o proprietário
+    if (service.providerId !== providerId) {
+      throw new Error("Não autorizado a deletar este serviço");
+    }
+
+    await prisma.service.update({
+      where: { id },
+      data: { deletedAt: new Date() },
+    });
+
+    return { message: "Serviço deletado com sucesso" };
+  }
 }

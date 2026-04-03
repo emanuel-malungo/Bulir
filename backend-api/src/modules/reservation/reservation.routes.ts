@@ -25,4 +25,8 @@ router.delete("/:id", ReservationController.cancel);
 // Obter histórico da reserva
 router.get("/:id/history", ReservationController.getHistory);
 
+// Rotas específicas para provedores
+router.get("/provider/stats", ReservationController.getProviderStats);
+router.get("/provider/me", ReservationController.findAllForProvider);
+
 export default router;

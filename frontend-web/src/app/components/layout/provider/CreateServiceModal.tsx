@@ -4,64 +4,59 @@ import { useState } from 'react';
 import { X } from 'lucide-react';
 import { ReCaptchaV3 } from '@/app/components/common';
 import { Button } from '@/app/components/common';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { serviceFormSchema } from '@/modules/service/service.schema';
+import { useCreateService } from '@/modules/service/useService';
+import { useAuthStore } from '@/modules/auth/auth.store';
+import { z } from 'zod';
 
 interface CreateServiceModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const SERVICE_CATEGORIES = [
-  'Beleza',
-  'Limpeza',
-  'Educação',
-  'Tecnologia',
-  'Construção',
-  'Saúde',
-  'Culinária',
-  'Outro',
-];
+// Tipos para o formulário (input antes do transform e output depois do transform)
+type ServiceFormInput = z.input<typeof serviceFormSchema>;
+type ServiceFormOutput = z.output<typeof serviceFormSchema>;
 
 export default function CreateServiceModal({ isOpen, onClose }: CreateServiceModalProps) {
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [category, setCategory] = useState('');
-  const [price, setPrice] = useState('');
   const [recaptchaToken, setRecaptchaToken] = useState<string>('');
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!recaptchaToken || !name || !category || !price) {
-      return;
+  const { user } = useAuthStore();
+  
+  const { 
+    register, 
+    handleSubmit, 
+    reset,
+    formState: { errors } 
+  } = useForm<ServiceFormInput, any, ServiceFormOutput>({
+    resolver: zodResolver(serviceFormSchema),
+    defaultValues: {
+      name: '',
+      description: '',
+      price: '',
     }
+  });
 
-    setIsLoading(true);
-    try {
-      // TODO: Chamar API para criar serviço
-      console.log('Criando serviço:', {
-        name,
-        description,
-        category,
-        price,
-        recaptchaToken,
-      });
-      
-      // Simular delay
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Resetar form
-      setName('');
-      setDescription('');
-      setCategory('');
-      setPrice('');
+  const createService = useCreateService({
+    onSuccess: () => {
+      reset();
       setRecaptchaToken('');
       onClose();
-    } catch (error) {
-      console.error('Erro ao criar serviço:', error);
-    } finally {
-      setIsLoading(false);
     }
+  });
+
+  const onSubmit = async (data: ServiceFormOutput) => {
+    if (!recaptchaToken || !user?.id) return;
+
+    createService.mutate({
+      data: {
+        name: data.name,
+        description: data.description || undefined,
+        price: data.price,
+      },
+      providerId: user.id,
+    });
   };
 
   if (!isOpen) return null;
@@ -82,74 +77,61 @@ export default function CreateServiceModal({ isOpen, onClose }: CreateServiceMod
         </div>
 
         {/* Content */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-4">
           {/* Nome do Serviço */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               Nome do Serviço
             </label>
             <input
               type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              {...register('name')}
               placeholder="Ex: Corte de cabelo"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition"
-              required
+              className={`w-full px-4 py-2 border rounded-lg outline-none transition ${
+                errors.name ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-accent'
+              } focus:ring-2 focus:border-transparent`}
             />
-          </div>
-
-          {/* Categoria */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Categoria
-            </label>
-            <select
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition"
-              required
-            >
-              <option value="">Selecione uma categoria</option>
-              {SERVICE_CATEGORIES.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
-                </option>
-              ))}
-            </select>
+            {errors.name && (
+              <p className="text-xs text-red-500 mt-1">{errors.name.message}</p>
+            )}
           </div>
 
           {/* Descrição */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Descrição (até 200 caracteres)
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Descrição (até 500 caracteres)
             </label>
             <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value.slice(0, 200))}
+              {...register('description')}
               placeholder="Descreva seu serviço"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition resize-none"
-              rows={3}
-              maxLength={200}
+              className={`w-full px-4 py-2 border rounded-lg outline-none transition resize-none ${
+                errors.description ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-accent'
+              } focus:ring-2 focus:border-transparent`}
+              rows={4}
             />
-            <p className="text-xs text-gray-500 mt-1">{description.length}/200</p>
+            {errors.description && (
+              <p className="text-xs text-red-500 mt-1">{errors.description.message}</p>
+            )}
           </div>
 
           {/* Preço */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               Preço (Kz)
             </label>
             <input
               type="number"
-              min="100"
-              step="100"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
+              step="0.01"
+              {...register('price')}
               placeholder="Digite o preço"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition"
-              required
+              className={`w-full px-4 py-2 border rounded-lg outline-none transition ${
+                errors.price ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-accent'
+              } focus:ring-2 focus:border-transparent`}
             />
-            <p className="text-xs text-gray-500 mt-1">Mínimo: 100 Kz</p>
+            {errors.price && (
+              <p className="text-xs text-red-500 mt-1">{errors.price.message}</p>
+            )}
+            <p className="text-xs text-gray-500 mt-1">Mínimo: 0.01 Kz</p>
           </div>
 
           {/* ReCaptcha */}
@@ -162,14 +144,15 @@ export default function CreateServiceModal({ isOpen, onClose }: CreateServiceMod
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+              disabled={createService.isPending}
+              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium disabled:opacity-50"
             >
               Cancelar
             </button>
             <Button
               type="submit"
-              disabled={!recaptchaToken || !name || !category || !price}
-              isLoading={isLoading}
+              disabled={!recaptchaToken || createService.isPending}
+              isLoading={createService.isPending}
               variant="primary"
               size="md"
               className="flex-1"

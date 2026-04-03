@@ -18,4 +18,7 @@ router.post("/provider/:providerId", ServiceController.create);
 // Update service (by provider)
 router.put("/:id/provider/:providerId", ServiceController.update);
 
+// Delete service (by provider)
+router.delete("/:id/provider/:providerId", ServiceController.delete);
+
 export default router;

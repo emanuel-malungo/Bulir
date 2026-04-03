@@ -221,4 +221,47 @@ export class ServiceController {
       res.status(500).json({ error: "Erro interno do servidor" });
     }
   }
+
+  static async delete(
+    req: Request<{ id: string; providerId: string }>,
+    res: Response<{ message: string } | IApiError>
+  ) {
+    try {
+      const { id, providerId } = req.params;
+
+      if (!id || id.trim() === "") {
+        return res.status(400).json({ error: "ID do serviço é obrigatório" });
+      }
+
+      if (!providerId || providerId.trim() === "") {
+        return res
+          .status(400)
+          .json({ error: "ID do provedor é obrigatório" });
+      }
+
+      const validatedId = getServiceByIdSchema.parse({ id });
+      const validatedProviderId = serviceProviderIdSchema.parse({ providerId });
+
+      const result = await ServiceService.delete(
+        validatedId.id,
+        validatedProviderId.providerId
+      );
+
+      res.status(200).json(result);
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return res.status(400).json({
+          error: "ID inválido",
+          errors: err.issues,
+        });
+      }
+      if (err instanceof Error) {
+        const statusCode = err.message.includes("Não autorizado")
+          ? 403
+          : 404;
+        return res.status(statusCode).json({ error: err.message });
+      }
+      res.status(500).json({ error: "Erro interno do servidor" });
+    }
+  }
 }

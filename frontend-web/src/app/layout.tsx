@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "@/assets/styles/globals.css";
+import { QueryProvider } from "@/utils/query-client";
 
 export const metadata: Metadata = {
   title: "Bulir - Plataforma de Serviços",
@@ -19,7 +20,11 @@ export default function RootLayout({
       <head>
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
       </head>
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <QueryProvider>
+          {children}
+        </QueryProvider>
+      </body>
     </html>
   );
 }

@@ -223,4 +223,57 @@ export class ReservationController {
       res.status(500).json({ error: "Erro interno do servidor" });
     }
   }
+
+  static async findAllForProvider(
+    req: Request<{}, {}, {}, { page?: string; limit?: string; status?: string }>,
+    res: Response<IListReservationsResponse | IApiError>
+  ) {
+    try {
+      const providerId = (req as any).userId;
+      
+      if (!providerId) {
+        return res.status(401).json({ error: "Usuário não autenticado" });
+      }
+
+      const page = Math.max(1, Number(req.query.page) || 1);
+      const limit = Math.max(1, Math.min(100, Number(req.query.limit) || 10));
+      const status = req.query.status?.trim();
+
+      const result = await ReservationService.findAllForProvider(
+        providerId,
+        page,
+        limit,
+        status
+      );
+
+      res.status(200).json(result);
+    } catch (err) {
+      if (err instanceof Error) {
+        return res.status(400).json({ error: err.message });
+      }
+      res.status(500).json({ error: "Erro interno do servidor" });
+    }
+  }
+
+  static async getProviderStats(
+    req: Request,
+    res: Response<any | IApiError>
+  ) {
+    try {
+      const providerId = (req as any).userId;
+      
+      if (!providerId) {
+        return res.status(401).json({ error: "Usuário não autenticado" });
+      }
+
+      const stats = await ReservationService.getProviderStats(providerId);
+
+      res.status(200).json({ data: stats });
+    } catch (err) {
+      if (err instanceof Error) {
+        return res.status(400).json({ error: err.message });
+      }
+      res.status(500).json({ error: "Erro interno do servidor" });
+    }
+  }
 }

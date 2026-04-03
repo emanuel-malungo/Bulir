@@ -243,6 +243,71 @@ export class ReservationService {
     return history;
   }
 
+  static async findAllForProvider(
+    providerId: number,
+    page: number = 1,
+    limit: number = 10,
+    status?: string
+  ): Promise<{
+    data: IReservation[];
+    pagination: { page: number; limit: number; total: number; totalPages: number };
+  }> {
+    const where: any = { providerId };
+
+    if (status && ["PENDING", "CONFIRMED", "CANCELED"].includes(status)) {
+      where.status = status;
+    }
+
+    const total = await prisma.reservation.count({ where });
+    const skip = (page - 1) * limit;
+
+    const reservations = await prisma.reservation.findMany({
+      where,
+      skip,
+      take: limit,
+      orderBy: { scheduledAt: "desc" },
+    });
+
+    return {
+      data: reservations.map((r: any) => this.formatReservation(r)),
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+  }
+
+  static async getProviderStats(providerId: number): Promise<{ totalReservations: number; monthlyEarnings: number }> {
+    const now = new Date();
+    const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    const totalReservations = await prisma.reservation.count({
+      where: { providerId }
+    });
+
+    const monthlyConfirmed = await prisma.reservation.findMany({
+      where: {
+        providerId,
+        status: "CONFIRMED",
+        createdAt: {
+          gte: firstDayOfMonth
+        }
+      },
+      select: {
+        servicePrice: true
+      }
+    });
+
+    const monthlyEarnings = monthlyConfirmed.reduce((sum, res) => sum + Number(res.servicePrice), 0);
+
+    return {
+      totalReservations,
+      monthlyEarnings
+    };
+  }
+
   private static formatReservation(reservation: any): IReservation {
     return {
       id: reservation.id,

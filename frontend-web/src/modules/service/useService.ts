@@ -7,7 +7,6 @@ import type {
   ICreateServiceRequest,
   IUpdateServiceRequest,
   IServiceDetail,
-  IServiceListResponse,
 } from './service.types';
 
 /**
@@ -70,7 +69,8 @@ export function useCreateService(options = {}) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: ICreateServiceRequest) => ServiceAPI.createService(data),
+    mutationFn: ({ data, providerId }: { data: ICreateServiceRequest; providerId: number }) => 
+      ServiceAPI.createService(data, providerId),
     onSuccess: (data) => {
       // Invalidar cache da lista para refetch
       queryClient.invalidateQueries({
@@ -99,8 +99,9 @@ export function useUpdateService(options = {}) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: IUpdateServiceRequest) => ServiceAPI.updateService(data),
-    onMutate: async (newData) => {
+    mutationFn: ({ data, providerId }: { data: IUpdateServiceRequest; providerId: number }) => 
+      ServiceAPI.updateService(data, providerId),
+    onMutate: async ({ data: newData }) => {
       // Cancel queries para evitar overwrite
       await queryClient.cancelQueries({
         queryKey: serviceKeys.detail(newData.id),
@@ -134,7 +135,7 @@ export function useUpdateService(options = {}) {
         data.service
       );
     },
-    onError: (error, newData, context: any) => {
+    onError: (error, { data: newData }, context: any) => {
       // Rollback em caso de erro
       if (context?.previousService) {
         queryClient.setQueryData(
@@ -157,8 +158,9 @@ export function useDeleteService(options = {}) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: number) => ServiceAPI.deleteService(id),
-    onSuccess: (_, deletedId) => {
+    mutationFn: ({ id, providerId }: { id: number; providerId: number }) => 
+      ServiceAPI.deleteService(id, providerId),
+    onSuccess: (_, { id: deletedId }) => {
       // Remover do cache
       queryClient.removeQueries({
         queryKey: serviceKeys.detail(deletedId),
@@ -183,7 +185,8 @@ export function useActivateService(options = {}) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: number) => ServiceAPI.activateService(id),
+    mutationFn: ({ id, providerId }: { id: number; providerId: number }) => 
+      ServiceAPI.activateService(id, providerId),
     onSuccess: (data) => {
       queryClient.setQueryData(
         serviceKeys.detail(data.service.id),
@@ -204,7 +207,8 @@ export function useDeactivateService(options = {}) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: number) => ServiceAPI.deactivateService(id),
+    mutationFn: ({ id, providerId }: { id: number; providerId: number }) => 
+      ServiceAPI.deactivateService(id, providerId),
     onSuccess: (data) => {
       queryClient.setQueryData(
         serviceKeys.detail(data.service.id),
