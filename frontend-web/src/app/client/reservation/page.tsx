@@ -1,6 +1,5 @@
-import Container from "../../components/layout/Container"
-import iconMoney from '@/assets/images/money-bag.png';
-import Image from "next/image";
+"use client";
+
 import { Calendar, Clock, MapPin, X, CheckCircle, AlertCircle } from "lucide-react";
 
 export default function ReservasPage() {
@@ -47,7 +46,7 @@ export default function ReservasPage() {
     };
 
     return (
-        <Container>
+        <>
             <header className="grid grid-cols-2 gap-10 mb-8">
                 <div>
                     <h1 className="text-2xl font-medium flex items-center space-x-1">
@@ -137,6 +136,6 @@ export default function ReservasPage() {
                     </div>
                 )}
             </div>
-        </Container>
+        </>
     )
 }

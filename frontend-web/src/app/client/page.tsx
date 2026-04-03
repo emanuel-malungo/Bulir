@@ -1,5 +1,4 @@
 
-import Container from "../components/layout/Container"
 import iconMoney from '@/assets/images/money-bag.png';
 import iconWallet from '@/assets/images/wallet.png';
 import Image from "next/image";
@@ -8,7 +7,7 @@ import { Plus, Search,  ArrowUpLeft }  from "lucide-react";
 
 export default function ClientDashboard() {
     return (
-        <Container>
+        <>
             <header className="grid grid-cols-2 gap-10 mb-8" >
                 <div>
                     <h1 className="text-2xl font-medium flex items-center space-x-1" ><ArrowUpLeft className="w-6 h-6 text-accent " /> <span className="hover:text-accent cursor-pointer" >Serviços reservados (0)</span></h1>
@@ -57,6 +56,6 @@ export default function ClientDashboard() {
                 </div>
 
             </div>
-        </Container>
+        </>
     )
 }

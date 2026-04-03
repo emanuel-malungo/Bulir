@@ -18,13 +18,13 @@ const menuItems = [
     id: 'reservas',
     label: 'Reservas',
     icon: Calendar,
-    href: '/client/reserved',
+    href: '/client/reservation',
   },
   {
     id: 'conta',
     label: 'Minha Conta',
     icon: User,
-    href: '/client/profile',
+    href: '/client/settings',
   },
 ];
 
