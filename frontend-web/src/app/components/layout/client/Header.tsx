@@ -3,10 +3,16 @@
 
 import { useState, useEffect } from 'react';
 import { Clock, LogOut, Wallet } from 'lucide-react';
+import { useWallet } from '@/modules/wallet/useWallet';
+import { useAuthStore } from '@/modules/auth/auth.store';
+import { AuthService } from '@/modules/auth/auth.services';
+import { useRouter } from 'next/navigation';
 
 export default function Header() {
+  const router = useRouter();
+  const { user } = useAuthStore();
+  const { data: wallet } = useWallet();
   const [time, setTime] = useState<string>('');
-  const [balance, setBalance] = useState<number>(0);
 
   useEffect(() => {
     // Define a hora inicial
@@ -23,11 +29,28 @@ export default function Header() {
     updateTime();
     const interval = setInterval(updateTime, 1000);
 
-    // TODO: Buscar saldo real do usuário da API
-    setBalance(1250.00);
-
     return () => clearInterval(interval);
   }, []);
+
+  const handleLogout = async () => {
+    try {
+      await AuthService.logout();
+      router.push('/auth/login');
+    } catch (error) {
+      console.error('Erro ao fazer logout:', error);
+      // Mesmo em erro, redireciona para login
+      router.push('/auth/login');
+    }
+  };
+
+  const balance = wallet?.balance ?? 0;
+  const userInitials = user?.fullName
+    ? user.fullName
+        .split(' ')
+        .map((name) => name.charAt(0).toUpperCase())
+        .slice(0, 2)
+        .join('')
+    : 'U';
 
   return (
     <header className="fixed top-0 left-56 right-0 h-16 bg-white border-b border-gray-200 z-40">
@@ -53,10 +76,7 @@ export default function Header() {
 
           {/* Botão Sair */}
           <button 
-            onClick={() => {
-              // TODO: implementar logout
-              window.location.href = '/auth/login';
-            }}
+            onClick={handleLogout}
             className="flex items-center space-x-1 p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
             title="Sair"
           >
@@ -64,8 +84,8 @@ export default function Header() {
           </button>
 
           {/* Avatar do Usuário */}
-          <div className="w-9 h-9 rounded-lg bg-gray-300 flex items-center justify-center">
-            <span className="text-sm font-semibold text-gray-700">U</span>
+          <div className="w-9 h-9 rounded-lg bg-accent flex items-center justify-center">
+            <span className="text-sm font-semibold text-white">{userInitials}</span>
           </div>
         </div>
       </div>
