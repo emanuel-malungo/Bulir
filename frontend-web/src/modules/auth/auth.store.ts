@@ -11,6 +11,7 @@ export interface AuthUser {
   role?: string;
   roleId?: number;
   permissions?: string[];
+  walletBalance?: number; // Saldo da carteira sincronizado
 }
 
 interface AuthStore {
@@ -21,6 +22,7 @@ interface AuthStore {
   setUser: (user: AuthUser | null) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
+  syncWalletBalance: (balance: number) => void;
   logout: () => void;
   isAuthenticated: () => boolean;
   hasPermission: (permission: string) => boolean;
@@ -37,6 +39,13 @@ export const useAuthStore = create<AuthStore>()(
       setUser: (user) => set({ user, error: null }),
       setLoading: (isLoading) => set({ isLoading }),
       setError: (error) => set({ error }),
+      syncWalletBalance: (balance) => {
+        const { user } = get();
+        if (user) {
+          set({ user: { ...user, walletBalance: balance } });
+        }
+      },
+      
       
       logout: () => set({ user: null, error: null }),
       
