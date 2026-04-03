@@ -107,7 +107,7 @@ export default function ClientServices() {
                 className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col"
               >
                 {/* Header do Card */}
-                <div className="bg-gradient-to-r from-accent/10 to-accent/5 p-4">
+                <div className="bg-linear-to-r from-accent/10 to-accent/5 p-4">
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">{service.name}</h3>
                 </div>
 
@@ -216,7 +216,6 @@ export default function ClientServices() {
             </div>
           )}
         </>
-      )}
-    </>
+      )}</>
   );
-}
+}  

@@ -1,49 +1,79 @@
 "use client";
 
-import { Calendar, Clock, MapPin, X, CheckCircle, AlertCircle } from "lucide-react";
+import { Calendar, Clock, X, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
+import api from "@/utils/api.utils";
+import { useAuthStore } from "@/modules/auth/auth.store";
+import { IReservation } from "@/types/reservation.types";
 
 export default function ReservasPage() {
-    // Mock data for reservations
-    const reservas = [
-        {
-            id: 1,
-            servico: "Corte de cabelo",
-            profissional: "João Silva",
-            data: "05/04/2026",
-            hora: "14:30",
-            localizacao: "Centro",
-            preco: "Kz 2.00",
-            status: "confirmada"
+    const { user } = useAuthStore();
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    // Fetch reservations
+    const { data: reservasData, isLoading, error, refetch } = useQuery({
+        queryKey: ["client-reservations"],
+        queryFn: async () => {
+            const response = await api.get("/reservations");
+            return response.data.data || [];
         },
-        {
-            id: 2,
-            servico: "Limpeza facial",
-            profissional: "Maria Santos",
-            data: "06/04/2026",
-            hora: "10:00",
-            localizacao: "Zona Sul",
-            preco: "Kz 3.50",
-            status: "confirmada"
+        enabled: mounted && !!user,
+    });
+
+    const reservas: IReservation[] = reservasData || [];
+
+    const cancelMutation = useMutation({
+        mutationFn: async (reservationId: number) => {
+            await api.delete(`/reservations/${reservationId}`);
         },
-        {
-            id: 3,
-            servico: "Massagem relaxante",
-            profissional: "Carlos Mendes",
-            data: "07/04/2026",
-            hora: "16:00",
-            localizacao: "Centro",
-            preco: "Kz 5.00",
-            status: "pendente"
-        }
-    ];
+        onSuccess: () => {
+            refetch();
+        },
+    });
 
     const getStatusColor = (status: string) => {
-        return status === "confirmada" ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700";
+        const statusMap: { [key: string]: string } = {
+            CONFIRMED: "bg-green-100 text-green-700",
+            PENDING: "bg-yellow-100 text-yellow-700",
+            CANCELED: "bg-red-100 text-red-700",
+        };
+        return statusMap[status] || "bg-gray-100 text-gray-700";
     };
 
     const getStatusIcon = (status: string) => {
-        return status === "confirmada" ? <CheckCircle className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />;
+        return status === "CONFIRMED" ? <CheckCircle className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />;
     };
+
+    const formatDate = (dateString: string) => {
+        try {
+            const date = new Date(dateString);
+            return date.toLocaleDateString("pt-AO", { day: "2-digit", month: "2-digit", year: "numeric" });
+        } catch {
+            return dateString;
+        }
+    };
+
+    const formatTime = (dateString: string) => {
+        try {
+            const date = new Date(dateString);
+            return date.toLocaleTimeString("pt-AO", { hour: "2-digit", minute: "2-digit" });
+        } catch {
+            return dateString;
+        }
+    };
+
+    if (!mounted) {
+        return (
+            <div className="flex items-center justify-center min-h-[400px]">
+                <Loader2 className="w-8 h-8 animate-spin text-accent" />
+            </div>
+        );
+    }
 
     return (
         <>
@@ -58,16 +88,30 @@ export default function ReservasPage() {
             </header>
 
             <div className="space-y-4">
-                {reservas.length > 0 ? (
+                {isLoading ? (
+                    <div className="bg-white border border-gray-200 rounded-lg p-12 flex items-center justify-center">
+                        <Loader2 className="w-8 h-8 animate-spin text-accent" />
+                    </div>
+                ) : error ? (
+                    <div className="bg-white border border-gray-200 rounded-lg p-12 flex items-center justify-center flex-col space-y-4 min-h-80">
+                        <AlertCircle className="w-16 h-16 text-red-300" />
+                        <h2 className="text-xl font-semibold text-gray-900">Erro ao carregar reservas</h2>
+                        <p className="text-gray-600">Tente recarregar a página</p>
+                        <button 
+                            onClick={() => refetch()}
+                            className="mt-4 px-6 py-2 bg-accent text-white rounded-lg hover:bg-accent/90 transition-colors"
+                        >
+                            Tentar Novamente
+                        </button>
+                    </div>
+                ) : reservas.length > 0 ? (
                     <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
                         <table className="w-full">
                             <thead>
                                 <tr className="bg-primary text-white">
                                     <th className="px-6 py-4 text-left text-sm font-semibold">Serviço</th>
-                                    <th className="px-6 py-4 text-left text-sm font-semibold">Profissional</th>
                                     <th className="px-6 py-4 text-left text-sm font-semibold">Data</th>
                                     <th className="px-6 py-4 text-left text-sm font-semibold">Hora</th>
-                                    <th className="px-6 py-4 text-left text-sm font-semibold">Localização</th>
                                     <th className="px-6 py-4 text-left text-sm font-semibold">Preço</th>
                                     <th className="px-6 py-4 text-left text-sm font-semibold">Status</th>
                                     <th className="px-6 py-4 text-left text-sm font-semibold">Ações</th>
@@ -77,46 +121,48 @@ export default function ReservasPage() {
                                 {reservas.map((reserva) => (
                                     <tr key={reserva.id} className="hover:bg-gray-50 transition-colors">
                                         <td className="px-6 py-4">
-                                            <span className="text-sm font-medium text-gray-900">{reserva.servico}</span>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <span className="text-sm text-gray-700">{reserva.profissional}</span>
+                                            <span className="text-sm font-medium text-gray-900">{reserva.serviceName}</span>
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center space-x-2 text-gray-700">
                                                 <Calendar className="w-4 h-4 text-accent shrink-0" />
-                                                <span className="text-sm">{reserva.data}</span>
+                                                <span className="text-sm">{formatDate(reserva.scheduledAt)}</span>
                                             </div>
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center space-x-2 text-gray-700">
                                                 <Clock className="w-4 h-4 text-accent shrink-0" />
-                                                <span className="text-sm">{reserva.hora}</span>
+                                                <span className="text-sm">{formatTime(reserva.scheduledAt)}</span>
                                             </div>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <div className="flex items-center space-x-2 text-gray-700">
-                                                <MapPin className="w-4 h-4 text-accent shrink-0" />
-                                                <span className="text-sm">{reserva.localizacao}</span>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <span className="text-sm font-bold text-accent">{reserva.preco}</span>
+                                            <span className="text-sm font-bold text-accent">{reserva.servicePrice}</span>
                                         </td>
                                         <td className="px-6 py-4">
                                             <span className={`px-3 py-1 rounded-full text-xs font-medium flex items-center space-x-1 w-fit ${getStatusColor(reserva.status)}`}>
                                                 {getStatusIcon(reserva.status)}
-                                                <span className="capitalize">{reserva.status}</span>
+                                                <span className="capitalize">
+                                                    {reserva.status === "CONFIRMED" ? "Confirmada" : 
+                                                     reserva.status === "PENDING" ? "Pendente" : 
+                                                     "Cancelada"}
+                                                </span>
                                             </span>
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center space-x-2">
-                                                <button className="px-3 py-1 border border-gray-300 rounded text-gray-700 hover:bg-gray-100 transition-colors text-xs font-medium">
+                                                <button 
+                                                    disabled={reserva.status === "CANCELED"}
+                                                    className="px-3 py-1 border border-gray-300 rounded text-gray-700 hover:bg-gray-100 transition-colors text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                                                >
                                                     Remarcar
                                                 </button>
-                                                <button className="px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors text-xs font-medium flex items-center space-x-1">
+                                                <button 
+                                                    onClick={() => cancelMutation.mutate(reserva.id)}
+                                                    disabled={reserva.status === "CANCELED" || cancelMutation.isPending}
+                                                    className="px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors text-xs font-medium flex items-center space-x-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                >
                                                     <X className="w-3 h-3" />
-                                                    <span>Cancelar</span>
+                                                    <span>{cancelMutation.isPending ? "Cancelando..." : "Cancelar"}</span>
                                                 </button>
                                             </div>
                                         </td>
@@ -130,7 +176,7 @@ export default function ReservasPage() {
                         <Calendar className="w-16 h-16 text-gray-300" />
                         <h2 className="text-xl font-semibold text-gray-900">Nenhuma reserva encontrada</h2>
                         <p className="text-gray-600">Você ainda não possui reservas agendadas</p>
-                        <a href="/client/explore" className="mt-4 px-6 py-2 bg-accent text-white rounded-lg hover:bg-accent/90 transition-colors">
+                        <a href="/client/services" className="mt-4 px-6 py-2 bg-accent text-white rounded-lg hover:bg-accent/90 transition-colors">
                             Explorar Serviços
                         </a>
                     </div>
