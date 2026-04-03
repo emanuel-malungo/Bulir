@@ -1,10 +1,11 @@
 import Image from 'next/image';
 import icon from '@/assets/images/bulir.svg';
+import solved from '@/assets/images/puzzle-solved.svg';
 
 export default function RegisterSidebar() {
   return (
-    <div className="hidden lg:flex lg:w-1/2 flex-col items-center p-12">
-      <div className="max-w-md text-left space-y-4">
+    <div className="hidden lg:flex lg:w-1/2  flex-col items-center p-12 relative overflow-hidden">
+      <div className="max-w-md text-left space-y-4 relative z-10">
         <div>
           <Image src={icon} alt="Bulir" width={40} height={40} />
         </div>
@@ -38,6 +39,9 @@ export default function RegisterSidebar() {
             </li>
           </ul>
         </div>
+      </div>
+      <div className="absolute bottom-0 right-0 opacity-20">
+        <Image src={solved} alt="Ilustração de solução" width={300} height={300} />
       </div>
     </div>
   );
