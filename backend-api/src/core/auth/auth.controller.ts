@@ -28,9 +28,12 @@ export class AuthController {
         path: '/'
       });
       
-      // Return response WITHOUT tokens
-      const { accessToken, refreshToken, ...responseWithoutTokens } = result as any;
-      res.status(201).json(responseWithoutTokens);
+      // Set Access Token in Authorization header for the response
+      res.set('Authorization', `Bearer ${(result as any).accessToken}`);
+      
+      // Return response WITH accessToken
+      const { refreshToken, ...responseWithToken } = result as any;
+      res.status(201).json(responseWithToken);
     } catch (err) {
       if (err instanceof ValidationError) {
         return res.status(400).json({ error: err.message });
@@ -69,9 +72,12 @@ export class AuthController {
         path: '/'
       });
       
-      // Return response WITHOUT tokens
-      const { accessToken, refreshToken, ...responseWithoutTokens } = result as any;
-      res.status(200).json(responseWithoutTokens);
+      // Set Access Token in Authorization header for the response
+      res.set('Authorization', `Bearer ${(result as any).accessToken}`);
+      
+      // Return response WITH accessToken
+      const { refreshToken, ...responseWithToken } = result as any;
+      res.status(200).json(responseWithToken);
     } catch (err) {
       if (err instanceof ValidationError) {
         return res.status(401).json({ error: err.message });
@@ -97,6 +103,10 @@ export class AuthController {
       }
       
       const result = await AuthService.refresh(refreshToken);
+      
+      // Set Access Token in Authorization header for the response
+      res.set('Authorization', `Bearer ${result.accessToken}`);
+      
       res.status(200).json(result);
     } catch (err) {
       if (err instanceof ValidationError) {

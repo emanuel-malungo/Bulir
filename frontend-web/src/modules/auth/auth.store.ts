@@ -105,6 +105,10 @@ export const useAuthStore = create<AuthStore>()(
           sessionStorage.removeItem(name);
         },
       },
+      // ✅ Apenas persistir o usuário, ignorando estados de loading/erro
+      partialize: (state) => ({ 
+        user: state.user 
+      } as AuthStore),
     }
   )
 );

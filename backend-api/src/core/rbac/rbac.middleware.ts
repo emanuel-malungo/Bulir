@@ -17,7 +17,7 @@ declare global {
 export function requirePermission(permissionName: string) {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userId = (req as any).userId;
+      const userId = (req as any).user?.userId;
 
       if (!userId) {
         return res.status(401).json({ error: "Usuário não autenticado" });
@@ -45,7 +45,7 @@ export function requirePermission(permissionName: string) {
 export function requireRole(...roleNames: string[]) {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userId = (req as any).userId;
+      const userId = (req as any).user?.userId;
 
       if (!userId) {
         return res.status(401).json({ error: "Usuário não autenticado" });

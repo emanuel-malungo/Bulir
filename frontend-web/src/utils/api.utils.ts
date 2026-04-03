@@ -13,8 +13,10 @@ const api = axios.create({
 // Track if refresh is in progress to avoid multiple refresh requests
 let isRefreshing = false;
 let refreshSubscribers: Array<(token: string) => void> = [];
+let lastAccessToken: string = '';
 
 const onRefreshed = (token: string) => {
+  lastAccessToken = token;
   refreshSubscribers.forEach((callback) => callback(token));
   refreshSubscribers = [];
 };
@@ -23,9 +25,30 @@ const addRefreshSubscriber = (callback: (token: string) => void) => {
   refreshSubscribers.push(callback);
 };
 
+// ===== Request Interceptor - Add Access Token to headers =====
+api.interceptors.request.use(
+  (config) => {
+    // Add the last received access token to the request
+    if (lastAccessToken) {
+      config.headers.Authorization = `Bearer ${lastAccessToken}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 // ===== Response Interceptor - Handle 401 and refresh token =====
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Capture access token from response header if present
+    const authHeader = response.headers['authorization'];
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      lastAccessToken = authHeader.slice(7); // Remove 'Bearer ' prefix
+    }
+    return response;
+  },
   async (error: AxiosError) => {
     const originalRequest = error.config as any;
 

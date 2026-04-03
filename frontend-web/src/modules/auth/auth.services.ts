@@ -45,7 +45,7 @@ export class AuthService {
    * Login user
    * - Sends credentials to backend
    * - Backend sets refreshToken in HttpOnly cookie
-   * - Backend returns user data
+   * - Backend returns accessToken in response and Authorization header
    * - Store user in Zustand
    */
   static async login(
@@ -70,8 +70,9 @@ export class AuthService {
       });
       
       console.log('Resposta da API:', response.data);
+      console.log('Access Token na resposta:', response.data.accessToken?.slice(0, 20) + '...');
 
-      // ✅ Store user (tokens are in HttpOnly cookie)
+      // ✅ Store user (accessToken will be used by axios interceptor)
       store.setUser(response.data.user);
     } catch (error) {
       const message = extractErrorMessage(error);
@@ -87,7 +88,7 @@ export class AuthService {
    * Register new user
    * - Sends registration data to backend
    * - Backend sets refreshToken in HttpOnly cookie
-   * - Backend returns user data
+   * - Backend returns accessToken in response and Authorization header
    * - Auto-login after registration
    */
   static async register(
@@ -104,8 +105,9 @@ export class AuthService {
       console.log('📤 Enviando registro para API...');
       const response = await api.post<IRegisterResponse>('/auth/register', data);
       console.log('✅ Resposta do registro:', response.data);
+      console.log('Access Token na resposta:', response.data.accessToken?.slice(0, 20) + '...');
 
-      // ✅ Store user (tokens are in HttpOnly cookie)
+      // ✅ Store user (accessToken will be used by axios interceptor)
       store.setUser(response.data.user);
       store.setLoading(false);
     } catch (error) {

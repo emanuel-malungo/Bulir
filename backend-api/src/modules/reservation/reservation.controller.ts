@@ -21,7 +21,7 @@ export class ReservationController {
     res: Response<ICreateReservationResponse | IApiError>
   ) {
     try {
-      const clientId = (req as any).userId; // Vem do middleware de auth
+      const clientId = (req as any).user?.userId; // Vem do middleware de auth
       
       if (!clientId) {
         return res.status(401).json({ error: "Usuário não autenticado" });
@@ -63,7 +63,7 @@ export class ReservationController {
     res: Response<IListReservationsResponse | IApiError>
   ) {
     try {
-      const clientId = (req as any).userId;
+      const clientId = (req as any).user?.userId;
       
       if (!clientId) {
         return res.status(401).json({ error: "Usuário não autenticado" });
@@ -103,7 +103,7 @@ export class ReservationController {
   ) {
     try {
       const { id } = req.params;
-      const clientId = (req as any).userId;
+      const clientId = (req as any).user?.userId;
 
       if (!clientId) {
         return res.status(401).json({ error: "Usuário não autenticado" });
@@ -135,7 +135,7 @@ export class ReservationController {
     try {
       const { id } = req.params;
       const { status } = req.body;
-      const clientId = (req as any).userId;
+      const clientId = (req as any).user?.userId;
 
       if (!clientId) {
         return res.status(401).json({ error: "Usuário não autenticado" });
@@ -173,7 +173,7 @@ export class ReservationController {
   ) {
     try {
       const { id } = req.params;
-      const clientId = (req as any).userId;
+      const clientId = (req as any).user?.userId;
 
       if (!clientId) {
         return res.status(401).json({ error: "Usuário não autenticado" });
@@ -203,7 +203,7 @@ export class ReservationController {
   ) {
     try {
       const { id } = req.params;
-      const clientId = (req as any).userId;
+      const clientId = (req as any).user?.userId;
 
       if (!clientId) {
         return res.status(401).json({ error: "Usuário não autenticado" });
@@ -229,7 +229,7 @@ export class ReservationController {
     res: Response<IListReservationsResponse | IApiError>
   ) {
     try {
-      const providerId = (req as any).userId;
+      const providerId = (req as any).user?.userId;
       
       if (!providerId) {
         return res.status(401).json({ error: "Usuário não autenticado" });
@@ -260,7 +260,7 @@ export class ReservationController {
     res: Response<any | IApiError>
   ) {
     try {
-      const providerId = (req as any).userId;
+      const providerId = (req as any).user?.userId;
       
       if (!providerId) {
         return res.status(401).json({ error: "Usuário não autenticado" });

@@ -1,76 +1,71 @@
 'use client';
-import { useState } from 'react';
-import { Calendar, Clock, MapPin, Check, X, CheckCircle, AlertCircle } from "lucide-react";
-
-const reservationRequests = [
-  {
-    id: 1,
-    service: 'Corte de cabelo',
-    client: 'João Silva',
-    date: '25/04/2026',
-    time: '14:30',
-    location: 'Centro',
-    price: 'Kz 2.500',
-    status: 'pendente',
-  },
-  {
-    id: 2,
-    service: 'Limpeza residencial',
-    client: 'Maria Santos',
-    date: '28/04/2026',
-    time: '09:00',
-    location: 'Zona Sul',
-    price: 'Kz 5.000',
-    status: 'pendente',
-  },
-  {
-    id: 3,
-    service: 'Aula de guitarra',
-    client: 'Carlos Mendes',
-    date: '30/04/2026',
-    time: '18:00',
-    location: 'Centro',
-    price: 'Kz 3.000',
-    status: 'confirmada',
-  },
-  {
-    id: 4,
-    service: 'Corte de cabelo',
-    client: 'Ana Costa',
-    date: '01/05/2026',
-    time: '15:00',
-    location: 'Zona Norte',
-    price: 'Kz 2.500',
-    status: 'confirmada',
-  },
-];
+import { Calendar, Clock, MapPin, Check, X, CheckCircle, AlertCircle, Loader } from "lucide-react";
+import { useReservations, useConfirmReservation, useCancelReservation } from '@/modules/reservation/useReservation';
+import { useAuthStore } from '@/modules/auth/auth.store';
+import { ReservationStatus } from '@/modules/reservation/reservation.types';
 
 const getStatusColor = (status: string) => {
-  return status === "confirmada" 
-    ? "bg-green-100 text-green-700" 
-    : "bg-yellow-100 text-yellow-700";
+  return status === ReservationStatus.CONFIRMED
+    ? "bg-green-100 text-green-700"
+    : status === ReservationStatus.PENDING
+    ? "bg-yellow-100 text-yellow-700"
+    : "bg-red-100 text-red-700";
 };
 
 const getStatusIcon = (status: string) => {
-  return status === "confirmada" 
-    ? <CheckCircle className="w-4 h-4" /> 
-    : <AlertCircle className="w-4 h-4" />;
+  return status === ReservationStatus.CONFIRMED
+    ? <CheckCircle className="w-4 h-4" />
+    : status === ReservationStatus.PENDING
+    ? <AlertCircle className="w-4 h-4" />
+    : <X className="w-4 h-4" />;
+};
+
+const formatDate = (isoDate: string) => {
+  const date = new Date(isoDate);
+  return date.toLocaleDateString('pt-AO', { day: '2-digit', month: '2-digit', year: 'numeric' });
+};
+
+const formatTime = (isoDate: string) => {
+  const date = new Date(isoDate);
+  return date.toLocaleTimeString('pt-AO', { hour: '2-digit', minute: '2-digit' });
 };
 
 export default function ProviderReservations() {
-  const [reservations, setReservations] = useState(reservationRequests);
+  const { user, isAuthenticated } = useAuthStore();
+  const { data: reservationsData, isLoading, error } = useReservations(
+    { limit: 50 },
+    { enabled: isAuthenticated() }
+  );
+  const confirmMutation = useConfirmReservation();
+  const cancelMutation = useCancelReservation();
 
-  const handleConfirm = (id: number) => {
-    setReservations(reservations.map(r => 
-      r.id === id ? { ...r, status: 'confirmada' } : r
-    ));
+  const handleConfirm = async (id: number) => {
+    try {
+      await confirmMutation.mutateAsync(id);
+    } catch (err) {
+      console.error('Erro ao confirmar:', err);
+    }
   };
 
-  const handleCancel = (id: number) => {
-    setReservations(reservations.map(r => 
-      r.id === id ? { ...r, status: 'cancelada' } : r
-    ));
+  const handleCancel = async (id: number) => {
+    try {
+      await cancelMutation.mutateAsync(id);
+    } catch (err) {
+      console.error('Erro ao cancelar:', err);
+    }
   };
+
+  const reservations = reservationsData?.data || [];
+
+  if (error) {
+    return (
+      <div className="bg-white border border-red-200 rounded-lg p-12 flex items-center justify-center flex-col space-y-4 min-h-80">
+        <AlertCircle className="w-16 h-16 text-red-400" />
+        <h2 className="text-xl font-semibold text-gray-900">Erro ao carregar reservas</h2>
+        <p className="text-gray-600">{error instanceof Error ? error.message : 'Tente novamente'}</p>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -85,16 +80,19 @@ export default function ProviderReservations() {
       </header>
 
       <div className="space-y-4">
-        {reservations.length > 0 ? (
+        {isLoading ? (
+          <div className="bg-white border border-gray-200 rounded-lg p-12 flex items-center justify-center flex-col space-y-4 min-h-80">
+            <Loader className="w-16 h-16 text-accent animate-spin" />
+            <h2 className="text-xl font-semibold text-gray-900">Carregando reservas...</h2>
+          </div>
+        ) : reservations.length > 0 ? (
           <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
             <table className="w-full">
               <thead>
                 <tr className="bg-primary text-white">
                   <th className="px-6 py-4 text-left text-sm font-semibold">Serviço</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold">Cliente</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold">Data</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold">Hora</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold">Localização</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold">Preço</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold">Status</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold">Ações</th>
@@ -104,55 +102,60 @@ export default function ProviderReservations() {
                 {reservations.map((reservation) => (
                   <tr key={reservation.id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-6 py-4">
-                      <span className="text-sm font-medium text-gray-900">{reservation.service}</span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="text-sm text-gray-700">{reservation.client}</span>
+                      <span className="text-sm font-medium text-gray-900">{reservation.serviceName}</span>
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center space-x-2 text-gray-700">
                         <Calendar className="w-4 h-4 text-accent shrink-0" />
-                        <span className="text-sm">{reservation.date}</span>
+                        <span className="text-sm">{formatDate(reservation.scheduledAt)}</span>
                       </div>
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center space-x-2 text-gray-700">
                         <Clock className="w-4 h-4 text-accent shrink-0" />
-                        <span className="text-sm">{reservation.time}</span>
+                        <span className="text-sm">{formatTime(reservation.scheduledAt)}</span>
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="flex items-center space-x-2 text-gray-700">
-                        <MapPin className="w-4 h-4 text-accent shrink-0" />
-                        <span className="text-sm">{reservation.location}</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="text-sm font-bold text-accent">{reservation.price}</span>
+                      <span className="text-sm font-bold text-accent">Kz {reservation.servicePrice}</span>
                     </td>
                     <td className="px-6 py-4">
                       <span className={`px-3 py-1 rounded-full text-xs font-medium flex items-center space-x-1 w-fit ${getStatusColor(reservation.status)}`}>
                         {getStatusIcon(reservation.status)}
-                        <span className="capitalize">{reservation.status}</span>
+                        <span className="capitalize">
+                          {reservation.status === ReservationStatus.CONFIRMED ? 'Confirmada' :
+                           reservation.status === ReservationStatus.PENDING ? 'Pendente' :
+                           'Cancelada'}
+                        </span>
                       </span>
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center space-x-2">
-                        {reservation.status === 'pendente' ? (
+                        {reservation.status === ReservationStatus.PENDING ? (
                           <>
                             <button
                               onClick={() => handleConfirm(reservation.id)}
-                              className="px-3 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200 transition-colors text-xs font-medium flex items-center space-x-1"
+                              disabled={confirmMutation.isPending}
+                              className="px-3 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200 transition-colors text-xs font-medium flex items-center space-x-1 disabled:opacity-50"
                             >
-                              <Check className="w-3 h-3" />
-                              <span>Confirmar</span>
+                              {confirmMutation.isPending ? (
+                                <Loader className="w-3 h-3 animate-spin" />
+                              ) : (
+                                <Check className="w-3 h-3" />
+                              )}
+                              <span>{confirmMutation.isPending ? 'Confirmando...' : 'Confirmar'}</span>
                             </button>
                             <button
                               onClick={() => handleCancel(reservation.id)}
-                              className="px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors text-xs font-medium flex items-center space-x-1"
+                              disabled={cancelMutation.isPending}
+                              className="px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors text-xs font-medium flex items-center space-x-1 disabled:opacity-50"
                             >
-                              <X className="w-3 h-3" />
-                              <span>Recusar</span>
+                              {cancelMutation.isPending ? (
+                                <Loader className="w-3 h-3 animate-spin" />
+                              ) : (
+                                <X className="w-3 h-3" />
+                              )}
+                              <span>{cancelMutation.isPending ? 'Recusando...' : 'Recusar'}</span>
                             </button>
                           </>
                         ) : (
