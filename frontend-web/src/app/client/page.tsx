@@ -1,9 +1,11 @@
 'use client';
+import { useState } from 'react';
 import iconMoney from '@/assets/images/money-bag.png';
 import iconWallet from '@/assets/images/wallet.png';
 import Image from "next/image";
 // lucide icons icon add +
 import { Plus, Search,  ArrowUpLeft, Clock, CheckCircle, XCircle }  from "lucide-react";
+import AddBalanceModal from '@/app/components/layout/client/AddBalanceModal';
 
 const reservationHistory = [
   {
@@ -32,15 +34,6 @@ const reservationHistory = [
     time: '18:00',
     price: 3000,
     status: 'cancelada',
-  },
-  {
-    id: 4,
-    service: 'Manutenção de computador',
-    provider: 'Tech Solutions',
-    date: '01 Abr 2026',
-    time: '15:30',
-    price: 8000,
-    status: 'confirmada',
   },
 ];
 
@@ -71,8 +64,10 @@ const getStatusIcon = (status: string) => {
 };
 
 export default function ClientDashboard() {
+    const [isAddBalanceOpen, setIsAddBalanceOpen] = useState(false);
     return (
         <>
+            <AddBalanceModal isOpen={isAddBalanceOpen} onClose={() => setIsAddBalanceOpen(false)} />
             <header className="grid grid-cols-2 gap-10 mb-8" >
                 <div>
                     <h1 className="text-2xl font-medium flex items-center space-x-1" ><ArrowUpLeft className="w-6 h-6 text-accent " /> <span className="hover:text-accent cursor-pointer" >Serviços reservados (0)</span></h1>
@@ -91,7 +86,10 @@ export default function ClientDashboard() {
 
                 <div className="border border-gray-200 min-h-100 rounded-lg p-4 flex items-center justify-center flex-col space-y-4" >
                     <Image src={iconWallet} alt="Ícone de carteira" width={150} height={150} className="mx-auto" />
-                    <button className="border-2  py-2 px-4 rounded-sm cursor-pointer flex items-center space-x-4" >
+                    <button 
+                      onClick={() => setIsAddBalanceOpen(true)}
+                      className="border-2 border-accent py-2 px-4 rounded-sm cursor-pointer flex items-center space-x-4 hover:bg-accent/10 transition-colors" 
+                    >
                         <span>Adicionar Saldo</span><Plus className="w-4 h-4 text-accent" />
                     </button>
                     <p className="text-gray-300 text-sm" >Conecte a tua carteira para reservas serviço</p>
@@ -134,23 +132,6 @@ export default function ClientDashboard() {
                           );
                         })}
                     </div>
-
-                    <style jsx>{`
-                      .reservation-scroll::-webkit-scrollbar {
-                        width: 6px;
-                      }
-                      .reservation-scroll::-webkit-scrollbar-track {
-                        background: #1f2937;
-                        border-radius: 10px;
-                      }
-                      .reservation-scroll::-webkit-scrollbar-thumb {
-                        background: #4b5563;
-                        border-radius: 10px;
-                      }
-                      .reservation-scroll::-webkit-scrollbar-thumb:hover {
-                        background: #6b7280;
-                      }
-                    `}</style>
                 </div>
 
             </div>
