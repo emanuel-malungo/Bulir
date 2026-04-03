@@ -5,7 +5,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import icon from '@/assets/images/bulir.svg';
 import Image from 'next/image';
-import { Search, Calendar, User, Mail, MessageCircle, Share2 } from 'lucide-react';
+import { Search, Calendar, User, Mail, MessageCircle, Share2, Briefcase } from 'lucide-react';
 
 const menuItems = [
   {
@@ -13,6 +13,12 @@ const menuItems = [
     label: 'Explorar',
     icon: Search,
     href: '/client/',
+  },
+  {
+    id: 'servicos',
+    label: 'Serviços',
+    icon: Briefcase,
+    href: '/client/services',
   },
   {
     id: 'reservas',
