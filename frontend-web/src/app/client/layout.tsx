@@ -1,4 +1,4 @@
-import Container from "@/app/components/layout/Container";
+import Container from "@/app/components/layout/client/Container";
 
 
 export default function ClientLayout({
