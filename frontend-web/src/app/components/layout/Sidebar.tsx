@@ -62,16 +62,16 @@ export default function Sidebar() {
         })}
       </nav>
 
-        <footer className="border-t border-gray-200 px-4 py-4">
+        <footer className="border-t border-gray-200 px-6 py-4">
           <div className="flex items-center justify-center space-x-8">
             <a href="#" className="text-gray-500 hover:text-accent transition-colors" title="Email">
-              <Mail className="w-5 h-5" />
+              <Mail className="w-4 h-4" />
             </a>
             <a href="#" className="text-gray-500 hover:text-accent transition-colors" title="Mensagem">
-              <MessageCircle className="w-5 h-5" />
+              <MessageCircle className="w-4 h-4" />
             </a>
             <a href="#" className="text-gray-500 hover:text-accent transition-colors" title="Compartilhar">
-              <Share2 className="w-5 h-5" />
+              <Share2 className="w-4 h-4" />
             </a>
           </div>
         </footer>
