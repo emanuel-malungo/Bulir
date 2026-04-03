@@ -56,26 +56,29 @@ export default function ContaPage() {
                 </div>
             </header>
 
-            {/* Tabs */}
-            <div className="flex space-x-1 mb-8 border-b border-gray-200">
-                {tabs.map((tab) => {
-                    const TabIcon = tab.icon;
-                    const isActive = activeTab === tab.id;
-                    return (
-                        <button
-                            key={tab.id}
-                            onClick={() => setActiveTab(tab.id as any)}
-                            className={`flex items-center space-x-2 px-4 py-3 font-medium border-b-2 transition-colors ${
-                                isActive
-                                    ? 'border-accent text-accent'
-                                    : 'border-transparent text-gray-600 hover:text-gray-900'
-                            }`}
-                        >
-                            <TabIcon className="w-5 h-5" />
-                            <span>{tab.label}</span>
-                        </button>
-                    );
-                })}
+            <div className="grid grid-cols-2 gap-10" >
+                  {/* Card com Tabs */}
+            <div className="bg-white rounded-lg border border-gray-200 p-6 mb-8">
+                <div className="flex space-x-1 overflow-x-auto">
+                    {tabs.map((tab) => {
+                        const TabIcon = tab.icon;
+                        const isActive = activeTab === tab.id;
+                        return (
+                            <button
+                                key={tab.id}
+                                onClick={() => setActiveTab(tab.id as any)}
+                                className={`flex items-center space-x-2 px-4 py-3 font-medium border-b-2 transition-all cursor-pointer whitespace-nowrap ${
+                                    isActive
+                                        ? 'border-accent text-accent'
+                                        : 'border-transparent text-gray-600 hover:text-gray-900'
+                                }`}
+                            >
+                                <TabIcon className="w-5 h-5" />
+                                <span>{tab.label}</span>
+                            </button>
+                        );
+                    })}
+                </div>
             </div>
 
             {/* Conteúdo das Abas */}
@@ -91,7 +94,7 @@ export default function ContaPage() {
                                 <input 
                                     type="text" 
                                     value={profileData.nome}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent"
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent cursor-text"
                                 />
                             </div>
 
@@ -100,7 +103,7 @@ export default function ContaPage() {
                                 <input 
                                     type="email" 
                                     value={profileData.email}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent"
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent cursor-text"
                                 />
                             </div>
 
@@ -109,7 +112,7 @@ export default function ContaPage() {
                                 <input 
                                     type="tel" 
                                     value={profileData.telefone}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent"
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent cursor-text"
                                 />
                             </div>
 
@@ -123,7 +126,7 @@ export default function ContaPage() {
                                 />
                             </div>
 
-                            <button className="w-full bg-accent text-white py-3 rounded-lg hover:bg-accent/90 transition-colors font-medium">
+                            <button className="w-full bg-accent text-white py-3 rounded-lg hover:bg-accent/90 transition-colors font-medium cursor-pointer">
                                 Salvar Alterações
                             </button>
                         </div>
@@ -136,7 +139,7 @@ export default function ContaPage() {
                 <div className="space-y-4">
                     {historico.length > 0 ? (
                         historico.map((item) => (
-                            <div key={item.id} className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow">
+                            <div key={item.id} className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer">
                                 <div className="flex items-start justify-between">
                                     <div>
                                         <h3 className="text-lg font-semibold text-gray-900">{item.servico}</h3>
@@ -172,11 +175,11 @@ export default function ContaPage() {
                                     <input 
                                         type={showPassword ? "text" : "password"}
                                         placeholder="Digite sua senha atual"
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent pr-10"
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent pr-10 cursor-text"
                                     />
                                     <button
                                         onClick={() => setShowPassword(!showPassword)}
-                                        className="absolute right-3 top-2.5 text-gray-600 hover:text-gray-900"
+                                        className="absolute right-3 top-2.5 text-gray-600 hover:text-gray-900 cursor-pointer"
                                     >
                                         {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                                     </button>
@@ -188,7 +191,7 @@ export default function ContaPage() {
                                 <input 
                                     type="password"
                                     placeholder="Digite sua nova senha"
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent"
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent cursor-text"
                                 />
                             </div>
 
@@ -197,11 +200,11 @@ export default function ContaPage() {
                                 <input 
                                     type="password"
                                     placeholder="Confirme sua nova senha"
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent"
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent cursor-text"
                                 />
                             </div>
 
-                            <button className="w-full bg-accent text-white py-3 rounded-lg hover:bg-accent/90 transition-colors font-medium">
+                            <button className="w-full bg-accent text-white py-3 rounded-lg hover:bg-accent/90 transition-colors font-medium cursor-pointer">
                                 Atualizar Senha
                             </button>
                         </div>
@@ -218,45 +221,49 @@ export default function ContaPage() {
                         </p>
                     </div>
 
-                    {sessoes.map((sessao) => (
-                        <div key={sessao.id} className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow">
-                            <div className="flex items-start justify-between mb-4">
-                                <div className="flex items-start space-x-4 flex-1">
-                                    <div className="bg-gray-100 p-3 rounded-lg">
-                                        <Smartphone className="w-6 h-6 text-gray-600" />
+                    {/* Card contendo as sessões */}
+                    <div className="bg-white rounded-lg border border-gray-200 p-6 space-y-4">
+                        {sessoes.map((sessao) => (
+                            <div key={sessao.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                                <div className="flex items-start justify-between mb-4">
+                                    <div className="flex items-start space-x-4 flex-1">
+                                        <div className="bg-gray-100 p-3 rounded-lg">
+                                            <Smartphone className="w-6 h-6 text-gray-600" />
+                                        </div>
+                                        <div>
+                                            <h3 className="text-lg font-semibold text-gray-900">{sessao.dispositivo}</h3>
+                                            <p className="text-sm text-gray-600 mt-1">{sessao.navegador}</p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <h3 className="text-lg font-semibold text-gray-900">{sessao.dispositivo}</h3>
-                                        <p className="text-sm text-gray-600 mt-1">{sessao.navegador}</p>
+                                    {sessao.ativo && (
+                                        <span className="px-3 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full flex items-center space-x-1">
+                                            <Check className="w-3 h-3" />
+                                            <span>Ativo</span>
+                                        </span>
+                                    )}
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4 py-4 border-t border-b border-gray-200 mb-4">
+                                    <div className="flex items-center space-x-2 text-gray-700">
+                                        <MapPin className="w-4 h-4 text-accent flex-shrink-0" />
+                                        <span className="text-sm">{sessao.localizacao}</span>
+                                    </div>
+                                    <div className="flex items-center space-x-2 text-gray-700">
+                                        <Clock className="w-4 h-4 text-accent flex-shrink-0" />
+                                        <span className="text-sm">{sessao.ultimoAcesso}</span>
                                     </div>
                                 </div>
-                                {sessao.ativo && (
-                                    <span className="px-3 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full flex items-center space-x-1">
-                                        <Check className="w-3 h-3" />
-                                        <span>Ativo</span>
-                                    </span>
-                                )}
-                            </div>
 
-                            <div className="grid grid-cols-2 gap-4 py-4 border-t border-b border-gray-200 mb-4">
-                                <div className="flex items-center space-x-2 text-gray-700">
-                                    <MapPin className="w-4 h-4 text-accent flex-shrink-0" />
-                                    <span className="text-sm">{sessao.localizacao}</span>
-                                </div>
-                                <div className="flex items-center space-x-2 text-gray-700">
-                                    <Clock className="w-4 h-4 text-accent flex-shrink-0" />
-                                    <span className="text-sm">{sessao.ultimoAcesso}</span>
-                                </div>
+                                <button className="w-full px-4 py-2 border border-red-300 text-red-700 rounded-lg hover:bg-red-50 transition-colors text-sm font-medium flex items-center justify-center space-x-2 cursor-pointer">
+                                    <LogOut className="w-4 h-4" />
+                                    <span>Sair desta Sessão</span>
+                                </button>
                             </div>
-
-                            <button className="w-full px-4 py-2 border border-red-300 text-red-700 rounded-lg hover:bg-red-50 transition-colors text-sm font-medium flex items-center justify-center space-x-2">
-                                <LogOut className="w-4 h-4" />
-                                <span>Sair desta Sessão</span>
-                            </button>
-                        </div>
-                    ))}
+                        ))}
+                    </div>
                 </div>
             )}
+            </div>
         </Container>
     )
 }

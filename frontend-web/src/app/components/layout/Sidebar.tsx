@@ -50,7 +50,7 @@ export default function Sidebar() {
               className={`flex items-center space-x-3  py-3 rounded-lg transition-all duration-200 ${
                 activeItem === item.id
                   ? 'text-accent font-semibold'
-                  : 'text-gray-700 hover:bg-gray-50'
+                  : 'text-gray-700 hover:text-accent'
               }`}
             >
               <IconComponent className="w-6 h-6" />
