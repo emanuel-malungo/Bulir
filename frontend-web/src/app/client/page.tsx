@@ -47,13 +47,13 @@ const reservationHistory = [
 const getStatusColor = (status: string) => {
   switch(status) {
     case 'confirmada':
-      return 'bg-green-600 text-white';
+      return 'bg-green-700 text-white';
     case 'pendente':
-      return 'bg-yellow-500 text-white';
+      return 'bg-amber-600 text-white';
     case 'cancelada':
-      return 'bg-red-600 text-white';
+      return 'bg-red-700 text-white';
     default:
-      return 'bg-gray-600 text-white';
+      return 'bg-gray-700 text-white';
   }
 };
 
@@ -112,24 +112,22 @@ export default function ClientDashboard() {
                           return (
                             <div 
                               key={reservation.id}
-                              className="transition-all border-b border-gray-700 pb-4 cursor-pointer" 
+                              className="transition-all border-b border-gray-700 pb-4 cursor-pointer hover:pl-2" 
                             >
                               <div className="flex items-start justify-between gap-3">
                                 <div className="flex-1">
                                   <div className="flex items-center gap-2 mb-2">
                                     <h2 className="text-sm font-semibold text-white">{reservation.service}</h2>
                                   </div>
-                                  <p className="text-gray-400 text-xs mb-2">{reservation.provider}</p>
-                                  <div className="flex items-center justify-between">
-                                    <span className="text-xs text-gray-500">{reservation.date} • {reservation.time}</span>
-                                    <span className="text-sm font-bold text-accent">Kz {reservation.price.toLocaleString()}</span>
-                                  </div>
+                                  <p className="text-gray-400 text-xs mb-3">{reservation.provider}</p>
+                                  <span className="text-xs text-gray-500">{reservation.date} • {reservation.time}</span>
                                 </div>
-                                <div className="flex flex-col items-end gap-2">
-                                  <div className={`flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(reservation.status)}`}>
+                                <div className="flex flex-col items-end gap-3">
+                                  <div className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-semibold ${getStatusColor(reservation.status)}`}>
                                     <StatusIcon className="w-3 h-3" />
                                     <span className="capitalize">{reservation.status}</span>
                                   </div>
+                                  <span className="text-sm font-bold text-accent whitespace-nowrap">Kz {reservation.price.toLocaleString()}</span>
                                 </div>
                               </div>
                             </div>
