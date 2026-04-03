@@ -2,10 +2,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Clock, LogOut } from 'lucide-react';
+import { Clock, LogOut, Wallet } from 'lucide-react';
 
 export default function Header() {
   const [time, setTime] = useState<string>('');
+  const [balance, setBalance] = useState<number>(0);
 
   useEffect(() => {
     // Define a hora inicial
@@ -22,6 +23,9 @@ export default function Header() {
     updateTime();
     const interval = setInterval(updateTime, 1000);
 
+    // TODO: Buscar saldo real do usuário da API
+    setBalance(1250.00);
+
     return () => clearInterval(interval);
   }, []);
 
@@ -37,6 +41,16 @@ export default function Header() {
 
         {/* Menu do Usuário */}
         <div className="flex items-center space-x-4">
+          {/* Saldo do Usuário */}
+          <div className="flex items-center space-x-2 px-3 py-2 bg-gray-50 rounded-lg">
+            <Wallet className="w-5 h-5 text-accent" />
+            <div className="flex flex-col">
+              <span className="text-sm font-semibold text-gray-900">
+                Kz {balance.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </span>
+            </div>
+          </div>
+
           {/* Botão Sair */}
           <button 
             onClick={() => {
