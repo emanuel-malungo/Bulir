@@ -3,7 +3,7 @@ import { z } from "zod";
 export const createReservationSchema = z.object({
   serviceId: z.number().int().positive("ID do serviço é inválido"),
   providerId: z.number().int().positive("ID do provedor é inválido"),
-  scheduledAt: z.string().datetime("Data/hora da reserva inválida"),
+  scheduledAt: z.string().min(1, "Data/hora da reserva é obrigatória"),
 });
 
 export const updateReservationStatusSchema = z.object({

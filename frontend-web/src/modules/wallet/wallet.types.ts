@@ -23,6 +23,12 @@ export interface IReceivePaymentRequest {
 }
 
 // ===== RESPONSE TYPES =====
+export interface IWalletBalance {
+  balance: number;
+  userId: number;
+  formatted?: string;
+}
+
 export interface IWallet {
   id: number;
   userId: number;
@@ -49,6 +55,10 @@ export interface ITransaction {
 
 export interface IGetWalletResponse {
   data: IWallet;
+}
+
+export interface IGetWalletBalanceResponse {
+  data: IWalletBalance;
 }
 
 export interface ITransactionListResponse {

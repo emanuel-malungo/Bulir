@@ -42,7 +42,9 @@ export class WalletController {
 
       const response = await walletService.getBalance(userId);
 
-      res.status(200).json(response);
+      res.status(200).json({
+        data: response,
+      });
     } catch (error) {
       const errorMessage =
         error instanceof Error

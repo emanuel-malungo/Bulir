@@ -43,8 +43,8 @@ export class ServiceAPI {
    * @returns Detalhes completos do serviço
    */
   static async getServiceById(id: number): Promise<IServiceDetail> {
-    const response = await api.get<IServiceDetail>(`/services/${id}`);
-    return response.data;
+    const response = await api.get<{ service: IServiceDetail }>(`/services/${id}`);
+    return response.data.service;
   }
 
   /**

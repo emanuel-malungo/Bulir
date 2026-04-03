@@ -37,14 +37,13 @@ export const reservationFiltersSchema = z.object({
 
 // ===== FORM VALIDATION =====
 export const reservationFormSchema = z.object({
-  serviceId: z.number().int().positive('Selecione um serviço'),
-  providerId: z.number().int().positive('Provedor inválido'),
-  scheduledAt: z
-    .string()
-    .refine((date) => {
-      const d = new Date(date);
-      return d > new Date();
-    }, 'Data deve ser no futuro'),
+  date: z.string().min(1, 'Selecione uma data'),
+  time: z.string().min(1, 'Selecione uma hora'),
+}).transform((data) => {
+  const scheduledAt = new Date(`${data.date}T${data.time}`);
+  return {
+    scheduledAt: scheduledAt.toISOString(),
+  };
 });
 
 export type ReservationFormData = z.infer<typeof reservationFormSchema>;

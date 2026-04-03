@@ -4,7 +4,7 @@ import React from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { WalletAPI } from './wallet.services';
 import { useAuthStore } from '@/modules/auth/auth.store';
-import type { ITransactionFilters, ILoadBalanceRequest, IReceivePaymentRequest } from './wallet.types';
+import type { ITransactionFilters, ILoadBalanceRequest, IReceivePaymentRequest, IWalletBalance } from './wallet.types';
 
 /**
  * ===== QUERY KEYS =====
