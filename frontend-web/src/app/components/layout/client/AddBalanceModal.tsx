@@ -1,9 +1,26 @@
 'use client';
 
 import { useState } from 'react';
-import { X } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { X, AlertCircle, CheckCircle } from 'lucide-react';
 import { ReCaptchaV3 } from '@/app/components/common';
-import { Button, Input } from '@/app/components/common';
+import { Button } from '@/app/components/common';
+import { useLoadBalance } from '@/modules/wallet/useWallet';
+
+/**
+ * Schema de validação para adicionar saldo
+ */
+const addBalanceSchema = z.object({
+  amount: z
+    .number()
+    .positive('Valor deve ser maior que zero')
+    .min(100, 'Valor mínimo é Kz 100')
+    .max(999999, 'Valor máximo é Kz 999.999'),
+});
+
+type AddBalanceFormInputs = z.infer<typeof addBalanceSchema>;
 
 interface AddBalanceModalProps {
   isOpen: boolean;
@@ -11,36 +28,49 @@ interface AddBalanceModalProps {
 }
 
 export default function AddBalanceModal({ isOpen, onClose }: AddBalanceModalProps) {
-  const [amount, setAmount] = useState('');
   const [recaptchaToken, setRecaptchaToken] = useState<string>('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string>('');
+  
+  const loadBalance = useLoadBalance();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!recaptchaToken || !amount) {
-      return;
-    }
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    reset,
+    watch,
+  } = useForm<AddBalanceFormInputs>({
+    resolver: zodResolver(addBalanceSchema),
+    mode: 'onChange',
+    defaultValues: {
+      amount: undefined,
+    },
+  });
 
-    setIsLoading(true);
+  const amount = watch('amount');
+  const canSubmit = !!recaptchaToken && !!amount;
+
+  const onSubmit = async (data: AddBalanceFormInputs) => {
     try {
-      // TODO: Chamar API para adicionar saldo
-      console.log('Adicionando saldo:', {
-        amount,
-        recaptchaToken,
-      });
+      setSuccessMessage('');
+
+      if (!recaptchaToken) {
+        return;
+      }
+
+      await loadBalance.mutateAsync(data.amount);
+
+      setSuccessMessage(`✅ Saldo de Kz ${data.amount.toLocaleString('pt-BR')} adicionado com sucesso!`);
       
-      // Simular delay
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Resetar form
-      setAmount('');
-      setRecaptchaToken('');
-      onClose();
+      // Resetar form e fechar modal após sucesso
+      setTimeout(() => {
+        reset();
+        setRecaptchaToken('');
+        setSuccessMessage('');
+        onClose();
+      }, 2000);
     } catch (error) {
-      console.error('Erro ao adicionar saldo:', error);
-    } finally {
-      setIsLoading(false);
+      console.error('❌ Erro ao adicionar saldo:', error);
     }
   };
 
@@ -54,7 +84,8 @@ export default function AddBalanceModal({ isOpen, onClose }: AddBalanceModalProp
           <h2 className="text-lg font-semibold text-gray-900">Adicionar Saldo</h2>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 transition-colors"
+            disabled={isSubmitting || loadBalance.isPending}
+            className="text-gray-500 hover:text-gray-700 transition-colors disabled:opacity-50"
             title="Fechar"
           >
             <X className="w-5 h-5" />
@@ -62,47 +93,95 @@ export default function AddBalanceModal({ isOpen, onClose }: AddBalanceModalProp
         </div>
 
         {/* Content */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-4">
+          {/* Mensagem de Sucesso */}
+          {successMessage && (
+            <div className="p-4 bg-green-50 border border-green-200 rounded-lg flex items-start gap-3">
+              <CheckCircle className="w-5 h-5 text-green-600 shrink-0 mt-0.5" />
+              <p className="text-sm text-green-700">{successMessage}</p>
+            </div>
+          )}
+
+          {/* Campos de Erro Gerais */}
+          {(loadBalance.isError || (Object.keys(errors).length > 0 && amount)) && (
+            <div className="p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+              <div>
+                <p className="font-medium text-red-900 text-sm">
+                  {loadBalance.isError ? 'Erro ao adicionar saldo' : 'Validação falhou'}
+                </p>
+                <p className="text-red-700 text-sm mt-1">
+                  {loadBalance.error instanceof Error 
+                    ? loadBalance.error.message 
+                    : 'Tente novamente mais tarde'}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Valor */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Valor (Kz)
+              Valor (Kz)*
             </label>
             <input
+              {...register('amount', { 
+                valueAsNumber: true,
+              })}
               type="number"
               min="100"
               step="100"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
               placeholder="Digite o valor"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition"
-              required
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition"
+              disabled={isSubmitting || loadBalance.isPending}
             />
-            <p className="text-xs text-gray-500 mt-1">Mínimo: 100 Kz</p>
+            {errors.amount && (
+              <p className="text-red-600 text-sm mt-2">{errors.amount.message}</p>
+            )}
+            <p className="text-xs text-gray-500 mt-2">Mínimo: 100 Kz</p>
           </div>
 
           {/* ReCaptcha */}
           <div className="flex justify-center pt-2">
             <ReCaptchaV3 onToken={setRecaptchaToken} />
           </div>
+          {!recaptchaToken && (
+            <p className="text-xs text-yellow-600 text-center">
+              ⚠️ ReCaptcha é obrigatório
+            </p>
+          )}
+
+          {/* Resumo */}
+          {amount && (
+            <div className="bg-accent/10 rounded-lg p-4 border border-accent/20">
+              <p className="text-xs text-gray-500 uppercase font-semibold mb-2">
+                Valor a depositar
+              </p>
+              <p className="text-2xl font-bold text-accent">
+                Kz {amount.toLocaleString('pt-BR')}
+              </p>
+            </div>
+          )}
 
           {/* Buttons */}
           <div className="flex gap-3 pt-4">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+              disabled={isSubmitting || loadBalance.isPending}
+              className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Cancelar
             </button>
             <Button
               type="submit"
-              disabled={!recaptchaToken || !amount}
-              isLoading={isLoading}
+              disabled={!canSubmit || isSubmitting || loadBalance.isPending}
+              isLoading={isSubmitting || loadBalance.isPending}
               variant="primary"
               size="md"
               className="flex-1"
             >
-              Adicionar
+              {isSubmitting || loadBalance.isPending ? 'Processando...' : 'Adicionar'}
             </Button>
           </div>
         </form>

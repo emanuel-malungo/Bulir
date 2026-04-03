@@ -108,16 +108,24 @@ export function useLoadBalance(options = {}) {
   const { syncWalletBalance } = useAuthStore();
 
   return useMutation({
-    mutationFn: (data: ILoadBalanceRequest) => WalletAPI.loadBalance(data),
-    onSuccess: (data) => {
-      // Atualizar cache da carteira
-      queryClient.setQueryData(walletKeys.detail(), (old: any) => ({
-        ...old,
-        balance: data.data.newBalance,
-      }));
+    mutationFn: (amount: number) => WalletAPI.loadBalance(amount),
+    onSuccess: (data: any) => {
+      if (!data) {
+        return;
+      }
 
-      // Sincronizar com store
-      syncWalletBalance?.(data.data.newBalance);
+      const newBalance = data?.newBalance;
+
+      if (newBalance !== undefined && newBalance !== null) {
+        // Atualizar cache da carteira
+        queryClient.setQueryData(walletKeys.detail(), (old: any) => ({
+          ...old,
+          balance: newBalance,
+        }));
+
+        // Sincronizar com store
+        syncWalletBalance?.(newBalance);
+      }
 
       // Invalidar transações
       queryClient.invalidateQueries({
@@ -125,7 +133,7 @@ export function useLoadBalance(options = {}) {
       });
     },
     onError: (error) => {
-      console.error('Erro ao carregar saldo:', error);
+      console.error('❌ Erro ao carregar saldo:', error);
     },
     ...options,
   });

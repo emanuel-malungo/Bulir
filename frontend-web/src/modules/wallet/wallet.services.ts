@@ -1,4 +1,5 @@
 import api from '@/utils/api.utils';
+import { z } from 'zod';
 import {
   loadBalanceSchema,
   receivePaymentSchema,
@@ -71,24 +72,37 @@ export class WalletAPI {
   }
 
   /**
-   * Carregar saldo na carteira
-   * ⚠️ Endpoint não implementado no backend ainda
-   * @param data - Valor e método de pagamento
-   * @returns Resultado da transação
+   * Carregar saldo na carteira via depósito
+   * @param amount - Valor a depositar
+   * @returns Resultado da transação com novo saldo
    */
-  static async loadBalance(
-    data: ILoadBalanceRequest
-  ): Promise<ILoadBalanceResponse> {
-    // TODO: Implementar no backend
-    console.warn('[WalletAPI] Endpoint /wallet/load-balance não existe no backend');
-    throw new Error('Funcionalidade de carregar saldo não está disponível no momento');
-    
-    // const validatedData = loadBalanceSchema.parse(data);
-    // const response = await api.post<ILoadBalanceResponse>(
-    //   '/wallet/load-balance',
-    //   validatedData
-    // );
-    // return response.data;
+  static async loadBalance(amount: number): Promise<any> {
+    try {
+      // Validar valor
+      z.number().positive().parse(amount);
+      
+      const response = await api.post('/wallet/deposit', {
+        amount,
+      });
+
+      if (!response.data) {
+        throw new Error('Resposta vazia do servidor');
+      }
+
+      return response.data;
+    } catch (error: any) {
+      console.error('❌ Erro na chamada API:', error);
+      
+      if (error.response?.status === 401) {
+        throw new Error('Não autenticado. Faça login novamente.');
+      }
+
+      const errorMessage = error.response?.data?.message || 
+                          error.response?.data?.error ||
+                          error.message ||
+                          'Erro ao carregar saldo';
+      throw new Error(errorMessage);
+    }
   }
 
   /**
