@@ -5,7 +5,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import icon from '@/assets/images/bulir.svg';
 import Image from 'next/image';
-import { Search, Calendar, User } from 'lucide-react';
+import { Search, Calendar, User, Mail, MessageCircle, Share2 } from 'lucide-react';
 
 const menuItems = [
   {
@@ -32,7 +32,7 @@ export default function Sidebar() {
   const [activeItem, setActiveItem] = useState('explore');
 
   return (
-    <aside className="w-64 h-screen bg-gray-100 flex flex-col sticky top-0">
+    <aside className="w-56 h-screen bg-gray-100 flex flex-col sticky top-0">
     <header className="border-b border-gray-200">
         <div className="flex items-center space-x-2 px-4 py-4">
             <Image src={icon} alt="Bulir" width={32} height={32}  />
@@ -62,8 +62,18 @@ export default function Sidebar() {
         })}
       </nav>
 
-        <footer>
-
+        <footer className="border-t border-gray-200 px-4 py-4">
+          <div className="flex items-center justify-center space-x-8">
+            <a href="#" className="text-gray-500 hover:text-accent transition-colors" title="Email">
+              <Mail className="w-5 h-5" />
+            </a>
+            <a href="#" className="text-gray-500 hover:text-accent transition-colors" title="Mensagem">
+              <MessageCircle className="w-5 h-5" />
+            </a>
+            <a href="#" className="text-gray-500 hover:text-accent transition-colors" title="Compartilhar">
+              <Share2 className="w-5 h-5" />
+            </a>
+          </div>
         </footer>
     </aside>
   );

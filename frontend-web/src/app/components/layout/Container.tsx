@@ -15,6 +15,9 @@ export default function Container({ children }: { children: React.ReactNode }) {
                         {children}
                     </div>
                 </main>
+                <footer className="border-t border-gray-200 px-4 py-4 bg-white">
+                  <p className="text-xs text-gray-500 text-center">© 2026 Bulir</p>
+                </footer>
             </div>
         </div>
     )
