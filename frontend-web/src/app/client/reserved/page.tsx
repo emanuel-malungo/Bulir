@@ -56,59 +56,76 @@ export default function ReservasPage() {
                     </h1>
                     <p className="text-xs text-gray-400">Acompanhe suas reservas agendadas</p>
                 </div>
-                <div className="bg-accent flex items-center justify-between rounded-lg p-4">
-                    <div className="flex items-center space-x-2">
-                        <Image src={iconMoney} alt="Ícone de dinheiro" width={24} height={24} />
-                        <span className="text-white font-medium">Kz 0.00</span>
-                    </div>
-                    <p className="text-white/80">Saldo atual</p>
-                </div>
             </header>
 
             <div className="space-y-4">
                 {reservas.length > 0 ? (
-                    reservas.map((reserva) => (
-                        <div key={reserva.id} className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
-                            <div className="flex items-start justify-between mb-4">
-                                <div className="flex-1">
-                                    <h2 className="text-lg font-semibold text-gray-900 mb-1">{reserva.servico}</h2>
-                                    <p className="text-sm text-gray-600">Profissional: {reserva.profissional}</p>
-                                </div>
-                                <span className={`px-3 py-1 rounded-full text-xs font-medium flex items-center space-x-1 ${getStatusColor(reserva.status)}`}>
-                                    {getStatusIcon(reserva.status)}
-                                    <span className="capitalize">{reserva.status}</span>
-                                </span>
-                            </div>
-
-                            <div className="grid grid-cols-3 gap-4 mb-4 py-4 border-t border-b border-gray-200">
-                                <div className="flex items-center space-x-2 text-gray-700">
-                                    <Calendar className="w-4 h-4 text-accent flex-shrink-0" />
-                                    <span className="text-sm">{reserva.data}</span>
-                                </div>
-                                <div className="flex items-center space-x-2 text-gray-700">
-                                    <Clock className="w-4 h-4 text-accent flex-shrink-0" />
-                                    <span className="text-sm">{reserva.hora}</span>
-                                </div>
-                                <div className="flex items-center space-x-2 text-gray-700">
-                                    <MapPin className="w-4 h-4 text-accent flex-shrink-0" />
-                                    <span className="text-sm">{reserva.localizacao}</span>
-                                </div>
-                            </div>
-
-                            <div className="flex items-center justify-between">
-                                <span className="text-xl font-bold text-accent">{reserva.preco}</span>
-                                <div className="flex items-center space-x-2">
-                                    <button className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors text-sm font-medium">
-                                        Remarcar
-                                    </button>
-                                    <button className="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-sm font-medium flex items-center space-x-1">
-                                        <X className="w-4 h-4" />
-                                        <span>Cancelar</span>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    ))
+                    <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+                        <table className="w-full">
+                            <thead>
+                                <tr className="bg-primary text-white">
+                                    <th className="px-6 py-4 text-left text-sm font-semibold">Serviço</th>
+                                    <th className="px-6 py-4 text-left text-sm font-semibold">Profissional</th>
+                                    <th className="px-6 py-4 text-left text-sm font-semibold">Data</th>
+                                    <th className="px-6 py-4 text-left text-sm font-semibold">Hora</th>
+                                    <th className="px-6 py-4 text-left text-sm font-semibold">Localização</th>
+                                    <th className="px-6 py-4 text-left text-sm font-semibold">Preço</th>
+                                    <th className="px-6 py-4 text-left text-sm font-semibold">Status</th>
+                                    <th className="px-6 py-4 text-left text-sm font-semibold">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-200">
+                                {reservas.map((reserva) => (
+                                    <tr key={reserva.id} className="hover:bg-gray-50 transition-colors">
+                                        <td className="px-6 py-4">
+                                            <span className="text-sm font-medium text-gray-900">{reserva.servico}</span>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <span className="text-sm text-gray-700">{reserva.profissional}</span>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="flex items-center space-x-2 text-gray-700">
+                                                <Calendar className="w-4 h-4 text-accent shrink-0" />
+                                                <span className="text-sm">{reserva.data}</span>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="flex items-center space-x-2 text-gray-700">
+                                                <Clock className="w-4 h-4 text-accent shrink-0" />
+                                                <span className="text-sm">{reserva.hora}</span>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="flex items-center space-x-2 text-gray-700">
+                                                <MapPin className="w-4 h-4 text-accent shrink-0" />
+                                                <span className="text-sm">{reserva.localizacao}</span>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <span className="text-sm font-bold text-accent">{reserva.preco}</span>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <span className={`px-3 py-1 rounded-full text-xs font-medium flex items-center space-x-1 w-fit ${getStatusColor(reserva.status)}`}>
+                                                {getStatusIcon(reserva.status)}
+                                                <span className="capitalize">{reserva.status}</span>
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="flex items-center space-x-2">
+                                                <button className="px-3 py-1 border border-gray-300 rounded text-gray-700 hover:bg-gray-100 transition-colors text-xs font-medium">
+                                                    Remarcar
+                                                </button>
+                                                <button className="px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors text-xs font-medium flex items-center space-x-1">
+                                                    <X className="w-3 h-3" />
+                                                    <span>Cancelar</span>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 ) : (
                     <div className="bg-white border border-gray-200 rounded-lg p-12 flex items-center justify-center flex-col space-y-4 min-h-80">
                         <Calendar className="w-16 h-16 text-gray-300" />
