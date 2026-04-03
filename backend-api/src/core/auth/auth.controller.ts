@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import { AuthService } from "./auth.services.js";
-import { registerSchema, loginSchema, refreshSchema, logoutSchema } from "./auth.schema.js";
+import { registerSchema, loginSchema } from "./auth.schema.js";
 import type { IRegisterResponse, ILoginResponse, IRefreshResponse, ILogoutResponse, IApiError, IRolesResponse, IRolePermissionsResponse } from "./auth.types.js";
 import { ConflictError, ValidationError } from "../../utils/errors.js";
 import { z } from "zod";
@@ -17,7 +17,20 @@ export class AuthController {
       const ipAddress = req.ip || "unknown";
       
       const result = await AuthService.register(validatedData, userAgent, ipAddress);
-      res.status(201).json(result);
+      
+      // Set HttpOnly Cookie with refreshToken (7 days)
+      const maxAge = 7 * 24 * 60 * 60 * 1000;
+      res.cookie('refreshToken', (result as any).refreshToken, {
+        httpOnly: true,
+        secure: process.env['NODE_ENV'] === 'production',
+        sameSite: 'strict',
+        maxAge: maxAge,
+        path: '/'
+      });
+      
+      // Return response WITHOUT tokens
+      const { accessToken, refreshToken, ...responseWithoutTokens } = result as any;
+      res.status(201).json(responseWithoutTokens);
     } catch (err) {
       if (err instanceof ValidationError) {
         return res.status(400).json({ error: err.message });
@@ -45,7 +58,20 @@ export class AuthController {
       const ipAddress = req.ip || "unknown";
       
       const result = await AuthService.login(validatedData, userAgent, ipAddress);
-      res.status(200).json(result);
+      
+      // Set HttpOnly Cookie with refreshToken (7 days)
+      const maxAge = 7 * 24 * 60 * 60 * 1000;
+      res.cookie('refreshToken', (result as any).refreshToken, {
+        httpOnly: true,
+        secure: process.env['NODE_ENV'] === 'production',
+        sameSite: 'strict',
+        maxAge: maxAge,
+        path: '/'
+      });
+      
+      // Return response WITHOUT tokens
+      const { accessToken, refreshToken, ...responseWithoutTokens } = result as any;
+      res.status(200).json(responseWithoutTokens);
     } catch (err) {
       if (err instanceof ValidationError) {
         return res.status(401).json({ error: err.message });
@@ -64,8 +90,13 @@ export class AuthController {
 
   static async refresh(req: Request, res: Response<IRefreshResponse | IApiError>) {
     try {
-      const validatedData = refreshSchema.parse(req.body);
-      const result = await AuthService.refresh(validatedData.refreshToken);
+      const refreshToken = req.cookies['refreshToken'];
+      
+      if (!refreshToken) {
+        return res.status(401).json({ error: "Refresh token não fornecido" });
+      }
+      
+      const result = await AuthService.refresh(refreshToken);
       res.status(200).json(result);
     } catch (err) {
       if (err instanceof ValidationError) {
@@ -85,8 +116,22 @@ export class AuthController {
 
   static async logout(req: Request, res: Response<ILogoutResponse | IApiError>) {
     try {
-      const validatedData = logoutSchema.parse(req.body);
-      await AuthService.logout(validatedData.refreshToken);
+      const refreshToken = req.cookies['refreshToken'];
+      
+      if (!refreshToken) {
+        return res.status(400).json({ error: "Nenhuma sessão ativa" });
+      }
+      
+      await AuthService.logout(refreshToken);
+      
+      // Clear HttpOnly Cookie
+      res.clearCookie('refreshToken', {
+        httpOnly: true,
+        secure: process.env['NODE_ENV'] === 'production',
+        sameSite: 'strict',
+        path: '/'
+      });
+      
       res.status(200).json({ message: "Logout realizado com sucesso" });
     } catch (err) {
       if (err instanceof z.ZodError) {

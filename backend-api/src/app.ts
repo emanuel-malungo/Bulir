@@ -1,4 +1,6 @@
 import express from 'express';
+import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import authRoutes from "./core/auth/auth.routes.js";
 import userRoutes from "./modules/user/user.routes.js";
 import serviceRoutes from "./modules/service/service.routes.js";
@@ -8,8 +10,18 @@ import walletRoutes from "./modules/wallet/wallet.routes.js";
 
 const app = express();
 
+// ===== CORS Configuration with credentials =====
+app.use(cors({
+  origin: process.env['FRONTEND_URL'] || 'http://localhost:3000',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  optionsSuccessStatus: 200
+}));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 
 // =========== Routes ===========

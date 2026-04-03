@@ -27,13 +27,14 @@ export interface ILoginRequest {
 }
 
 export interface ILoginResponse {
+  message?: string;
   user: IUser;
   accessToken: string;
   refreshToken: string;
 }
 
 export interface IRegisterResponse {
-  message: string;
+  message?: string;
   user: IUser;
   accessToken: string;
   refreshToken: string;

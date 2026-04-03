@@ -1,7 +1,8 @@
 import type { Request, Response, NextFunction } from "express";
-import { verifyAccessToken } from "../../utils/jwt.utils.js";
+import { signAccessToken, verifyRefreshToken } from "../../utils/jwt.utils.js";
 import { rbacService } from "../rbac/rbac.service.js";
 import type { PermissionCode } from "../rbac/permission.constants.js";
+import prisma from "../../config/prisma.js";
 
 export interface JwtPayload {
 	userId: number;
@@ -15,24 +16,52 @@ export interface AuthRequest extends Request {
 }
 
 export const authMiddleware = async (req: AuthRequest, res: Response, next: NextFunction) => {
-	const authHeader = req.headers.authorization;
-
-	if (!authHeader || !authHeader.startsWith("Bearer ")) {
-		return res.status(401).json({ message: "Token não fornecido" });
-	}
-
-	const token = authHeader.split(" ")[1];
-
-	if (!token) {
-		return res.status(401).json({ message: "Token não fornecido" });
-	}
-
 	try {
-		const decoded = verifyAccessToken(token) as JwtPayload;
+		const refreshToken = req.cookies['refreshToken'];
+
+		if (!refreshToken) {
+			return res.status(401).json({ message: "Refresh token não fornecido" });
+		}
+
+		// Verify refresh token
+		const decoded = verifyRefreshToken(refreshToken) as JwtPayload;
+
+		// Check if session exists and is not revoked
+		const session = await prisma.session.findUnique({
+			where: { refreshToken }
+		});
+
+		if (!session || session.isRevoked) {
+			return res.status(401).json({ message: "Sessão inválida ou expirada" });
+		}
+
+		// Get user to include email in access token
+		const user = await prisma.user.findUnique({
+			where: { id: decoded.userId },
+			select: { email: true }
+		});
+
+		if (!user) {
+			return res.status(401).json({ message: "Usuário não encontrado" });
+		}
+
+		// Generate new access token
+		const accessToken = signAccessToken({
+			userId: decoded.userId,
+			email: user.email
+		});
+
+		// Set access token in Authorization header
+		res.set('Authorization', `Bearer ${accessToken}`);
 		req.user = decoded;
 		next();
 	} catch (error) {
-		return res.status(401).json({ message: "Token inválido ou expirado" });
+		if (error instanceof Error) {
+			if (error.message.includes('jwt')) {
+				return res.status(401).json({ message: "Refresh token inválido ou expirado" });
+			}
+		}
+		return res.status(401).json({ message: "Token não fornecido" });
 	}
 };
 
