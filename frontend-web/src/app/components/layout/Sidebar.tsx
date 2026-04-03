@@ -12,13 +12,13 @@ const menuItems = [
     id: 'explore',
     label: 'Explorar',
     icon: Search,
-    href: '/client/explore',
+    href: '/client/',
   },
   {
     id: 'reservas',
     label: 'Reservas',
     icon: Calendar,
-    href: '/client/reservas',
+    href: '/client/reserved',
   },
   {
     id: 'conta',
