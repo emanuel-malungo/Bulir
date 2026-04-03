@@ -100,14 +100,19 @@ export default function NewReservationPage() {
         return;
       }
 
-      await createReservation.mutateAsync({
+      const payload = {
         serviceId: serviceId!,
         providerId: providerId!,
         scheduledAt: date.toISOString(),
-      });
+      };
+
+      console.log('📤 Enviando agendamento:', payload);
+
+      await createReservation.mutateAsync(payload);
 
       router.push('/client/reservation?success=true');
     } catch (error) {
+      console.error('❌ Erro na submissão:', error);
       const message = error instanceof Error ? error.message : 'Erro ao agendar';
       setFormError(message);
     }
@@ -219,7 +224,6 @@ export default function NewReservationPage() {
                 <div className="p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
                   <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
                   <div>
-                    <p className="font-medium text-red-900">Erro ao agendar</p>
                     <p className="text-sm text-red-700 mt-1">
                       {formError ||
                         (createReservation.error instanceof Error

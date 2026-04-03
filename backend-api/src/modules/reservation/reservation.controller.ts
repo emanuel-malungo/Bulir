@@ -23,11 +23,19 @@ export class ReservationController {
     try {
       const clientId = (req as any).user?.userId; // Vem do middleware de auth
       
+      console.log('📤 Requisição de agendamento recebida');
+      console.log('  ├─ Body:', JSON.stringify(req.body));
+      console.log('  ├─ ClientId:', clientId);
+      console.log('  └─ User:', (req as any).user);
+      
       if (!clientId) {
+        console.error('❌ Usuário não autenticado');
         return res.status(401).json({ error: "Usuário não autenticado" });
       }
 
       const validatedData = createReservationSchema.parse(req.body);
+      console.log('✅ Dados validados:', validatedData);
+      
       const reservation = await ReservationService.create(clientId, validatedData);
 
       res.status(201).json({
@@ -36,11 +44,14 @@ export class ReservationController {
       });
     } catch (err) {
       if (err instanceof z.ZodError) {
+        console.error('❌ Erro de validação:', err.issues);
         return res.status(400).json({ errors: err.issues });
       }
       if (err instanceof Error) {
+        console.error('❌ Erro:', err.message);
         return res.status(400).json({ error: err.message });
       }
+      console.error('❌ Erro desconhecido:', err);
       res.status(500).json({ error: "Erro interno do servidor" });
     }
   }

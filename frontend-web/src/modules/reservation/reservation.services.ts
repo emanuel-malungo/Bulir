@@ -60,12 +60,30 @@ export class ReservationAPI {
   ): Promise<ICreateReservationResponse> {
     const validatedData = createReservationSchema.parse(data);
 
-    const response = await api.post<ICreateReservationResponse>(
-      '/reservations',
-      validatedData
-    );
+    try {
+      const response = await api.post<ICreateReservationResponse>(
+        '/reservations',
+        validatedData
+      );
 
-    return response.data;
+      return response.data;
+    } catch (error: any) {
+      // Melhorar error message com detalhes da resposta
+      const errorMessage = error.response?.data?.error || 
+                          error.response?.data?.message ||
+                          error.message ||
+                          'Erro ao criar reserva';
+      
+      // Se houver erros de validação Zod, montar mensagem mais clara
+      if (error.response?.data?.errors && Array.isArray(error.response.data.errors)) {
+        const details = error.response.data.errors
+          .map((err: any) => `${err.path?.join('.')}: ${err.message}`)
+          .join('\n');
+        throw new Error(`Validação falhou:\n${details}`);
+      }
+
+      throw new Error(errorMessage);
+    }
   }
 
   /**
