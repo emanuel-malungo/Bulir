@@ -71,7 +71,7 @@ export default function ClientDashboard() {
     
     // Fetch dados da API
     const { data: reservationsData, isLoading: reservationsLoading, error: reservationsError } = useReservations(
-      { limit: 50 },
+      { limit: 6 },
       { enabled: isAuthenticated() }
     );
     

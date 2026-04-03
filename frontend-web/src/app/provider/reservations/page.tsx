@@ -33,7 +33,7 @@ const formatTime = (isoDate: string) => {
 export default function ProviderReservations() {
   const { user, isAuthenticated } = useAuthStore();
   const { data: reservationsData, isLoading, error } = useReservations(
-    { limit: 50, providerId: user?.id },
+    { limit: 6, providerId: user?.id },
     { enabled: isAuthenticated() && !!user?.id }
   );
   const confirmMutation = useConfirmReservation();

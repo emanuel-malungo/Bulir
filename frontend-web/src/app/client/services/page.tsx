@@ -11,7 +11,7 @@ export default function ClientServices() {
   const { isAuthenticated } = useAuthStore();
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [limit] = useState(12);
+  const [limit] = useState(6);
 
   // Fetch dados da API
   const { data: servicesData, isLoading, error } = useServices(
