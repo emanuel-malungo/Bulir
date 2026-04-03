@@ -8,6 +8,7 @@ import CreateServiceModal from '@/app/components/layout/provider/CreateServiceMo
 import { useQuery } from '@tanstack/react-query';
 import api from '@/utils/api.utils';
 import { useAuthStore } from '@/modules/auth/auth.store';
+import { useProviderStats } from '@/modules/reservation/useReservation';
 
 export default function ProviderDashboard() {
     const [isCreateServiceOpen, setIsCreateServiceOpen] = useState(false);
@@ -18,13 +19,8 @@ export default function ProviderDashboard() {
         setMounted(true);
     }, []);
 
-    // Fetch stats
-    const { data: statsData, isLoading: isLoadingStats } = useQuery({
-        queryKey: ['provider-stats'],
-        queryFn: async () => {
-            const response = await api.get('/reservations/provider/stats');
-            return response.data.data;
-        },
+    // Fetch stats usando o hook
+    const { data: stats, isLoading: isLoadingStats } = useProviderStats({
         enabled: mounted && !!user,
     });
 
@@ -47,7 +43,7 @@ export default function ProviderDashboard() {
         );
     }
 
-    const stats = statsData || { totalReservations: 0, monthlyEarnings: 0 };
+    const statsData = stats || { totalReservations: 0, monthlyEarnings: 0 };
     const myServices = servicesData || [];
 
     return (
@@ -55,13 +51,13 @@ export default function ProviderDashboard() {
             <CreateServiceModal isOpen={isCreateServiceOpen} onClose={() => setIsCreateServiceOpen(false)} />
             <header className="grid grid-cols-2 gap-10 mb-8" >
                 <div>
-                    <h1 className="text-2xl font-medium flex items-center space-x-1" ><TrendingUp className="w-6 h-6 text-accent " /> <span className="hover:text-accent cursor-pointer" >Total de reservas ({stats.totalReservations})</span></h1>
+                    <h1 className="text-2xl font-medium flex items-center space-x-1" ><TrendingUp className="w-6 h-6 text-accent " /> <span className="hover:text-accent cursor-pointer" >Total de reservas ({statsData.totalReservations})</span></h1>
                     <p className="text-xs text-gray-400" >Gerencie suas reservas e ganhos</p>
                 </div>
                 <div className="bg-primary flex items-center justify-between rounded-lg p-4" >
                     <div className="flex items-center space-x-2" >
                         <Image src={iconEarnings} alt="Ícone de ganhos" width={24} height={24} />
-                        <span className="text-white font-medium" >Kz {stats.monthlyEarnings.toLocaleString()}</span>
+                        <span className="text-white font-medium" >Kz {statsData.monthlyEarnings.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                     </div>
                     <p className="text-gray-300" >Ganhos este mês</p>
                 </div>

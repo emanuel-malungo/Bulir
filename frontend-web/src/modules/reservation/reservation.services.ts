@@ -14,6 +14,8 @@ import type {
   ICancelReservationResponse,
   IReservationHistoryResponse,
   IReservationFilters,
+  IProviderStats,
+  IProviderStatsResponse,
 } from './reservation.types';
 
 /**
@@ -146,5 +148,14 @@ export class ReservationAPI {
     );
 
     return response.data;
+  }
+
+  /**
+   * Obter estatísticas do provider
+   * @returns Estatísticas de reservas e ganhos mensais
+   */
+  static async getProviderStats(): Promise<IProviderStats> {
+    const response = await api.get<IProviderStatsResponse>('/reservations/provider/stats');
+    return response.data.data;
   }
 }

@@ -16,6 +16,7 @@ const reservationKeys = {
   detail: (id: number) => [...reservationKeys.details(), id] as const,
   histories: () => [...reservationKeys.all, 'history'] as const,
   history: (id: number) => [...reservationKeys.histories(), id] as const,
+  stats: () => [...reservationKeys.all, 'stats'] as const,
 };
 
 /**
@@ -62,6 +63,21 @@ export function useReservationHistory(id: number | null, options = {}) {
     enabled: !!id,
     staleTime: 2 * 60 * 1000,
     gcTime: 5 * 60 * 1000,
+    ...options,
+  });
+}
+
+/**
+ * Hook: Obter estatísticas do provider
+ * - Total de reservas
+ * - Ganhos mensais
+ */
+export function useProviderStats(options = {}) {
+  return useQuery({
+    queryKey: reservationKeys.stats(),
+    queryFn: () => ReservationAPI.getProviderStats(),
+    staleTime: 5 * 60 * 1000, // 5 minutos
+    gcTime: 10 * 60 * 1000, // 10 minutos
     ...options,
   });
 }

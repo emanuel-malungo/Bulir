@@ -79,7 +79,14 @@ export interface IReservationFilters {
   startDate?: string;
   endDate?: string;
 }
+export interface IProviderStats {
+  totalReservations: number;
+  monthlyEarnings: number;
+}
 
+export interface IProviderStatsResponse {
+  data: IProviderStats;
+}
 // ===== ERROR TYPES =====
 export interface IApiError {
   error?: string;
