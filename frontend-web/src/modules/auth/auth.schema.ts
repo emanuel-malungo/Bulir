@@ -27,19 +27,30 @@ export const registerFormSchema = z.object({
     .regex(/[A-Z]/, 'Senha deve conter maiúsculas')
     .regex(/[a-z]/, 'Senha deve conter minúsculas')
     .regex(/[0-9]/, 'Senha deve conter números'),
-  confirmPassword: z.string()
-    .min(8, 'Confirmação de senha é obrigatória'),
   roleId: z.number()
     .int('Role ID deve ser um número inteiro')
     .positive('Role ID deve ser positivo'),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: 'As senhas não correspondem',
-  path: ['confirmPassword'],
 });
 
 // Schema para os dados que serão enviados ao backend (sem campos de UI)
-export const registerSchema = registerFormSchema.omit({ 
-  confirmPassword: true 
+export const registerSchema = z.object({
+  fullName: z.string()
+    .min(3, 'Nome deve ter no mínimo 3 caracteres')
+    .max(60, 'Nome não pode exceder 60 caracteres'),
+  email: z.string()
+    .email('Formato de email inválido'),
+  nif: z.string()
+    .min(9, 'NIF deve ter no mínimo 9 caracteres')
+    .max(14, 'NIF não pode exceder 14 caracteres'),
+  password: z.string()
+    .min(8, 'Senha deve ter no mínimo 8 caracteres')
+    .max(50, 'Senha não pode exceder 50 caracteres')
+    .regex(/[A-Z]/, 'Senha deve conter maiúsculas')
+    .regex(/[a-z]/, 'Senha deve conter minúsculas')
+    .regex(/[0-9]/, 'Senha deve conter números'),
+  roleId: z.number()
+    .int('Role ID deve ser um número inteiro')
+    .positive('Role ID deve ser positivo'),
 });
 
 export const refreshSchema = z.object({

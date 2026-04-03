@@ -5,7 +5,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import icon from '@/assets/images/bulir.svg';
-import { Button, Input, ReCaptchaV3 } from '@/app/components/common';
+import { Button, Input, ReCaptchaV3, AuthFooter } from '@/app/components/common';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { loginSchema, type LoginFormData } from '@/modules/auth/auth.schema';
@@ -114,9 +114,7 @@ export default function Login() {
         </div>
       </form>
 
-      <footer className="absolute bottom-0 w-full text-center py-4">
-        <p className="text-xs text-gray-500">©2026 Bulir. Todos os direitos reservados. · <a href="#" className="hover:underline">Termos de uso</a> · <a href="#" className="hover:underline">Política de privacidade</a></p>
-      </footer>
+      <AuthFooter />
 
       
     </div>
