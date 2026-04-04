@@ -11,7 +11,7 @@ export default function Index() {
       className="flex-1 bg-white/"
     >
       {/* Overlay - Cor sobre a imagem de fundo */}
-      <View className="absolute inset-0 bg-white/90" />
+      <View className="absolute inset-0 bg-white/95" />
 
       <StatusBar 
         barStyle="dark-content"
@@ -64,14 +64,6 @@ export default function Index() {
           <TouchableOpacity 
             activeOpacity={0.85}
             className="bg-[#31ECC6] py-4 rounded-full shadow-lg"
-            style={{
-              borderBottomWidth: 4,
-              borderBottomColor: '#00a385',
-              borderLeftWidth: 2,
-              borderLeftColor: '#00a385',
-              borderRightWidth: 2,
-              borderRightColor: '#00a385',
-            }}
           >
             <Text className="text-white text-base md:text-lg font-bold text-center">
               Entrar
