@@ -52,30 +52,22 @@ export default function Login() {
 		setLocalError(null);
 		useAuthStore.getState().setError(null);
 
-		// Timeout de segurança (5 segundos)
-		const timeoutId = setTimeout(() => {
-			setIsLoading(false);
-			useAuthStore.getState().setLoading(false);
-			setLocalError('Requisição levou muito tempo. Tente novamente.');
-		}, 5000);
 
 		try {
 			// Chamar o serviço de login
 			await AuthService.login(data.email, data.password);
 
 			// Se chegou aqui, login foi bem-sucedido
-			clearTimeout(timeoutId);
 
 			// Redirecionar baseado no papel do usuário
 			const user = useAuthStore.getState().user;
 			if (user?.role) {
-				const roleSlug = user.role.toLowerCase();
-				router.push(`/${roleSlug}`);
+				const homePath = user.role === 'SUPER_ADMIN' ? '/admin' : `/${user.role.toLowerCase()}`;
+				router.push(homePath);
 			} else {
 				router.push('/client');
 			}
 		} catch (error) {
-			clearTimeout(timeoutId);
 
 			// O erro já está no store graças ao AuthService
 			// Apenas garantir que o estado local está atualizado

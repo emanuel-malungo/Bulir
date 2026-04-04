@@ -21,6 +21,7 @@ export interface IServiceDetail {
   description?: string | null;
   price: number;
   isActive: boolean;
+  category?: string;
   provider?: {
     id: number;
     fullName: string;
@@ -37,6 +38,7 @@ export interface IServiceListItem {
   description?: string | null;
   price: number;
   isActive: boolean;
+  category?: string;
   provider?: {
     id: number;
     fullName: string;

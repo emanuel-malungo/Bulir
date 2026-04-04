@@ -15,7 +15,7 @@ const PUBLIC_ROUTES = [
 
 interface AuthGuardProps {
   children: React.ReactNode;
-  requiredRole?: 'CLIENT' | 'PROVIDER';
+  requiredRole?: 'CLIENT' | 'PROVIDER' | 'SUPER_ADMIN';
 }
 
 /**
@@ -49,7 +49,10 @@ export function AuthGuard({ children, requiredRole }: AuthGuardProps) {
     // Cenário 1: Usuário autenticado tentando acessar uma rota pública (login/registro)
     // Redireciona para a página principal baseada na sua role.
     if (authenticated && isPublicRoute) {
-      const homePath = user?.role === 'PROVIDER' ? '/provider' : '/client';
+      let homePath = '/client';
+      if (user?.role === 'SUPER_ADMIN') homePath = '/admin';
+      else if (user?.role === 'PROVIDER') homePath = '/provider';
+      
       router.push(homePath);
       return;
     }
@@ -140,7 +143,7 @@ export function AuthGuard({ children, requiredRole }: AuthGuardProps) {
  */
 export function withAuthGuard<P extends object>(
   Component: React.ComponentType<P>,
-  requiredRole?: 'CLIENT' | 'PROVIDER'
+  requiredRole?: 'CLIENT' | 'PROVIDER' | 'SUPER_ADMIN'
 ) {
   return function ProtectedComponent(props: P) {
     return (
@@ -185,6 +188,7 @@ export function useRouteGuard() {
 
   const getHomePath = () => {
     if (!user) return '/auth/login';
+    if (user.role === 'SUPER_ADMIN') return '/admin';
     return user.role === 'PROVIDER' ? '/provider' : '/client';
   };
 

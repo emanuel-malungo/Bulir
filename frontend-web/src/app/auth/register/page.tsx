@@ -65,14 +65,6 @@ export default function Register() {
     setLocalError(null);
     useAuthStore.getState().setError(null);
 
-    // Timeout de segurança (5 segundos)
-    const timeoutId = setTimeout(() => {
-      console.error('⏱️ Timeout: Requisição levou muito tempo');
-      setIsLoading(false);
-      useAuthStore.getState().setLoading(false);
-      setLocalError('Requisição levou muito tempo. Tente novamente.');
-    }, 5000);
-
     try {
       console.log('📤 Enviando registro para API...');
       
@@ -86,7 +78,6 @@ export default function Register() {
       });
       
       // Se chegou aqui, registro foi bem-sucedido
-      clearTimeout(timeoutId);
       console.log('✅ Registro bem-sucedido');
 
       // Redirecionar baseado no papel do usuário
@@ -100,7 +91,6 @@ export default function Register() {
         router.push('/client');
       }
     } catch (error) {
-      clearTimeout(timeoutId);
       console.error('❌ Erro capturado:', error);
       
       // O erro já está no store graças ao AuthService

@@ -35,20 +35,18 @@ export interface IUserDetail {
   isActive: boolean;
   roleId?: number;
   role?: string;
+  userRoles?: Array<{
+    role: {
+      id: number;
+      name: string;
+    }
+  }>;
   permissions?: string[];
   createdAt: Date;
   updatedAt: Date;
 }
 
-export interface IUserListItem {
-  id: number;
-  fullName: string;
-  email: string;
-  nif: string;
-  role?: string;
-  isActive: boolean;
-  createdAt: Date;
-}
+export interface IUserListItem extends IUserDetail {}
 
 export interface ISessionDetail {
   id: number;

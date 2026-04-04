@@ -7,6 +7,7 @@ console.log('🔌 Aplicando baseURL na instância axios:', ENV.API_BASE_URL);
 const api = axios.create({
   baseURL: ENV.API_BASE_URL,
   withCredentials: true,
+  timeout: 30000, // 30 segundos globais para todas as requisições
   headers: {
     'Content-Type': 'application/json',
   },
@@ -58,9 +59,9 @@ api.interceptors.response.use(
     // NÃO fazer refresh em rotas de auth (login, register, refresh)
     if (error.response?.status === 401 && !originalRequest._retry) {
       const urlPath = originalRequest.url || '';
-      const isAuthRoute = urlPath.includes('/auth/login') || 
-                          urlPath.includes('/auth/register') || 
-                          urlPath.includes('/auth/refresh');
+      const isAuthRoute = urlPath.endsWith('/auth/login') || 
+                          urlPath.endsWith('/auth/register') || 
+                          urlPath.endsWith('/auth/refresh');
       
       // Se é rota de auth, apenas rejeitar o erro
       if (isAuthRoute) {
