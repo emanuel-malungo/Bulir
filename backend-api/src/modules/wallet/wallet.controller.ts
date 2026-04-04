@@ -15,11 +15,12 @@ export class WalletController {
       const userId = (req as any).user?.userId;
       
       if (!userId) {
-        return res.status(401).json({
+        res.status(401).json({
           error: "UNAUTHORIZED",
           message: "Usuário não autenticado",
           statusCode: 401,
         });
+        return;
       }
 
       const { amount } = depositSchema.parse(req.body);
@@ -50,11 +51,12 @@ export class WalletController {
       const userId = (req as any).user?.userId;
 
       if (!userId) {
-        return res.status(401).json({
+        res.status(401).json({
           error: "UNAUTHORIZED",
           message: "Usuário não autenticado",
           statusCode: 401,
         });
+        return;
       }
 
       const response = await walletService.getBalance(userId);

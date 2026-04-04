@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import { X } from 'lucide-react';
-import { ReCaptchaV3 } from '@/app/components/common';
-import { Button } from '@/app/components/common';
+import { ReCaptchaV3 } from '@/components/common';
+import { Button } from '@/components/common';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { serviceFormSchema } from '@/modules/service/service.schema';

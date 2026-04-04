@@ -4,7 +4,7 @@ import iconEarnings from '@/assets/images/money-bag.png';
 import iconService from '@/assets/images/service.png';
 import Image from "next/image";
 import { Plus, Search, TrendingUp, Edit2, Trash2, Loader2, AlertCircle, X }  from "lucide-react";
-import CreateServiceModal from '@/app/components/layout/provider/CreateServiceModal';
+import CreateServiceModal from '@/components/layout/provider/CreateServiceModal';
 import { useAuthStore } from '@/modules/auth/auth.store';
 import { useProviderStats } from '@/modules/reservation/useReservation';
 import { useUpdateService, useDeleteService, useServices } from '@/modules/service/useService';

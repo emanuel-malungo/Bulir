@@ -5,7 +5,7 @@ import { User, Mail, FileText, Edit2, Check, X } from 'lucide-react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { updateUserSchema } from '@/modules/user/user.schema';
-import { UserAPI } from '@/modules/user/user.services';
+import { useUpdateUser } from '@/modules/user/useUser';
 import { Input, Button } from '@/components/common';
 import type { IUserDetail, IUpdateUserRequest } from '@/modules/user/user.types';
 
@@ -16,8 +16,9 @@ interface ProfileCardProps {
 
 export function ProfileCard({ user, isLoading }: ProfileCardProps) {
   const [isEditing, setIsEditing] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  const updateMutation = useUpdateUser();
 
   const {
     control,
@@ -47,17 +48,17 @@ export function ProfileCard({ user, isLoading }: ProfileCardProps) {
   const onSubmit = async (data: IUpdateUserRequest) => {
     if (!user?.id) return;
 
-    setIsSaving(true);
     setMessage(null);
 
     try {
-      await UserAPI.updateUser(user.id, data);
+      await updateMutation.mutateAsync({
+        userId: user.id,
+        data,
+      });
       setMessage({ type: 'success', text: 'Perfil atualizado com sucesso!' });
       setIsEditing(false);
     } catch (error) {
       setMessage({ type: 'error', text: 'Erro ao atualizar perfil. Tente novamente.' });
-    } finally {
-      setIsSaving(false);
     }
   };
 
@@ -103,7 +104,7 @@ export function ProfileCard({ user, isLoading }: ProfileCardProps) {
                 label="Nome Completo"
                 placeholder="Seu nome completo"
                 error={errors.fullName?.message}
-                disabled={isSaving}
+                disabled={updateMutation.isPending}
               />
             )}
           />
@@ -118,7 +119,7 @@ export function ProfileCard({ user, isLoading }: ProfileCardProps) {
                 label="Email"
                 placeholder="seu@email.com"
                 error={errors.email?.message}
-                disabled={isSaving}
+                disabled={updateMutation.isPending}
               />
             )}
           />
@@ -133,7 +134,7 @@ export function ProfileCard({ user, isLoading }: ProfileCardProps) {
                 label="NIF"
                 placeholder="Seu número de identificação"
                 error={errors.nif?.message}
-                disabled={isSaving}
+                disabled={updateMutation.isPending}
               />
             )}
           />
@@ -143,7 +144,7 @@ export function ProfileCard({ user, isLoading }: ProfileCardProps) {
               type="submit"
               variant="primary"
               size="md"
-              isLoading={isSaving}
+              isLoading={updateMutation.isPending}
               className="flex-1"
             >
               Salvar
@@ -157,7 +158,7 @@ export function ProfileCard({ user, isLoading }: ProfileCardProps) {
                 reset();
                 setMessage(null);
               }}
-              disabled={isSaving}
+              disabled={updateMutation.isPending}
               className="flex-1"
             >
               Cancelar
