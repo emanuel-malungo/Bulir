@@ -1,26 +1,29 @@
-import { Stack } from "expo-router";
-import { useFonts } from "expo-font";
+import "@/assets/styles/global.css";
+import { useAuthStore } from "@/modules/auth/auth.store";
+import { ProtectedRouteMobile } from "@/modules/auth/protected-route-mobile";
+import { QueryProvider } from "@/utils/query-client";
 import {
-  Poppins_100Thin,
-  Poppins_200ExtraLight,
-  Poppins_300Light,
-  Poppins_400Regular,
-  Poppins_500Medium,
-  Poppins_600SemiBold,
-  Poppins_700Bold,
-  Poppins_800ExtraBold,
-  Poppins_900Black,
+    Poppins_100Thin,
+    Poppins_200ExtraLight,
+    Poppins_300Light,
+    Poppins_400Regular,
+    Poppins_500Medium,
+    Poppins_600SemiBold,
+    Poppins_700Bold,
+    Poppins_800ExtraBold,
+    Poppins_900Black,
 } from "@expo-google-fonts/poppins";
 import {
-  Rubik_300Light,
-  Rubik_400Regular,
-  Rubik_500Medium,
-  Rubik_600SemiBold,
-  Rubik_700Bold,
+    Rubik_300Light,
+    Rubik_400Regular,
+    Rubik_500Medium,
+    Rubik_600SemiBold,
+    Rubik_700Bold,
 } from "@expo-google-fonts/rubik";
+import { useFonts } from "expo-font";
+import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
-import "@/assets/styles/global.css";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -44,6 +47,13 @@ export default function RootLayout() {
     Rubik_700: Rubik_700Bold,
   });
 
+  const { checkAuth } = useAuthStore();
+
+  // Inicializar verificação de autenticação ao abrir o app
+  useEffect(() => {
+    checkAuth();
+  }, []);
+
   useEffect(() => {
     if (loaded || error) {
       SplashScreen.hideAsync();
@@ -55,8 +65,12 @@ export default function RootLayout() {
   }
 
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="index" />
-    </Stack>
+    <QueryProvider>
+      <ProtectedRouteMobile>
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="index" />
+        </Stack>
+      </ProtectedRouteMobile>
+    </QueryProvider>
   );
 }

@@ -1,10 +1,19 @@
-import Splash from "@/components/layout/Splash";
-import { Text, View, Image, TouchableOpacity, StatusBar, ImageBackground } from "react-native";
-import { Link } from "expo-router";
 
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useAuthStore } from "@/modules/auth/auth.store";
+import { useRouter } from "expo-router";
+import { Image, ImageBackground, StatusBar, Text, TouchableOpacity, View } from "react-native";
 
 export default function Index() {
+  const router = useRouter();
+  const { setOnboardingCompleted } = useAuthStore();
+
+  const handleStartOnboarding = () => {
+    // Marcar onboarding como concluído para não voltar mais
+    setOnboardingCompleted(true);
+    // Navegar para tela de login
+    router.push('/(auth)');
+  };
+
   return (
     <ImageBackground
       source={require("@/assets/images/bg-abstract-white.png")}
@@ -31,7 +40,7 @@ export default function Index() {
               className="w-[40px] h-[40px]"
               resizeMode="contain"
             />
-            <Text className="text-2xl font-bold text-gray-900">
+            <Text className="text-3xl  text-gray-900">
               Bulir
             </Text>
           </View>
@@ -50,7 +59,7 @@ export default function Index() {
 
           {/* Textos */}
           <View className="w-full">
-            <Text className="text-3xl md:text-3xl font-bold text-center text-gray-900 mb-3">
+            <Text className="text-3xl md:text-3xl text-center text-gray-900 mb-3">
               Bem-vindo ao Bulir
             </Text>
             
@@ -62,27 +71,25 @@ export default function Index() {
 
         {/* Botões - Fixo no Rodapé */}
         <View className="w-full gap-4 mb-8">
-          <Link href="/(auth)/index" asChild>
-            <TouchableOpacity 
-              activeOpacity={0.85}
-              className="bg-[#31ECC6] py-4 rounded-full shadow-lg shadow-[#31ECC6]/30"
-            >
-              <Text className="text-white text-base md:text-lg font-bold text-center">
-                Entrar
-              </Text>
-            </TouchableOpacity>
-          </Link>
+          <TouchableOpacity 
+            activeOpacity={0.85}
+            onPress={handleStartOnboarding}
+            className="bg-[#31ECC6] py-4 rounded-full shadow-lg shadow-[#31ECC6]/30"
+          >
+            <Text className="text-white text-base md:text-lg font-bold text-center">
+              Entrar
+            </Text>
+          </TouchableOpacity>
 
-          <Link href="/(auth)/register" asChild>
-            <TouchableOpacity 
-              activeOpacity={0.85}
-              className="border-2 border-[#31ECC6] bg-white/40 py-4 rounded-full shadow-md"
-            >
-              <Text className="text-[#1a9788] text-base md:text-lg font-bold text-center">
-                Criar conta
-              </Text>
-            </TouchableOpacity>
-          </Link>
+          <TouchableOpacity 
+            activeOpacity={0.85}
+            onPress={handleStartOnboarding}
+            className="border-2 border-[#31ECC6] bg-white/40 py-4 rounded-full shadow-md"
+          >
+            <Text className="text-[#1a9788] text-base md:text-lg font-bold text-center">
+              Criar conta
+            </Text>
+          </TouchableOpacity>
         </View>
 
       </View>

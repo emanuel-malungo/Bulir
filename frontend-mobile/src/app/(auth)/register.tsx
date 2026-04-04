@@ -1,159 +1,199 @@
-import { 
-  Text, 
-  View, 
-  Image, 
-  TouchableOpacity, 
-  StatusBar, 
-  ImageBackground, 
-  TextInput, 
-  ScrollView,
+import { AuthFooter, AuthHeader } from "@/components/auth";
+import { Button, ErrorAlert, Input, RoleSelector } from "@/components/common";
+import { registerFormSchema } from "@/modules/auth/auth.schema";
+import { AuthService } from "@/modules/auth/auth.services";
+import { useAuthStore } from "@/modules/auth/auth.store";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import {
   KeyboardAvoidingView,
-  Platform
+  Platform,
+  ScrollView,
+  StatusBar,
+  View
 } from "react-native";
-import { Link, useRouter } from "expo-router";
-import { useState } from "react";
-import { Ionicons } from "@expo/vector-icons";
+import { z } from "zod";
 
 export default function Register() {
-  const router = useRouter();
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
+  const { isLoading } = useAuthStore();
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+    watch,
+  } = useForm({
+    resolver: zodResolver(registerFormSchema),
+    defaultValues: {
+      fullName: "",
+      email: "",
+      nif: "",
+      password: "",
+      roleId: 2,
+    },
+  });
+
+  useEffect(() => {
+    if (apiError) {
+      const timer = setTimeout(() => setApiError(null), 5000); 
+      return () => clearTimeout(timer);
+    }
+  }, [apiError]);
+
+  const onSubmit = async (data: z.infer<typeof registerFormSchema>) => {
+    setApiError(null);
+    try {
+      await AuthService.register({
+        fullName: data.fullName,
+        email: data.email,
+        nif: data.nif,
+        password: data.password,
+        roleId: data.roleId,
+      });
+    } catch (error) {
+      const message = useAuthStore.getState().error || "Erro ao registrar";
+      setApiError(message);
+    }
+  };
 
   return (
     <KeyboardAvoidingView 
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       className="flex-1"
     >
-      <ImageBackground
-        source={require("@/assets/images/bg-abstract-white.png")}
-        resizeMode="cover"
-        className="flex-1"
-      >
-        <View className="absolute inset-0 bg-white/95" />
+      <StatusBar 
+        barStyle="dark-content"
+        backgroundColor="transparent"
+        translucent
+      />
 
-        <StatusBar barStyle="dark-content" />
-
+      <View className="flex-1 bg-white">
         <ScrollView 
           contentContainerStyle={{ flexGrow: 1 }}
           showsVerticalScrollIndicator={false}
           className="px-6"
         >
-          {/* Header */}
-          <View className="mt-16 mb-8 flex-row items-center justify-center gap-3">
-            <Image
-              source={require("../../assets/images/bulir.png")}
-              className="w-10 h-10"
-              resizeMode="contain"
-            />
-            <Text className="text-2xl font-bold text-gray-900">Bulir</Text>
-          </View>
+          <AuthHeader
+            title="Crie sua conta"
+            subtitle="Junte-se ao Bulir e comece a agendar."
+          />
 
-          {/* Welcome Text */}
-          <View className="mb-8 text-center">
-            <Text className="text-3xl font-bold text-gray-900 mb-2">Crie sua conta</Text>
-            <Text className="text-gray-500 text-base">Junte-se ao Bulir e comece a agendar serviços.</Text>
-          </View>
+          {/* Error Message */}
+          {apiError && (
+            <ErrorAlert
+              title="Erro ao registrar"
+              message={apiError}
+              icon="alert-circle"
+            />
+          )}
 
           {/* Form */}
-          <View className="gap-5">
-            {/* Name Field */}
-            <View>
-              <Text className="text-gray-700 font-medium mb-2 ml-1">Nome completo</Text>
-              <View className="flex-row items-center bg-gray-50 border border-gray-100 rounded-2xl px-4 h-14">
-                <Ionicons name="person-outline" size={20} color="#9ca3af" />
-                <TextInput
-                  placeholder="Seu Nome"
-                  placeholderTextColor="#9ca3af"
-                  className="flex-1 ml-3 text-gray-900"
-                  value={name}
-                  onChangeText={setName}
+          <View className="gap-4">
+            {/* Role Selection */}
+            <Controller
+              control={control}
+              name="roleId"
+              render={({ field: { onChange, value } }) => (
+                <RoleSelector
+                  value={value}
+                  onChange={onChange}
+                  error={errors.roleId?.message}
+                  label="Selecione seu tipo de conta"
                 />
-              </View>
-            </View>
+              )}
+            />
+
+            {/* Full Name Field */}
+            <Controller
+              control={control}
+              name="fullName"
+              render={({ field: { onChange, value } }) => (
+                <Input
+                  label="Nome Completo"
+                  icon="person-outline"
+                  placeholder="Seu Nome Completo"
+                  value={value}
+                  onChangeText={onChange}
+                  error={errors.fullName?.message}
+                />
+              )}
+            />
 
             {/* Email Field */}
-            <View>
-              <Text className="text-gray-700 font-medium mb-2 ml-1">E-mail</Text>
-              <View className="flex-row items-center bg-gray-50 border border-gray-100 rounded-2xl px-4 h-14">
-                <Ionicons name="mail-outline" size={20} color="#9ca3af" />
-                <TextInput
+            <Controller
+              control={control}
+              name="email"
+              render={({ field: { onChange, value } }) => (
+                <Input
+                  label="Email"
+                  icon="mail-outline"
                   placeholder="seu@email.com"
-                  placeholderTextColor="#9ca3af"
-                  className="flex-1 ml-3 text-gray-900"
                   keyboardType="email-address"
                   autoCapitalize="none"
-                  value={email}
-                  onChangeText={setEmail}
+                  value={value}
+                  onChangeText={onChange}
+                  error={errors.email?.message}
                 />
-              </View>
-            </View>
+              )}
+            />
+
+            {/* NIF Field */}
+            <Controller
+              control={control}
+              name="nif"
+              render={({ field: { onChange, value } }) => (
+                <Input
+                  label="NIF"
+                  icon="card-outline"
+                  placeholder="123456789"
+                  keyboardType="numeric"
+                  value={value}
+                  onChangeText={onChange}
+                  error={errors.nif?.message}
+                />
+              )}
+            />
 
             {/* Password Field */}
-            <View>
-              <Text className="text-gray-700 font-medium mb-2 ml-1">Senha</Text>
-              <View className="flex-row items-center bg-gray-50 border border-gray-100 rounded-2xl px-4 h-14">
-                <Ionicons name="lock-closed-outline" size={20} color="#9ca3af" />
-                <TextInput
+            <Controller
+              control={control}
+              name="password"
+              render={({ field: { onChange, value } }) => (
+                <Input
+                  label="Senha"
+                  icon="lock-closed-outline"
                   placeholder="••••••••"
-                  placeholderTextColor="#9ca3af"
-                  className="flex-1 ml-3 text-gray-900"
                   secureTextEntry={!showPassword}
-                  value={password}
-                  onChangeText={setPassword}
+                  value={value}
+                  onChangeText={onChange}
+                  error={errors.password?.message}
+                  showPasswordToggle
+                  showPassword={showPassword}
+                  onPasswordToggle={setShowPassword}
                 />
-                <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-                  <Ionicons 
-                    name={showPassword ? "eye-off-outline" : "eye-outline"} 
-                    size={20} 
-                    color="#9ca3af" 
-                  />
-                </TouchableOpacity>
-              </View>
-            </View>
+              )}
+            />
 
             {/* Register Button */}
-            <TouchableOpacity 
-              activeOpacity={0.85}
-              className="bg-[#31ECC6] py-4 rounded-full mt-4 shadow-lg shadow-[#31ECC6]/30"
-              onPress={() => {/* Handle register */}}
-            >
-              <Text className="text-white text-lg font-bold text-center">Registrar</Text>
-            </TouchableOpacity>
-
-            {/* Divider */}
-            <View className="flex-row items-center my-6">
-              <View className="flex-1 h-[1px] bg-gray-200" />
-              <Text className="mx-4 text-gray-400 font-medium">ou continuar com</Text>
-              <View className="flex-1 h-[1px] bg-gray-200" />
-            </View>
-
-            {/* Social Logins */}
-            <View className="flex-row gap-4 mb-4">
-              <TouchableOpacity className="flex-1 flex-row items-center justify-center border border-gray-200 bg-white py-3.5 rounded-2xl">
-                <Ionicons name="logo-google" size={20} color="#EA4335" />
-                <Text className="ml-2 font-semibold text-gray-700">Google</Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity className="flex-1 flex-row items-center justify-center border border-gray-200 bg-white py-3.5 rounded-2xl">
-                <Ionicons name="logo-apple" size={20} color="#000" />
-                <Text className="ml-2 font-semibold text-gray-700">Apple</Text>
-              </TouchableOpacity>
-            </View>
+            <Button 
+              label="Criar Conta"
+              loading={isLoading}
+              disabled={isLoading}
+              onPress={handleSubmit(onSubmit)}
+            />
           </View>
 
-          {/* Footer - Login */}
-          <View className="flex-row justify-center mt-auto py-8">
-            <Text className="text-gray-500">Já tem uma conta? </Text>
-            <Link href="/(auth)/index" asChild>
-              <TouchableOpacity>
-                <Text className="text-[#1a9788] font-bold">Entrar</Text>
-              </TouchableOpacity>
-            </Link>
-          </View>
+          <AuthFooter
+            text="Já tem conta?"
+            linkText="Entrar"
+            href="/(auth)"
+          />
         </ScrollView>
-      </ImageBackground>
+      </View>
     </KeyboardAvoidingView>
   );
 }
+
