@@ -36,6 +36,14 @@ export interface IUserDetail {
   roleId?: number;
   role?: string;
   permissions?: string[];
+  userRoles?: Array<{
+    role: {
+      id?: number;
+      name: string;
+    };
+    roleId: number;
+    userId: number;
+  }>;
   createdAt: Date;
   updatedAt: Date;
 }

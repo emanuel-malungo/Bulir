@@ -5,7 +5,7 @@
  */
 
 const ENV = {
-  API_BASE_URL: process.env.EXPO_PUBLIC_API_BASE_URL || 'http://192.168.249.71:4000/api',
+  API_BASE_URL: process.env.EXPO_PUBLIC_API_BASE_URL || 'http://192.168.200.202:4000/api',
 };
 
 // Validar variáveis críticas

@@ -1,275 +1,194 @@
-import AddFundsModal from "@/components/modals/AddFundsModal";
 import { useAuthStore } from "@/modules/auth/auth.store";
-import { useLoadBalance, useWallet } from "@/modules/wallet/useWallet";
+import { useReservations } from "@/modules/reservation/useReservation";
+import { useWallet } from "@/modules/wallet/useWallet";
 import { Ionicons } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { ActivityIndicator, ScrollView, StatusBar, Text, TouchableOpacity, View } from "react-native";
-
-type IconName = React.ComponentProps<typeof Ionicons>["name"];
-
-interface StatCard {
-  id: number;
-  icon: IconName;
-  label: string;
-  value: string;
-  color: string;
-}
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function ProviderHome() {
   const { user } = useAuthStore();
   const router = useRouter();
-  const [addFundsModalVisible, setAddFundsModalVisible] = useState(false);
+  const [showBalance, setShowBalance] = useState(true);
 
-  // Buscar dados da carteira do provider
+  // Data fetching
   const { data: wallet, isLoading: walletLoading } = useWallet();
-  const loadBalanceMutation = useLoadBalance();
+  const { data: reservationsData, isLoading: reservationsLoading } = useReservations();
 
-  // Pegar saldo/ganhos
   const walletBalance = wallet?.balance ?? 0;
-
-  // Handler para adicionar fundos
-  const handleAddFunds = async (amount: number) => {
-    try {
-      await loadBalanceMutation.mutateAsync(amount);
-    } catch (error) {
-      throw error;
-    }
-  };
-
-  // Dados estatísticos
-  const monthlyEarnings = 1250.75;
-  const completedServices = 48;
-  const averageRating = 4.9;
-
-  const stats: StatCard[] = [
-    {
-      id: 2,
-      icon: "calendar-outline" as IconName,
-      label: "Este Mês",
-      value: `Kz ${monthlyEarnings.toFixed(2)}`,
-      color: "#3b82f6",
-    },
-    {
-      id: 3,
-      icon: "checkmark-circle-outline" as IconName,
-      label: "Serviços Completos",
-      value: completedServices.toString(),
-      color: "#a855f7",
-    },
-    {
-      id: 4,
-      icon: "star-outline" as IconName,
-      label: "Avaliação Média",
-      value: averageRating.toString(),
-      color: "#f59e0b",
-    },
-  ];
-
-  const upcomingBookings = [
-    {
-      id: 1,
-      clientName: "Maria Silva",
-      serviceName: "Limpeza Residencial",
-      scheduledAt: "2026-04-05T10:00:00Z",
-      status: "CONFIRMED",
-      price: 150.00,
-    },
-    {
-      id: 2,
-      clientName: "João Santos",
-      serviceName: "Manutenção Elétrica",
-      scheduledAt: "2026-04-06T14:30:00Z",
-      status: "PENDING",
-      price: 200.00,
-    },
-    {
-      id: 3,
-      clientName: "Ana Costa",
-      serviceName: "Reparo Hidráulico",
-      scheduledAt: "2026-04-07T09:00:00Z",
-      status: "CONFIRMED",
-      price: 175.00,
-    },
-  ];
+  const recentReservations = reservationsData?.data?.slice(0, 3) ?? [];
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case "CONFIRMED":
-        return "#10b981";
+        return "#31ECC6";
       case "PENDING":
         return "#f59e0b";
       case "CANCELED":
         return "#ef4444";
       default:
-        return "#6b7280";
-    }
-  };
-
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case "CONFIRMED":
-        return "Confirmado";
-      case "PENDING":
-        return "Pendente";
-      case "CANCELED":
-        return "Cancelado";
-      default:
-        return status;
+        return "#9ca3af";
     }
   };
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("pt-BR", {
-      weekday: "short",
+      day: "2-digit",
       month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
     });
   };
 
   return (
-    <ScrollView className="flex-1 bg-gray-50">
-      <StatusBar barStyle="dark-content" />
+    <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
+      <StatusBar barStyle="dark-content" backgroundColor="white" translucent />
 
       {/* Header */}
-      <LinearGradient
-        colors={["#FFFFFF", "#F8F8F8"]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        className="px-6 pt-8 pb-6"
-      >
-        <Text className="text-3xl font-bold text-gray-900">
-          Bem-vindo, {user?.fullName?.split(" ")[0]}! 👋
-        </Text>
-        <Text className="text-gray-500 mt-2">
-          Confira seu desempenho de serviços
-        </Text>
-      </LinearGradient>
-
-      <View className="px-6 py-6">
-        {/* Saldo/Ganhos da Carteira */}
-        <View className="mb-8">
-          <LinearGradient
-            colors={["#31ECC6", "#1aa89a"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            className="rounded-2xl px-6 py-6"
-            style={{ borderRadius: 20 }}
-          >
-            <Text className="text-white text-sm opacity-90">Saldo Disponível</Text>
-            {walletLoading ? (
-              <View className="items-center justify-center py-4">
-                <ActivityIndicator size="large" color="white" />
-              </View>
-            ) : (
-              <>
-                <Text className="text-4xl font-bold text-white mt-2">
-                  Kz {walletBalance.toFixed(2)}
-                </Text>
-                <View className="flex-row justify-between mt-6 gap-3">
-                  <TouchableOpacity 
-                    onPress={() => setAddFundsModalVisible(true)}
-                    className="flex-1 flex-row items-center justify-center gap-2 bg-white bg-opacity-20 rounded-lg py-3"
-                  >
-                    <Ionicons name="add-circle" size={20} color="white" />
-                    <Text className="text-white font-semibold text-sm">Adicionar</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity 
-                    onPress={() => router.push("/(tabs)/(provider)/services")}
-                    className="flex-1 flex-row items-center justify-center gap-2 bg-white bg-opacity-20 rounded-lg py-3"
-                  >
-                    <Ionicons name="briefcase" size={20} color="white" />
-                    <Text className="text-white font-semibold text-sm">Meus Serviços</Text>
-                  </TouchableOpacity>
-                </View>
-              </>
-            )}
-          </LinearGradient>
+      <View className="px-6 py-4 flex-row justify-between items-center bg-white border-b border-gray-100">
+        {/* Right: Welcome Message */}
+        <View className="items-end">
+          <Text className="text-[#0C2340] text-lg font-bold">
+            Olá, {user?.fullName?.split(" ")[0]}
+          </Text>
         </View>
-        <View className="mb-8">
-          <View className="flex-row justify-between items-center mb-4">
-            <Text className="text-lg font-bold text-gray-900">
-              Próximos Agendamentos
-            </Text>
-            <TouchableOpacity
-              onPress={() => router.push("/(tabs)/(provider)/bookings")}
-            >
-              <Text className="text-[#31ECC6] font-semibold">Ver todos</Text>
-            </TouchableOpacity>
-          </View>
-
-          <View className="gap-3">
-            {upcomingBookings.map((booking) => (
-              <View
-                key={booking.id}
-                className="bg-white rounded-2xl border border-gray-100 p-4"
-              >
-                <View className="flex-row justify-between items-start mb-3">
-                  <View className="flex-1">
-                    <Text className="text-gray-900 font-bold text-base">
-                      {booking.clientName}
-                    </Text>
-                    <Text className="text-gray-500 text-sm mt-1">
-                      {booking.serviceName}
-                    </Text>
-                  </View>
-                  <View
-                    className="px-3 py-1 rounded-full"
-                    style={{ backgroundColor: getStatusColor(booking.status) + "20" }}
-                  >
-                    <Text
-                      className="text-xs font-bold"
-                      style={{ color: getStatusColor(booking.status) }}
-                    >
-                      {getStatusLabel(booking.status)}
-                    </Text>
-                  </View>
-                </View>
-
-                <View className="flex-row justify-between items-center pt-3 border-t border-gray-100">
-                  <View className="flex-row items-center gap-2">
-                    <Ionicons name="time-outline" size={16} color="#6B7280" />
-                    <Text className="text-gray-600 text-sm">
-                      {formatDate(booking.scheduledAt)}
-                    </Text>
-                  </View>
-                  <Text className="text-gray-900 font-bold">
-                    R$ {typeof booking.price === 'number' ? booking.price.toFixed(2) : '0.00'}
-                  </Text>
-                </View>
-              </View>
-            ))}
-          </View>
-        </View>
-
-        {/* Quick Actions */}
-        <View className="gap-3 mb-4">
+		
+		{/* Left: Avatar and Settings */}
+        <View className="flex-row items-center gap-3">
           <TouchableOpacity
-            className="bg-gradient-to-r rounded-2xl p-4 flex-row items-center justify-center gap-2"
-            style={{
-              backgroundColor: "#31ECC6",
-            }}
-            onPress={() => router.push("/(tabs)/(provider)/services")}
+            className="w-10 h-10 rounded-full border border-gray-200 items-center justify-center bg-gray-50"
+            onPress={() => {}}
           >
-            <Ionicons name="add-circle-outline" size={20} color="white" />
-            <Text className="text-white font-bold text-base">
-              Adicionar Novo Serviço
+            <Ionicons name="settings-outline" size={20} color="#0C2340" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            className="w-10 h-10 rounded-full border border-[#31ECC6] items-center justify-center bg-gray-50 overflow-hidden"
+            onPress={() => router.push("/(tabs)/(provider)/profile")}
+          >
+            <Ionicons name="person" size={20} color="#31ECC6" />
+          </TouchableOpacity>
+        </View>
+
+        
+      </View>
+
+      <ScrollView showsVerticalScrollIndicator={false} className="flex-1 px-6 pt-8">
+        {/* Balance Card */}
+        <View className="mb-10 rounded-[32px] p-8 bg-[#0C2340] border border-[#0C2340]">
+          <View className="flex-row justify-between items-start mb-6">
+            <View>
+              <Text className="text-gray-400 text-xs font-semibold mb-2">
+                SALDO TOTAL
+              </Text>
+              <View className="flex-row items-center gap-3">
+                <Text className="text-white text-3xl font-bold">
+                  {showBalance
+                    ? `Kz ${walletBalance.toLocaleString("pt-AO", {
+                        minimumFractionDigits: 2,
+                      })}`
+                    : "••••••"}
+                </Text>
+                <TouchableOpacity onPress={() => setShowBalance(!showBalance)}>
+                  <Ionicons
+                    name={showBalance ? "eye-off-outline" : "eye-outline"}
+                    size={22}
+                    color="#31ECC6"
+                  />
+                </TouchableOpacity>
+              </View>
+            </View>
+            <View className="w-12 h-12 bg-[#31ECC6]/10 rounded-2xl items-center justify-center border border-[#31ECC6]/20">
+              <Ionicons name="wallet-outline" size={24} color="#31ECC6" />
+            </View>
+          </View>
+
+          {/* Create Service Action */}
+          <TouchableOpacity
+            className="flex-row items-center justify-center bg-[#31ECC6] py-5 rounded-3xl gap-2"
+            onPress={() => {}}
+          >
+            <Ionicons name="add-circle" size={24} color="#0C2340" />
+            <Text className="text-[#0C2340] font-black text-base uppercase">
+              Criar Novo Serviço
             </Text>
           </TouchableOpacity>
         </View>
-      </View>
 
-      {/* Add Funds Modal */}
-      <AddFundsModal
-        visible={addFundsModalVisible}
-        onClose={() => setAddFundsModalVisible(false)}
-        onConfirm={handleAddFunds}
-        isLoading={loadBalanceMutation.isPending}
-      />
-    </ScrollView>
+     
+
+        {/* Recent Reservations */}
+        <View className="mb-12">
+          <View className="flex-row justify-between items-end mb-6">
+            <View>
+              <Text className="text-[#0C2340] text-xl font-bold">
+                Reservas
+              </Text>
+              <Text className="text-gray-400 text-xs mt-1">
+                Acompanhe seus próximos serviços
+              </Text>
+            </View>
+            <TouchableOpacity onPress={() => {}}>
+              <Text className="text-[#31ECC6] font-bold">Ver tudo</Text>
+            </TouchableOpacity>
+          </View>
+
+          {reservationsLoading ? (
+            <ActivityIndicator color="#31ECC6" size="large" />
+          ) : recentReservations.length === 0 ? (
+            <View className="border border-dashed border-gray-200 rounded-[32px] py-12 items-center bg-gray-50/50">
+              <Ionicons name="calendar-outline" size={48} color="#d1d5db" />
+              <Text className="text-gray-400 mt-4 font-medium">Nenhuma reserva para exibir</Text>
+            </View>
+          ) : (
+            <View className="gap-4">
+              {recentReservations.map((reservation: any) => (
+                <View
+                  key={reservation.id}
+                  className="bg-white border border-gray-100 rounded-[28px] p-5 flex-row items-center gap-4"
+                >
+                  <View className="w-14 h-14 bg-[#0C2340] rounded-2xl items-center justify-center">
+                    <Text className="text-[#31ECC6] font-bold text-lg">
+                      {formatDate(reservation.scheduledAt).split(" ")[0]}
+                    </Text>
+                    <Text className="text-white text-[9px] font-bold uppercase">
+                      {formatDate(reservation.scheduledAt).split(" ")[1]}
+                    </Text>
+                  </View>
+
+                  <View className="flex-1">
+                    <Text className="text-[#0C2340] font-bold text-base" numberOfLines={1}>
+                      {reservation.serviceName}
+                    </Text>
+                    <Text className="text-gray-400 text-xs mt-0.5">
+                      {reservation.client?.fullName || "Cliente"}
+                    </Text>
+                  </View>
+
+                  <View className="items-end">
+                    <Text className="text-[#0C2340] font-bold text-sm">
+                      Kz {Number(reservation.servicePrice).toLocaleString("pt-AO")}
+                    </Text>
+                    <View
+                      className="mt-2 px-3 py-1 rounded-full border"
+                      style={{
+                        borderColor: getStatusColor(reservation.status) + "40",
+                        backgroundColor: getStatusColor(reservation.status) + "10",
+                      }}
+                    >
+                      <Text
+                        className="text-[9px] font-bold uppercase"
+                        style={{ color: getStatusColor(reservation.status) }}
+                      >
+                        {reservation.status}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              ))}
+            </View>
+          )}
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }

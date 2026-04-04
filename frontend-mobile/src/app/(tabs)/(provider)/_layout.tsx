@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
-import { View } from "react-native";
+import { View, Text, Platform } from "react-native";
 
 type IconName = React.ComponentProps<typeof Ionicons>["name"];
 
@@ -11,10 +11,8 @@ interface TabScreenConfig {
 }
 
 const screens: TabScreenConfig[] = [
-  { name: "index", title: "Início", icon: "home-outline" },
-  { name: "services", title: "Meus Serviços", icon: "briefcase-outline" },
-  { name: "bookings", title: "Agendamentos", icon: "calendar-outline" },
-  { name: "earnings", title: "Ganhos", icon: "trending-up-outline" },
+  { name: "index", title: "Painel", icon: "grid-outline" },
+  { name: "services", title: "Serviços", icon: "briefcase-outline" },
   { name: "profile", title: "Perfil", icon: "person-outline" },
 ];
 
@@ -28,42 +26,37 @@ export default function ProviderLayout() {
           headerShown: false,
           tabBarStyle: {
             backgroundColor: "#FFFFFF",
-            borderTopWidth: 1,
-            borderTopColor: "#F0F0F0",
-            height: 70,
-            paddingTop: 8,
-            paddingBottom: 12,
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: -4 },
-            shadowOpacity: 0.08,
-            shadowRadius: 12,
-            elevation: 12,
+            borderTopWidth: 2,
+            borderTopColor: "#F8F8F8",
+            height: Platform.OS === 'ios' ? 95 : 85,
+            paddingBottom: Platform.OS === 'ios' ? 35 : 15,
+            paddingTop: 12,
+            elevation: 0,
+            shadowOpacity: 0,
           },
-          tabBarLabel: () => null,
+          tabBarLabel: ({ focused }) => (
+            <Text 
+              className={`text-[9px] font-black uppercase tracking-widest mt-2 ${focused ? 'text-[#0C2340]' : 'text-gray-400'}`}
+            >
+              {currentScreen?.title}
+            </Text>
+          ),
           tabBarIcon: ({ focused }) => {
-            const tabColor = focused ? "#31ECC6" : "#9CA3AF";
-
+            const activeIcon = currentScreen?.icon.replace("-outline", "") as IconName;
+            const iconName = focused ? activeIcon : currentScreen?.icon;
+            
             return (
-              <View className="items-center gap-1">
+              <View className={`items-center justify-center w-12 h-12 rounded-[18px] mb-1 ${focused ? 'bg-[#31ECC6] border border-[#31ECC6]' : 'bg-transparent'}`}>
                 <Ionicons
-                  name={currentScreen?.icon || "home"}
-                  size={26}
-                  color={tabColor}
+                  name={iconName || "home"}
+                  size={20}
+                  color={focused ? "#0C2340" : "#D1D5DB"}
                 />
-                {focused && (
-                  <View
-                    className="h-1 rounded-full"
-                    style={{
-                      width: 20,
-                      backgroundColor: "#31ECC6",
-                    }}
-                  />
-                )}
               </View>
             );
           },
-          tabBarActiveTintColor: "#31ECC6",
-          tabBarInactiveTintColor: "#9CA3AF",
+          tabBarActiveTintColor: "#0C2340",
+          tabBarInactiveTintColor: "#D1D5DB",
         };
       }}
     >
