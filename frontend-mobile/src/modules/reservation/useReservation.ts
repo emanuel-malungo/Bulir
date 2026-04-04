@@ -12,6 +12,9 @@ const reservationKeys = {
   lists: () => [...reservationKeys.all, 'list'] as const,
   list: (filters: IReservationFilters) =>
     [...reservationKeys.lists(), filters] as const,
+  providerLists: () => [...reservationKeys.all, 'provider', 'list'] as const,
+  providerList: (filters: IReservationFilters) =>
+    [...reservationKeys.providerLists(), filters] as const,
   details: () => [...reservationKeys.all, 'detail'] as const,
   detail: (id: number) => [...reservationKeys.details(), id] as const,
   histories: () => [...reservationKeys.all, 'history'] as const,
@@ -44,7 +47,7 @@ export function useReservations(filters: IReservationFilters = {}, options = {})
  */
 export function useProviderReservations(filters: IReservationFilters = {}, options = {}) {
   return useQuery({
-    queryKey: ['reservations', 'provider', 'list', filters],
+    queryKey: reservationKeys.providerList(filters),
     queryFn: () => ReservationAPI.listProviderReservations(filters),
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
@@ -112,9 +115,12 @@ export function useCreateReservation(options = {}) {
     mutationFn: (data: ICreateReservationRequest) =>
       ReservationAPI.createReservation(data),
     onSuccess: (data) => {
-      // Invalidar lista de reservas
+      // Invalidar lista de reservas (ambas cliente e provider por precaução)
       queryClient.invalidateQueries({
         queryKey: reservationKeys.lists(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: reservationKeys.providerLists(),
       });
 
       // Adicionar ao cache
@@ -164,6 +170,12 @@ export function useConfirmReservation(options = {}) {
         queryKey: reservationKeys.lists(),
       });
       queryClient.invalidateQueries({
+        queryKey: reservationKeys.providerLists(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: reservationKeys.stats(),
+      });
+      queryClient.invalidateQueries({
         queryKey: reservationKeys.history(id),
       });
     },
@@ -193,9 +205,15 @@ export function useCancelReservation(options = {}) {
         queryKey: reservationKeys.detail(id),
       });
 
-      // Invalidar lista
+      // Invalidar listas
       queryClient.invalidateQueries({
         queryKey: reservationKeys.lists(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: reservationKeys.providerLists(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: reservationKeys.stats(),
       });
     },
     onError: (error) => {
@@ -224,6 +242,9 @@ export function useInvalidateReservations() {
     invalidateLists: () => {
       queryClient.invalidateQueries({
         queryKey: reservationKeys.lists(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: reservationKeys.providerLists(),
       });
     },
     invalidateDetail: (id: number) => {

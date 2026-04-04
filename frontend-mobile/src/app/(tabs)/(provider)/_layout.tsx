@@ -12,6 +12,7 @@ interface TabScreenConfig {
 
 const screens: TabScreenConfig[] = [
   { name: "index", title: "Painel", icon: "grid-outline" },
+  { name: "reservations", title: "Agenda", icon: "calendar-outline" },
   { name: "services", title: "Serviços", icon: "briefcase-outline" },
   { name: "profile", title: "Perfil", icon: "person-outline" },
 ];

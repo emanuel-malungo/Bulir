@@ -17,10 +17,7 @@ export default function ProviderHome() {
 	const { data: walletData, isLoading: walletLoading, refetch: refetchWallet } = useWallet();
 	const { data: reservationsData, isLoading: reservationsLoading, refetch: refetchReservations } = useProviderReservations();
 	const { data: statsData, isLoading: statsLoading, refetch: refetchStats } = useProviderStats();
-	console.log(userData)
-	console.log(walletData)
-	console.log(reservationsData)
-	console.log(statsData)
+
 	const profile = userData;
 	const wallet = walletData;
 	const stats = statsData;
@@ -168,7 +165,7 @@ export default function ProviderHome() {
 								Próximos compromissos na agenda
 							</Text>
 						</View>
-						<TouchableOpacity onPress={() => router.push("/(tabs)/(provider)/services")}>
+						<TouchableOpacity onPress={() => router.push("/(tabs)/(provider)/reservations")}>
 							<Text className="text-[#31ECC6] font-black uppercase text-[10px] tracking-widest">Ver tudo</Text>
 						</TouchableOpacity>
 					</View>
