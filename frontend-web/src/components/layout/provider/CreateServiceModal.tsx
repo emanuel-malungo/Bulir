@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { X } from 'lucide-react';
-import { ReCaptchaV3 } from '@/components/common';
 import { Button } from '@/components/common';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -21,7 +20,6 @@ type ServiceFormInput = z.input<typeof serviceFormSchema>;
 type ServiceFormOutput = z.output<typeof serviceFormSchema>;
 
 export default function CreateServiceModal({ isOpen, onClose }: CreateServiceModalProps) {
-  const [recaptchaToken, setRecaptchaToken] = useState<string>('');
   const { user } = useAuthStore();
   
   const { 
@@ -41,13 +39,12 @@ export default function CreateServiceModal({ isOpen, onClose }: CreateServiceMod
   const createService = useCreateService({
     onSuccess: () => {
       reset();
-      setRecaptchaToken('');
       onClose();
     }
   });
 
   const onSubmit = async (data: ServiceFormOutput) => {
-    if (!recaptchaToken || !user?.id) return;
+    if (!user?.id) return;
 
     createService.mutate({
       data: {
@@ -134,10 +131,7 @@ export default function CreateServiceModal({ isOpen, onClose }: CreateServiceMod
             <p className="text-xs text-gray-500 mt-1">Mínimo: 0.01 Kz</p>
           </div>
 
-          {/* ReCaptcha */}
-          <div className="flex justify-center pt-2">
-            <ReCaptchaV3 onToken={setRecaptchaToken} />
-          </div>
+
 
           {/* Buttons */}
           <div className="flex gap-3 pt-4">
@@ -151,7 +145,7 @@ export default function CreateServiceModal({ isOpen, onClose }: CreateServiceMod
             </button>
             <Button
               type="submit"
-              disabled={!recaptchaToken || createService.isPending}
+              disabled={createService.isPending}
               isLoading={createService.isPending}
               variant="primary"
               size="md"

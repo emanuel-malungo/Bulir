@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import icon from '@/assets/images/bulir.svg';
-import { Button, Input, ReCaptchaV3, AuthFooter, RegisterSidebar } from '@/components/common';
+import { Button, Input, AuthFooter, RegisterSidebar } from '@/components/common';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { registerFormSchema, type RegisterFormInput } from '@/modules/auth/auth.schema';
@@ -19,14 +19,6 @@ export default function Register() {
   const router = useRouter();
   const { error: authError } = useAuthStore();
   const { roles, isLoading: rolesLoading, error: rolesError } = useRoles();
-  
-  const [recaptchaToken, setRecaptchaTokenState] = useState<string>('');
-  
-  // Memoizar a função para evitar re-registros desnecessários
-  const handleRecaptchaToken = useCallback((token: string) => {
-    console.log('🔏 ReCaptcha token recebido:', token ? 'válido' : 'vazio');
-    setRecaptchaTokenState(token);
-  }, []);
   
   const [isLoading, setIsLoading] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
@@ -69,14 +61,6 @@ export default function Register() {
   }, [roles, setValue, control]);
 
   const onSubmit = async (data: RegisterFormInput) => {
-    console.log('🔐 Form enviado:', { email: data.email, hasToken: !!recaptchaToken });
-    
-    if (!recaptchaToken) {
-      console.warn('❌ Token do ReCaptcha não encontrado');
-      setLocalError('Por favor, complete o reCAPTCHA');
-      return;
-    }
-
     setIsLoading(true);
     setLocalError(null);
     useAuthStore.getState().setError(null);
@@ -275,11 +259,11 @@ export default function Register() {
                 </div>
               </div>
               
-              <ReCaptchaV3 onToken={handleRecaptchaToken} />
+
               
               <Button
                 type="submit"
-                disabled={!recaptchaToken || isLoading}
+                disabled={isLoading}
                 isLoading={isLoading}
                 variant="primary"
                 size="md"

@@ -5,7 +5,6 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { X, AlertCircle, CheckCircle } from 'lucide-react';
-import { ReCaptchaV3 } from '@/components/common';
 import { Button } from '@/components/common';
 import { useLoadBalance } from '@/modules/wallet/useWallet';
 
@@ -28,7 +27,6 @@ interface AddBalanceModalProps {
 }
 
 export default function AddBalanceModal({ isOpen, onClose }: AddBalanceModalProps) {
-  const [recaptchaToken, setRecaptchaToken] = useState<string>('');
   const [successMessage, setSuccessMessage] = useState<string>('');
   
   const loadBalance = useLoadBalance();
@@ -48,15 +46,11 @@ export default function AddBalanceModal({ isOpen, onClose }: AddBalanceModalProp
   });
 
   const amount = watch('amount');
-  const canSubmit = !!recaptchaToken && !!amount;
+  const canSubmit = !!amount;
 
   const onSubmit = async (data: AddBalanceFormInputs) => {
     try {
       setSuccessMessage('');
-
-      if (!recaptchaToken) {
-        return;
-      }
 
       await loadBalance.mutateAsync(data.amount);
 
@@ -65,7 +59,6 @@ export default function AddBalanceModal({ isOpen, onClose }: AddBalanceModalProp
       // Resetar form e fechar modal após sucesso
       setTimeout(() => {
         reset();
-        setRecaptchaToken('');
         setSuccessMessage('');
         onClose();
       }, 2000);
@@ -141,15 +134,7 @@ export default function AddBalanceModal({ isOpen, onClose }: AddBalanceModalProp
             <p className="text-xs text-gray-500 mt-2">Mínimo: 100 Kz</p>
           </div>
 
-          {/* ReCaptcha */}
-          <div className="flex justify-center pt-2">
-            <ReCaptchaV3 onToken={setRecaptchaToken} />
-          </div>
-          {!recaptchaToken && (
-            <p className="text-xs text-yellow-600 text-center">
-              ⚠️ ReCaptcha é obrigatório
-            </p>
-          )}
+
 
           {/* Resumo */}
           {amount && (

@@ -2,9 +2,11 @@ import axios, { AxiosError } from 'axios';
 import ENV from './env.utils';
 import { useAuthStore } from '@/modules/auth/auth.store';
 
+console.log('🔌 Aplicando baseURL na instância axios:', ENV.API_BASE_URL);
+
 const api = axios.create({
   baseURL: ENV.API_BASE_URL,
-  withCredentials: true, // ✅ Envia cookies automaticamente
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -80,7 +82,7 @@ api.interceptors.response.use(
 
       try {
         // Refresh token em cookie é enviado automaticamente
-        const response = await api.post('/auth/refresh');
+        const response = await api.post('auth/refresh');
         
         // Access token é retornado no header Authorization
         const accessToken = response.headers['authorization']?.split(' ')[1];

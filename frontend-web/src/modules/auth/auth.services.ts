@@ -64,7 +64,7 @@ export class AuthService {
         identifier: email,
       });
       
-      const response = await api.post<ILoginResponse>('/auth/login', {
+      const response = await api.post<ILoginResponse>('auth/login', {
         identifier: email,
         password,
       });
@@ -103,7 +103,7 @@ export class AuthService {
 
     try {
       console.log('📤 Enviando registro para API...');
-      const response = await api.post<IRegisterResponse>('/auth/register', data);
+      const response = await api.post<IRegisterResponse>('auth/register', data);
       console.log('✅ Resposta do registro:', response.data);
       console.log('Access Token na resposta:', response.data.accessToken?.slice(0, 20) + '...');
 
@@ -127,7 +127,7 @@ export class AuthService {
    */
   static async logout(): Promise<void> {
     try {
-      await api.post('/auth/logout');
+      await api.post('auth/logout');
     } catch {
       // Ignore errors on logout, still clear store
     } finally {
@@ -139,7 +139,7 @@ export class AuthService {
    * Get all available roles (public route)
    */
   static async getRoles(): Promise<IRole[]> {
-    const response = await api.get<{ roles: IRole[] }>('/auth/roles');
+    const response = await api.get<{ roles: IRole[] }>('auth/roles');
     return response.data.roles;
   }
 
@@ -151,7 +151,7 @@ export class AuthService {
     roleId: number
   ): Promise<IRolePermissionsResponse> {
     const response = await api.get<IRolePermissionsResponse>(
-      `/auth/role/${roleId}/permissions`
+      `auth/role/${roleId}/permissions`
     );
     return response.data;
   }
@@ -163,7 +163,7 @@ export class AuthService {
    */
   static async verifySession(): Promise<ILoginResponse['user']> {
     try {
-      const response = await api.post<ILoginResponse>('/auth/refresh');
+      const response = await api.post<ILoginResponse>('auth/refresh');
       // A resposta do refresh no backend atual parece retornar { accessToken }
       // Mas o login retorna { user, accessToken, refreshToken }
       // Vamos assumir que se o refresh funcionar, a sessão está ativa.

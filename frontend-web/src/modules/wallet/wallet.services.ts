@@ -32,7 +32,7 @@ export class WalletAPI {
    * @returns Saldo do usuário
    */
   static async getWallet(): Promise<IWalletBalance> {
-    const response = await api.get<IGetWalletBalanceResponse>('/wallet/balance');
+    const response = await api.get<IGetWalletBalanceResponse>('wallet/balance');
     return response.data.data;
   }
 
@@ -81,7 +81,7 @@ export class WalletAPI {
       // Validar valor
       z.number().positive().parse(amount);
       
-      const response = await api.post('/wallet/deposit', {
+      const response = await api.post('wallet/deposit', {
         amount,
       });
 
@@ -116,7 +116,7 @@ export class WalletAPI {
     const validatedData = receivePaymentSchema.parse(data);
 
     const response = await api.post<IReceivePaymentResponse>(
-      '/wallet/receive-payment',
+      'wallet/receive-payment',
       validatedData
     );
 
