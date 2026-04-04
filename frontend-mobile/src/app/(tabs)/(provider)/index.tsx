@@ -89,40 +89,43 @@ export default function ProviderHome() {
 				}
 			>
 				{/* Balance Card */}
-				<View className="mb-10 rounded-[32px] p-8 bg-[#0C2340] border border-[#0C2340]">
-					<View className="flex-row justify-between items-start mb-6">
+				<View className="mb-10 rounded-[40px] p-8 bg-[#31ECC6] shadow-xl shadow-[#31ECC6]/20">
+					<View className="flex-row justify-between items-start mb-8">
 						<View>
-							<Text className="text-gray-400 text-xs font-semibold mb-2 uppercase tracking-widest">
-								Saldo Disponível
+							<Text className="text-[#0C2340]/60 text-[10px] font-black uppercase mb-2 tracking-[2px]">
+								Saldo Total
 							</Text>
 							<View className="flex-row items-center gap-3">
-								<Text className="text-white text-3xl font-black">
+								<Text className="text-[#0C2340] text-4xl font-black italic tracking-tighter">
 									{showBalance
 										? `Kz ${Number(wallet?.balance || profile?.balance || 0).toLocaleString("pt-AO", {
 											minimumFractionDigits: 2,
 										})}`
 										: "••••••••"}
 								</Text>
-								<TouchableOpacity onPress={() => setShowBalance(!showBalance)}>
+								<TouchableOpacity 
+                  onPress={() => setShowBalance(!showBalance)}
+                  className="w-10 h-10 items-center justify-center rounded-full bg-white/20"
+                >
 									<Ionicons
 										name={showBalance ? "eye-off-outline" : "eye-outline"}
-										size={22}
-										color="#31ECC6"
+										size={20}
+										color="#0C2340"
 									/>
 								</TouchableOpacity>
 							</View>
 						</View>
-						<View className="w-12 h-12 bg-[#31ECC6]/10 rounded-2xl items-center justify-center border border-[#31ECC6]/20">
-							<Ionicons name="wallet-outline" size={24} color="#31ECC6" />
+						<View className="w-14 h-14 bg-white/30 rounded-3xl items-center justify-center border border-white/50">
+							<Ionicons name="wallet" size={28} color="#0C2340" />
 						</View>
 					</View>
 
 					<TouchableOpacity
-						className="flex-row items-center justify-center bg-[#31ECC6] py-5 rounded-3xl gap-2"
+						className="flex-row items-center justify-center bg-[#0C2340] py-5 rounded-[24px] gap-3 shadow-lg shadow-[#0C2340]/30"
 						onPress={() => router.push("/(tabs)/(provider)/services")}
 					>
-						<Ionicons name="add-circle" size={24} color="#0C2340" />
-						<Text className="text-[#0C2340] font-black text-base uppercase tracking-widest">
+						<Ionicons name="add-circle" size={24} color="#31ECC6" />
+						<Text className="text-white font-black text-xs uppercase tracking-[2px]">
 							Gerenciar Serviços
 						</Text>
 					</TouchableOpacity>
