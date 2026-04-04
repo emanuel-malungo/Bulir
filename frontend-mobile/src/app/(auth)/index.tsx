@@ -133,7 +133,7 @@ export default function Login() {
                       onChangeText={onChange}
                     />
                     <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-                      <Ionicons name={showPassword ? "eye-off-outline" : "eye-outline"} size={20} color="#9ca3af" />
+                      <Ionicons name={showPassword ? "eye-outline" : "eye-off-outline"} size={20} color="#9ca3af" />
                     </TouchableOpacity>
                   </View>
                 )}

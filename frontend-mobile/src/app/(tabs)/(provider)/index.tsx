@@ -108,7 +108,7 @@ export default function ProviderHome() {
                   className="w-10 h-10 items-center justify-center rounded-full bg-white/20"
                 >
 									<Ionicons
-										name={showBalance ? "eye-off-outline" : "eye-outline"}
+										name={showBalance ? "eye-outline" : "eye-off-outline"}
 										size={20}
 										color="#0C2340"
 									/>
