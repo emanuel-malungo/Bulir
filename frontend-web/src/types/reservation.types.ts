@@ -12,7 +12,7 @@ export interface IReservation {
   status: ReservationStatus;
   scheduledAt: string;
   serviceName: string;
-  servicePrice: string;
+  servicePrice: number;
   createdAt: string;
   updatedAt: string;
 }

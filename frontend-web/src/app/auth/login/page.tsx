@@ -23,7 +23,6 @@ export default function Login() {
   
   // Memoizar a função para evitar re-registros desnecessários
   const handleRecaptchaToken = useCallback((token: string) => {
-    console.log('ReCaptcha token recebido:', token ? 'válido' : 'vazio');
     setRecaptchaTokenState(token);
   }, []);
   const [isLoading, setIsLoading] = useState(false);
@@ -38,7 +37,6 @@ export default function Login() {
   // Sincronizar erro do store com erro local
   useEffect(() => {
     if (authError) {
-      console.log('Erro do store detectado:', authError);
       setLocalError(authError);
     }
   }, [authError]);
@@ -56,10 +54,7 @@ export default function Login() {
   });
 
   const onSubmit = async (data: LoginFormData) => {
-    console.log('🔐 Form enviado:', { email: data.email, hasToken: !!recaptchaToken });
-    
     if (!recaptchaToken) {
-      console.warn('❌ Token do ReCaptcha não encontrado');
       setLocalError('Por favor, complete o reCAPTCHA');
       return;
     }
@@ -70,45 +65,36 @@ export default function Login() {
 
     // Timeout de segurança (5 segundos)
     const timeoutId = setTimeout(() => {
-      console.error('⏱️ Timeout: Requisição levou muito tempo');
       setIsLoading(false);
       useAuthStore.getState().setLoading(false);
       setLocalError('Requisição levou muito tempo. Tente novamente.');
     }, 5000);
 
     try {
-      console.log('📤 Enviando login para API...');
-      
       // Chamar o serviço de login
       await AuthService.login(data.email, data.password);
       
       // Se chegou aqui, login foi bem-sucedido
       clearTimeout(timeoutId);
-      console.log('✅ Login bem-sucedido');
 
       // Redirecionar baseado no papel do usuário
       const user = useAuthStore.getState().user;
       if (user?.role) {
         const roleSlug = user.role.toLowerCase();
-        console.log(`🔀 Redirecionando para: /${roleSlug}`);
         router.push(`/${roleSlug}`);
       } else {
-        console.log('🔀 Redirecionando para: /client');
         router.push('/client');
       }
     } catch (error) {
       clearTimeout(timeoutId);
-      console.error('❌ Erro capturado:', error);
       
       // O erro já está no store graças ao AuthService
       // Apenas garantir que o estado local está atualizado
       const storeError = useAuthStore.getState().error;
       if (storeError) {
-        console.log('📨 Erro do store:', storeError);
         setLocalError(storeError);
       }
     } finally {
-      console.log('⏹️ Finalizando submissão');
       setIsLoading(false);
       useAuthStore.getState().setLoading(false);
     }

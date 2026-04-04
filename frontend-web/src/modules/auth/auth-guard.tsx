@@ -3,6 +3,8 @@
 import { useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuthStore } from './auth.store';
+import iconBulir from '@/assets/images/bulir.svg';
+import Image from 'next/image';
 
 // Rotas que NÃO exigem autenticação
 const PUBLIC_ROUTES = [
@@ -87,10 +89,38 @@ export function AuthGuard({ children, requiredRole }: AuthGuardProps) {
   const isPublicRoute = PUBLIC_ROUTES.some((route) => pathname.startsWith(route));
   if (isCheckingAuth && !isPublicRoute) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Verificando sessão...</p>
+      <div className="flex items-center justify-center min-h-screen bg-linear-to-br from-accent/5 via-white to-accent/10 relative overflow-hidden">
+        {/* Elemento decorativo de fundo */}
+        <div className="absolute top-0 right-0 w-96 h-96 bg-accent/5 rounded-full blur-3xl -mr-32 -mt-32"></div>
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-accent/5 rounded-full blur-3xl -ml-32 -mb-32"></div>
+
+        <div className="relative z-10 text-center space-y-6">
+          {/* Ícone Bulir */}
+          <div className="flex justify-center mb-6">
+            <Image
+              src={iconBulir}
+              alt="Bulir"
+              width={80}
+              height={80}
+              className="animate-pulse"
+            />
+          </div>
+
+          {/* Spinner animado */}
+          <div className="flex justify-center">
+            <div className="relative w-16 h-16">
+              <div className="absolute inset-0 border-4 border-gray-200 rounded-full"></div>
+              <div className="absolute inset-0 border-4 border-t-accent border-r-accent rounded-full animate-spin"></div>
+            </div>
+          </div>
+
+
+          {/* Indicador de progresso */}
+          <div className="flex gap-1 justify-center">
+            <div className="w-2 h-2 bg-accent rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+            <div className="w-2 h-2 bg-accent rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+            <div className="w-2 h-2 bg-accent rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+          </div>
         </div>
       </div>
     );
