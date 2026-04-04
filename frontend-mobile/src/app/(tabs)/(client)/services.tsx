@@ -35,7 +35,7 @@ export default function ServicesScreen() {
     isLoading,
     isError,
     error,
-  } = useInfiniteServices({ searchTerm: searchQuery }, ITEMS_PER_PAGE);
+  } = useInfiniteServices({ search: searchQuery }, ITEMS_PER_PAGE);
 
   const createReservationMutation = useCreateReservation();
 
