@@ -6,7 +6,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import icon from '@/assets/images/bulir.svg';
-import { Button, Input, ReCaptchaV3, AuthFooter } from '@/app/components/common';
+import { Button, Input, ReCaptchaV3, AuthFooter } from '@/components/common';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { loginSchema, type LoginFormData } from '@/modules/auth/auth.schema';

@@ -5,7 +5,7 @@ import { User, Lock, Smartphone } from "lucide-react";
 import { useCurrentUser } from "@/modules/user/useUser";
 import { useReservations } from "@/modules/reservation/useReservation";
 import { useSessions } from "@/modules/user/useUser";
-import { ProfileCard, SecurityTab, SessionsTab, Tabs } from "@/app/client/components/settings";
+import { ProfileCard, SecurityTab, SessionsTab, Tabs } from "@/components/layout/client/settings";
 
 export default function SettingsPage() {
     const [activeTab, setActiveTab] = useState<'perfil' | 'historico' | 'seguranca' | 'sessoes'>('perfil');

@@ -5,8 +5,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { X, AlertCircle, CheckCircle } from 'lucide-react';
-import { ReCaptchaV3 } from '@/app/components/common';
-import { Button } from '@/app/components/common';
+import { ReCaptchaV3 } from '@/components/common';
+import { Button } from '@/components/common';
 import { useLoadBalance } from '@/modules/wallet/useWallet';
 
 /**

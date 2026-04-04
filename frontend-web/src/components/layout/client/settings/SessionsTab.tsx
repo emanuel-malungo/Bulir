@@ -116,7 +116,7 @@ export function SessionsTab({ sessions, isLoading, userId, onSessionRevoked }: S
           >
             <div className="flex items-start justify-between mb-3">
               <div className="flex items-start space-x-3 flex-1">
-                <DeviceIcon className="w-5 h-5 text-accent mt-1 flex-shrink-0" />
+                <DeviceIcon className="w-5 h-5 text-accent mt-1 shrink-0" />
                 <div className="flex-1">
                   <div className="flex items-center space-x-2 mb-1">
                     <h3 className="font-medium text-gray-900">

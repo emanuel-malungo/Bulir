@@ -6,7 +6,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { changePasswordSchema } from '@/modules/user/user.schema';
 import { UserAPI } from '@/modules/user/user.services';
-import { Input, Button } from '@/app/components/common';
+import { Input, Button } from '@/components/common';
 import type { IChangePasswordRequest } from '@/modules/user/user.types';
 
 interface SecurityTabProps {

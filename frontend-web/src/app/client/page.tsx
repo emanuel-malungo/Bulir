@@ -4,7 +4,7 @@ import iconMoney from '@/assets/images/money-bag.png';
 import iconWallet from '@/assets/images/wallet.png';
 import Image from "next/image";
 import { Plus, Search, AlertCircle, Loader, ArrowUpLeft, Clock, CheckCircle, XCircle } from "lucide-react";
-import AddBalanceModal from '@/app/components/layout/client/AddBalanceModal';
+import AddBalanceModal from '@/components/layout/client/AddBalanceModal';
 import { useReservations } from '@/modules/reservation/useReservation';
 import { useWallet } from '@/modules/wallet/useWallet';
 import { useAuthStore } from '@/modules/auth/auth.store';
