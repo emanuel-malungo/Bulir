@@ -7,7 +7,27 @@ Este repositório contém o ecossistema completo da plataforma:
 - **`frontend-web`**: Dashboard Web construído com Next.js (Admin, Cliente e Provedor).
 - **`frontend-mobile`**: Aplicação móvel (React Native/Expo).
 
----API RESTful construída com NestJS e Prisma
+---
+
+## 📐 Arquitetura do Sistema
+
+O projeto foi desenhado seguindo princípios de **Clean Code** e **Arquitetura Modular**, garantindo que cada parte do ecossistema possa crescer de forma independente, mas mantendo a consistência.
+
+### 🔌 Backend (API Modular)
+A API utiliza o **Express** com uma estrutura organizada por camadas:
+- **Core/RBAC**: Sistema robusto de controle de acesso baseado em cargos (`CLIENT`, `PROVIDER`, `SUPER_ADMIN`) e permissões.
+- **Prisma ORM**: Camada de dados tipada que garante integridade nas consultas ao PostgreSQL.
+- **Middlewares**: Processamento centralizado de autenticação (JWT), tratamento de erros e validação de dados com **Zod**.
+- **Seed System**: Automação para inicializar o ambiente com dados essenciais e usuários de teste.
+
+### 💻 Frontend Web (Módulos e Shared Components)
+O dashboard Next.js utiliza o **App Router** e uma organização baseada em **Módulos**:
+- **Modules Layer**: Lógica de negócio (auth, user, service, reservation) isolada, facilitando a reutilização e testes.
+- **Shared Components**: Componentes de UI consistentes e reutilizáveis (botões, inputs, cards) seguindo o design system "Premium & Bold".
+- **AuthGuard System**: Controle granular de acesso às rotas no lado do cliente, protegendo namespaces administrativos e de usuários.
+- **State Management**: Uso eficiente de stores (`Zustand`) para manter o estado global de autenticação e dados do usuário.
+
+---
 
 ## 🛠️ Pré-requisitos
 
