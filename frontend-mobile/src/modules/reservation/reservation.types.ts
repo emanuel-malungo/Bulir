@@ -28,6 +28,11 @@ export interface IReservation {
   servicePrice: number;
   createdAt: string;
   updatedAt: string;
+  client?: {
+    id: number;
+    fullName: string;
+    email: string;
+  };
 }
 
 export interface IReservationHistory {

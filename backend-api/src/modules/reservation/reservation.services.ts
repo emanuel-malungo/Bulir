@@ -126,6 +126,15 @@ export class ReservationService {
       skip,
       take: limit,
       orderBy: { scheduledAt: "desc" },
+      include: {
+        client: {
+          select: {
+            id: true,
+            fullName: true,
+            email: true
+          }
+        }
+      }
     });
 
     return {
@@ -288,6 +297,15 @@ export class ReservationService {
       skip,
       take: limit,
       orderBy: { scheduledAt: "desc" },
+      include: {
+        client: {
+          select: {
+            id: true,
+            fullName: true,
+            email: true
+          }
+        }
+      }
     });
 
     return {
@@ -342,6 +360,11 @@ export class ReservationService {
       servicePrice: reservation.servicePrice.toString(),
       createdAt: reservation.createdAt.toISOString(),
       updatedAt: reservation.updatedAt.toISOString(),
+      client: reservation.client ? {
+        id: reservation.client.id,
+        fullName: reservation.client.fullName,
+        email: reservation.client.email
+      } : undefined
     };
   }
 }

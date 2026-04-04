@@ -40,6 +40,20 @@ export function useReservations(filters: IReservationFilters = {}, options = {})
 }
 
 /**
+ * Hook: Listar reservas do provedor autenticado
+ */
+export function useProviderReservations(filters: IReservationFilters = {}, options = {}) {
+  return useQuery({
+    queryKey: ['reservations', 'provider', 'list', filters],
+    queryFn: () => ReservationAPI.listProviderReservations(filters),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    retry: 2,
+    ...options,
+  });
+}
+
+/**
  * Hook: Obter detalhes de uma reserva específica
  */
 export function useReservation(id: number | null, options = {}) {

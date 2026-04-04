@@ -43,6 +43,23 @@ export class ReservationAPI {
   }
 
   /**
+   * Listar reservas do provedor autenticado
+   * @param filters - Paginação e filtros
+   * @returns Lista paginada de reservas para o provedor
+   */
+  static async listProviderReservations(
+    filters: IReservationFilters = {}
+  ): Promise<IReservationListResponse> {
+    const validatedFilters = reservationFiltersSchema.parse(filters);
+
+    const response = await api.get<IReservationListResponse>('/reservations/provider/me', {
+      params: validatedFilters,
+    });
+
+    return response.data;
+  }
+
+  /**
    * Obter detalhes de uma reserva
    * @param id - ID da reserva
    * @returns Detalhes da reserva

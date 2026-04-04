@@ -15,6 +15,11 @@ export interface IReservation {
   servicePrice: string;
   createdAt: string;
   updatedAt: string;
+  client?: {
+    id: number;
+    fullName: string;
+    email: string;
+  } | undefined;
 }
 
 export interface ICreateReservationRequest {
