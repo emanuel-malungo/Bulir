@@ -1,5 +1,6 @@
 import Splash from "@/components/layout/Splash";
 import { Text, View, Image, TouchableOpacity, StatusBar, ImageBackground } from "react-native";
+import { Link } from "expo-router";
 
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -61,25 +62,30 @@ export default function Index() {
 
         {/* Botões - Fixo no Rodapé */}
         <View className="w-full gap-4 mb-8">
-          <TouchableOpacity 
-            activeOpacity={0.85}
-            className="bg-[#31ECC6] py-4 rounded-full shadow-lg"
-          >
-            <Text className="text-white text-base md:text-lg font-bold text-center">
-              Entrar
-            </Text>
-          </TouchableOpacity>
+          <Link href="/(auth)/index" asChild>
+            <TouchableOpacity 
+              activeOpacity={0.85}
+              className="bg-[#31ECC6] py-4 rounded-full shadow-lg shadow-[#31ECC6]/30"
+            >
+              <Text className="text-white text-base md:text-lg font-bold text-center">
+                Entrar
+              </Text>
+            </TouchableOpacity>
+          </Link>
 
-          <TouchableOpacity 
-            activeOpacity={0.85}
-            className="border-2 border-[#31ECC6] bg-white/40 py-4 rounded-full shadow-md"
-          >
-            <Text className="text-[#1a9788] text-base md:text-lg font-bold text-center">
-              Criar conta
-            </Text>
-          </TouchableOpacity>
+          <Link href="/(auth)/register" asChild>
+            <TouchableOpacity 
+              activeOpacity={0.85}
+              className="border-2 border-[#31ECC6] bg-white/40 py-4 rounded-full shadow-md"
+            >
+              <Text className="text-[#1a9788] text-base md:text-lg font-bold text-center">
+                Criar conta
+              </Text>
+            </TouchableOpacity>
+          </Link>
         </View>
+
       </View>
     </ImageBackground>
-  );
+  );  
 }
