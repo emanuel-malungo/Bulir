@@ -7,6 +7,8 @@ import { useWallet } from '@/modules/wallet/useWallet';
 import { useAuthStore } from '@/modules/auth/auth.store';
 import { AuthService } from '@/modules/auth/auth.services';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
+import icon from '@/assets/images/bulir.svg';
 
 interface HeaderProps {
   onMenuClick?: () => void;
@@ -58,7 +60,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
     <header className="fixed top-0 left-0 md:left-64 right-0 h-16 bg-white/80 backdrop-blur-md border-b border-gray-200 z-40 transition-all duration-300">
       <div className="flex items-center justify-between px-4 md:px-6 py-4 h-full">
         
-        {/* Lado Esquerdo: Mobile Menu e Relógio */}
+        {/* Lado Esquerdo: Mobile Menu, Logo (Mobile Only) e Relógio (Desktop Only) */}
         <div className="flex items-center space-x-2 md:space-x-4">
           <button 
             onClick={onMenuClick}
@@ -67,16 +69,22 @@ export default function Header({ onMenuClick }: HeaderProps) {
             <Menu className="w-6 h-6" />
           </button>
 
-          <div className="flex items-center space-x-2">
-            <Clock className="w-4 h-4 text-gray-400 hidden sm:block" />
+          {/* Logo exibida apenas no Mobile */}
+          <div className="flex md:hidden items-center space-x-2">
+            <Image src={icon} alt="Bulir" width={28} height={28} />
+            <span className="font-bold text-gray-900 text-lg">Bulir</span>
+          </div>
+
+          <div className="hidden md:flex items-center space-x-2">
+            <Clock className="w-4 h-4 text-gray-400" />
             <span className="text-sm font-medium text-gray-500 tabular-nums">{time}</span>
           </div>
         </div>
 
         {/* Menu do Usuário */}
         <div className="flex items-center space-x-2 md:space-x-4">
-          {/* Saldo do Usuário */}
-          <div className="flex items-center space-x-2 px-3 py-1.5 bg-gray-50 rounded-full border border-gray-100">
+          {/* Saldo do Usuário - Escondido no Mobile, exceto se for explicitamente necessário */}
+          <div className="hidden sm:flex items-center space-x-2 px-3 py-1.5 bg-gray-50 rounded-full border border-gray-100">
             <div className="p-1 bg-accent/10 rounded-full">
               <Wallet className="w-4 h-4 text-accent" />
             </div>
@@ -87,7 +95,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
 
           <div className="h-6 w-px bg-gray-200 hidden sm:block mx-1"></div>
 
-          {/* Botão Sair */}
+          {/* Botão Sair - Visível em todos */}
           <button 
             onClick={handleLogout}
             className="flex items-center space-x-1 p-2 text-gray-500 hover:bg-red-50 hover:text-red-600 rounded-lg transition-all group"
