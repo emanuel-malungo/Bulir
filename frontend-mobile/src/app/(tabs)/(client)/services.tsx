@@ -66,7 +66,7 @@ export default function ServicesScreen() {
 
       await createReservationMutation.mutateAsync({
         serviceId: selectedService.id,
-        providerId: selectedService.provider.id,
+        providerId: selectedService.providerId,
         scheduledAt,
       });
 
