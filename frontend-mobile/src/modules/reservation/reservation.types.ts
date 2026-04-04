@@ -33,6 +33,11 @@ export interface IReservation {
     fullName: string;
     email: string;
   };
+  provider?: {
+    id: number;
+    fullName: string;
+    email: string;
+  };
 }
 
 export interface IReservationHistory {
