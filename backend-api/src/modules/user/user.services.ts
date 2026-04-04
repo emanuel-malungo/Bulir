@@ -2,6 +2,24 @@ import prisma from "../../config/prisma.js";
 import { comparePassword, hashPassword } from "../../utils/hash.utils.js";
 
 export class UserService {
+  /**
+   * Helper: Converte balance de Decimal para número
+   */
+  private static normalizeUser(user: any) {
+    if (!user) return user;
+    return {
+      ...user,
+      balance: user.balance ? Number(user.balance) : 0,
+    };
+  }
+
+  /**
+   * Helper: Normaliza array de usuários
+   */
+  private static normalizeUsers(users: any[]) {
+    return users.map(user => this.normalizeUser(user));
+  }
+
   static async findAll(
     page: number,
     limit: number,
@@ -79,7 +97,7 @@ export class UserService {
     ]);
 
     return {
-      data: users,
+      data: this.normalizeUsers(users),
       meta: {
         total,
         page,
@@ -113,7 +131,7 @@ export class UserService {
       throw new Error("Usuário não encontrado");
     }
 
-    return user;
+    return this.normalizeUser(user);
   }
 
   static async update(id: number, data?: { fullName?: string | undefined; email?: string | undefined; nif?: string | undefined }) {
@@ -149,7 +167,7 @@ export class UserService {
       },
     });
 
-    return updatedUser;
+    return this.normalizeUser(updatedUser);
   }
 
   static async changePassword(id: number, currentPassword: string, newPassword: string) {

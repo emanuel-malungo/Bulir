@@ -18,6 +18,58 @@ import type {
 import { z } from "zod";
 
 export class UserController {
+  static async getMe(req: Request, res: Response) {
+    try {
+      const userId = (req as any).user?.userId;
+      if (!userId) return res.status(401).json({ error: "Usuário não autenticado" });
+      const user = await UserService.getById(userId);
+      res.status(200).json(user);
+    } catch (err) {
+      if (err instanceof Error) return res.status(404).json({ error: err.message });
+      res.status(500).json({ error: "Erro interno do servidor" });
+    }
+  }
+
+  static async updateMe(req: Request, res: Response) {
+    try {
+      const userId = (req as any).user?.userId;
+      if (!userId) return res.status(401).json({ error: "Usuário não autenticado" });
+      const validatedData = updateUserSchema.parse(req.body);
+      const user = await UserService.update(userId, validatedData);
+      res.status(200).json({ message: "Perfil atualizado com sucesso", user });
+    } catch (err) {
+      if (err instanceof z.ZodError) return res.status(400).json({ error: "Dados inválidos", errors: err.issues });
+      if (err instanceof Error) return res.status(404).json({ error: err.message });
+      res.status(500).json({ error: "Erro interno do servidor" });
+    }
+  }
+
+  static async changePasswordMe(req: Request, res: Response) {
+    try {
+      const userId = (req as any).user?.userId;
+      if (!userId) return res.status(401).json({ error: "Usuário não autenticado" });
+      const validatedData = changePasswordSchema.parse(req.body);
+      await UserService.changePassword(userId, validatedData.currentPassword, validatedData.newPassword);
+      res.status(200).json({ message: "Senha alterada com sucesso" });
+    } catch (err) {
+      if (err instanceof z.ZodError) return res.status(400).json({ error: "Dados inválidos", errors: err.issues });
+      if (err instanceof Error) return res.status(400).json({ error: err.message });
+      res.status(500).json({ error: "Erro interno do servidor" });
+    }
+  }
+
+  static async getSessionsMe(req: Request, res: Response) {
+    try {
+      const userId = (req as any).user?.userId;
+      if (!userId) return res.status(401).json({ error: "Usuário não autenticado" });
+      const sessions = await UserService.getSessions(userId);
+      res.status(200).json(sessions);
+    } catch (err) {
+      if (err instanceof Error) return res.status(404).json({ error: err.message });
+      res.status(500).json({ error: "Erro interno do servidor" });
+    }
+  }
+
   static async findAll(
     req: Request<
       {},

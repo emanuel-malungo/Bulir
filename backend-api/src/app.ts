@@ -16,6 +16,7 @@ app.use(cors({
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
+  exposedHeaders: ['Authorization'], // ✅ Permite que o frontend leia o header Authorization
   optionsSuccessStatus: 200
 }));
 

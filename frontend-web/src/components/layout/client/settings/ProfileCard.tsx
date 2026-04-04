@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { User, Mail, FileText, Edit2, Check, X } from 'lucide-react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -27,11 +27,22 @@ export function ProfileCard({ user, isLoading }: ProfileCardProps) {
   } = useForm<IUpdateUserRequest>({
     resolver: zodResolver(updateUserSchema),
     defaultValues: {
-      fullName: user?.fullName || '',
-      email: user?.email || '',
-      nif: user?.nif || '',
+      fullName: '',
+      email: '',
+      nif: '',
     },
   });
+
+  // Preencher o formulário com dados do usuário ao entrar em modo edição
+  useEffect(() => {
+    if (isEditing && user) {
+      reset({
+        fullName: user.fullName || '',
+        email: user.email || '',
+        nif: user.nif || '',
+      });
+    }
+  }, [isEditing, user, reset]);
 
   const onSubmit = async (data: IUpdateUserRequest) => {
     if (!user?.id) return;
