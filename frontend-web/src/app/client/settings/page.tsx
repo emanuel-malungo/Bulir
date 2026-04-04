@@ -5,7 +5,7 @@ import { User, Lock, Smartphone } from "lucide-react";
 import { useCurrentUser } from "@/modules/user/useUser";
 import { useReservations } from "@/modules/reservation/useReservation";
 import { useSessions } from "@/modules/user/useUser";
-import { ProfileCard, HistoryTab, SecurityTab, SessionsTab, Tabs } from "@/app/client/components/settings";
+import { ProfileCard, SecurityTab, SessionsTab, Tabs } from "@/app/client/components/settings";
 
 export default function SettingsPage() {
     const [activeTab, setActiveTab] = useState<'perfil' | 'historico' | 'seguranca' | 'sessoes'>('perfil');
@@ -19,7 +19,6 @@ export default function SettingsPage() {
 
     const tabs = [
         { id: 'perfil', label: 'Perfil', icon: User },
-        { id: 'historico', label: 'Histórico', icon: Smartphone },
         { id: 'seguranca', label: 'Segurança', icon: Lock },
         { id: 'sessoes', label: 'Sessões', icon: Smartphone },
     ];
@@ -43,18 +42,10 @@ export default function SettingsPage() {
             />
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2">
+                <div className="lg:col-span-2 border-2 roudend-lg border-gray-200 p-6 rounded-lg">
                     {/* Perfil */}
                     {activeTab === 'perfil' && (
                         <ProfileCard user={user} isLoading={userLoading} />
-                    )}
-
-                    {/* Histórico de Reservas */}
-                    {activeTab === 'historico' && (
-                        <HistoryTab
-                            reservations={reservations?.data}
-                            isLoading={reservationsLoading}
-                        />
                     )}
 
                     {/* Segurança */}
@@ -75,23 +66,23 @@ export default function SettingsPage() {
 
                 {/* Sidebar com informações rápidas */}
                 <aside className="lg:col-span-1">
-                    <div className="bg-white rounded-lg p-6 sticky top-4">
-                        <h3 className="font-semibold text-gray-900 mb-4">Informações Rápidas</h3>
+                    <div className="bg-primary text-white rounded-lg p-6 sticky top-4">
+                        <h3 className="font-semibold mb-4 text-white">Informações Rápidas</h3>
                         <div className="space-y-4">
                             <div>
-                                <p className="text-sm text-gray-500 mb-1">Saldo da Carteira</p>
+                                <p className="text-sm text-gray-300 mb-1">Saldo da Carteira</p>
                                 <p className="text-2xl font-bold text-accent">
                                     Kz {user?.balance?.toFixed(2) || '0.00'}
                                 </p>
                             </div>
                             <div>
-                                <p className="text-sm text-gray-500 mb-1">Total de Reservas</p>
-                                <p className="text-2xl font-bold text-gray-900">
+                                <p className="text-sm text-gray-300 mb-1">Total de Reservas</p>
+                                <p className="text-2xl font-bold text-accent">
                                     {reservations?.data?.length || 0}
                                 </p>
                             </div>
                             <div>
-                                <p className="text-sm text-gray-500 mb-1">Sessões Ativas</p>
+                                <p className="text-sm text-gray-300 mb-1">Sessões Ativas</p>
                                 <p className="text-2xl font-bold text-gray-900">
                                     {sessions?.sessions?.filter(s => !s.isRevoked).length || 0}
                                 </p>

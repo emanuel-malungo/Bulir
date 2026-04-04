@@ -17,7 +17,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
     },
     ref
   ) => {
-    const baseStyles = 'w-full rounded px-3 py-1 text-sm focus:outline-none focus:ring-1 transition-colors duration-200';
+    const baseStyles = 'w-full rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 transition-colors duration-200';
 
     const stateStyles = error
       ? 'border border-red-500 focus:ring-red-500'
