@@ -40,10 +40,10 @@ export default function Header({ onMenuClick }: HeaderProps) {
   const handleLogout = async () => {
     try {
       await AuthService.logout();
-      router.push('/auth/login');
+      router.push('/');
     } catch (error) {
       console.error('Erro ao fazer logout:', error);
-      router.push('/auth/login');
+      router.push('/');
     }
   };
 

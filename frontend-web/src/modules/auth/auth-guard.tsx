@@ -8,9 +8,9 @@ import Image from 'next/image';
 
 // Rotas que NÃO exigem autenticação
 const PUBLIC_ROUTES = [
-  '/auth/login',
-  '/auth/register',
-  '/auth/forgot-password',
+  '/',
+  '/register',
+  '/forgot-password',
 ];
 
 interface AuthGuardProps {
@@ -60,7 +60,7 @@ export function AuthGuard({ children, requiredRole }: AuthGuardProps) {
     // Cenário 2: Usuário não autenticado tentando acessar uma rota protegida.
     // Redireciona para a página de login.
     if (!authenticated && !isPublicRoute) {
-      router.push('/auth/login');
+      router.push('/');
       return;
     }
 
@@ -187,7 +187,7 @@ export function useRouteGuard() {
   };
 
   const getHomePath = () => {
-    if (!user) return '/auth/login';
+    if (!user) return '/';
     if (user.role === 'SUPER_ADMIN') return '/admin';
     return user.role === 'PROVIDER' ? '/provider' : '/client';
   };

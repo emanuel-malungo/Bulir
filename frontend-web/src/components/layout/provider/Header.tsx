@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Clock, LogOut, Wallet } from 'lucide-react';
 import { useAuthStore } from '@/modules/auth/auth.store';
+import { AuthService } from '@/modules/auth/auth.services';
 import { useRouter } from 'next/navigation';
 import { useProviderStats } from '@/modules/reservation/useReservation';
 
@@ -36,9 +37,15 @@ export default function Header() {
     enabled: mounted && !!user,
   });
 
-  const handleLogout = () => {
-    logout();
-    router.push('/auth/login');
+  const handleLogout = async () => {
+    try {
+      await AuthService.logout();
+      logout();
+      router.push('/');
+    } catch (error) {
+      console.error('Erro ao fazer logout:', error);
+      router.push('/');
+    }
   };
 
   if (!mounted || !user) return null;

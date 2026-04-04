@@ -333,7 +333,7 @@ function NotAuthenticatedState() {
       <h2 className="text-xl font-semibold text-gray-900">Você precisa estar autenticado</h2>
       <p className="text-gray-600">Faça login para continuar</p>
       <button
-        onClick={() => router.push('/auth/login')}
+        onClick={() => router.push('/')}
         className="mt-4 px-6 py-2 bg-accent text-white rounded-lg hover:bg-accent/90 transition-colors"
       >
         Ir para Login

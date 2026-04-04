@@ -100,7 +100,7 @@ api.interceptors.response.use(
         
         // Redireciona para login se não estiver em ambiente SSR
         if (typeof window !== 'undefined') {
-          window.location.href = '/auth/login';
+          window.location.href = '/';
         }
         
         return Promise.reject(refreshError);

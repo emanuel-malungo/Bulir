@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
@@ -83,9 +84,9 @@ export default function Register() {
       // Redirecionar baseado no papel do usuário
       const user = useAuthStore.getState().user;
       if (user?.role) {
-        const roleSlug = user.role.toLowerCase();
-        console.log(`🔀 Redirecionando para: /${roleSlug}`);
-        router.push(`/${roleSlug}`);
+        const homePath = user.role === 'SUPER_ADMIN' ? '/admin' : `/${user.role.toLowerCase()}`;
+        console.log(`🔀 Redirecionando para: ${homePath}`);
+        router.push(homePath);
       } else {
         console.log('🔀 Redirecionando para: /client');
         router.push('/client');
@@ -249,8 +250,6 @@ export default function Register() {
                 </div>
               </div>
               
-
-              
               <Button
                 type="submit"
                 disabled={isLoading}
@@ -265,7 +264,7 @@ export default function Register() {
               <div className="text-center mt-6 space-y-2">
                 <span className="text-xs text-gray-600">ou</span>
                 <p className="text-xs text-gray-600 mt-4">
-                  Já tem uma conta? <a href="/auth/login" className="text-accent font-medium hover:underline">
+                  Já tem uma conta? <a href="/" className="text-accent font-medium hover:underline">
                     Entre aqui
                   </a>
                 </p>
