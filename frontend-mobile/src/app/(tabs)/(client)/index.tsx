@@ -124,8 +124,43 @@ export default function ClientHome() {
               value={searchQuery}
               onChangeText={setSearchQuery}
               className="flex-1 text-[#0C2340] font-medium text-sm"
+              onSubmitEditing={() => router.push("/(tabs)/(client)/services")}
             />
           </View>
+        </View>
+
+        {/* Categorias - Navegação para aba de Serviços */}
+        <View className="mb-10">
+          <View className="flex-row justify-between items-center mb-5 px-1">
+            <Text className="text-[#0C2340] text-lg font-black uppercase italic tracking-tighter">
+               Categorias
+            </Text>
+            <TouchableOpacity onPress={() => router.push("/(tabs)/(client)/services")}>
+              <Text className="text-[#31ECC6] text-[10px] font-black uppercase tracking-widest">
+                Explorar mais
+              </Text>
+            </TouchableOpacity>
+          </View>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} className="-mx-2">
+             {[
+               { icon: "brush-outline", label: "Limpeza" },
+               { icon: "build-outline", label: "Reparos" },
+               { icon: "cut-outline", label: "Beleza" },
+               { icon: "school-outline", label: "Educação" },
+               { icon: "paw-outline", label: "Pets" }
+             ].map((cat, i) => (
+               <TouchableOpacity 
+                 key={i}
+                 onPress={() => router.push("/(tabs)/(client)/services")}
+                 className="bg-white mx-2 px-6 py-5 rounded-[32px] border border-gray-50 shadow-sm items-center justify-center w-24"
+               >
+                 <View className="w-10 h-10 bg-gray-50 rounded-2xl items-center justify-center mb-2">
+                    <Ionicons name={cat.icon as any} size={20} color="#31ECC6" />
+                 </View>
+                 <Text className="text-[#0C2340] font-black text-[9px] uppercase tracking-tighter">{cat.label}</Text>
+               </TouchableOpacity>
+             ))}
+          </ScrollView>
         </View>
 
         {/* Saldo Destaque (Diferente do Provider) */}
@@ -225,6 +260,7 @@ export default function ClientHome() {
                   activeOpacity={0.7}
                   className="bg-white rounded-[32px] p-5 shadow-sm shadow-black/5 border border-gray-50"
                   style={{ width: "48%" }}
+                  onPress={() => router.push("/(tabs)/(client)/reservations")}
                 >
                   <View className="flex-row justify-between items-start mb-4">
                     <View className="w-10 h-10 bg-gray-50 rounded-2xl items-center justify-center">
