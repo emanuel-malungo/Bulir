@@ -3,25 +3,14 @@
 
 import { useState, useEffect } from 'react';
 import {
-	Users,
 	Search,
-	Filter,
-	MoreHorizontal,
 	UserPlus,
-	UserX,
-	UserCheck,
-	Mail,
-	Shield,
 	ChevronLeft,
 	ChevronRight,
-	Download,
-	Calendar,
-	Eye
 } from 'lucide-react';
+import Button from '@/components/common/Button';
 import { UserAPI } from '@/modules/user/user.services';
 import type { IUserDetail } from '@/modules/user/user.types';
-import Button from '@/components/common/Button';
-import Input from '@/components/common/Input';
 
 export default function UserManagement() {
 	const [users, setUsers] = useState<IUserDetail[]>([]);

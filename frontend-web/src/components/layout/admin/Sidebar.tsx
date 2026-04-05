@@ -92,7 +92,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                                                 href={href}
                                                 onClick={onClose}
                                                 className={`group relative flex items-center justify-between px-4 py-2.5 rounded-lg text-[13px] font-bold transition-all duration-300 ${active 
-                                                    ? "bg-primary text-white shadow-md shadow-primary/10" 
+                                                    ? "bg-accent text-white shadow-md shadow-primary/10" 
                                                     : "text-gray-500 hover:bg-primary/5 hover:text-primary ml-1"}`}
                                             >
                                                 <div className="flex items-center gap-3 relative z-10">
