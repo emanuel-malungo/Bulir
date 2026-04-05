@@ -1,29 +1,16 @@
 
 'use client';
 
-import { Bell, Search, Settings, ChevronDown, Menu } from 'lucide-react';
-import Input from '@/components/common/Input';
+import { Bell, Settings, ChevronDown, Menu } from 'lucide-react';
 import { useAuthStore } from '@/modules/auth/auth.store';
-import { AuthService } from '@/modules/auth/auth.services';
-import { useRouter } from 'next/navigation';
 
 interface HeaderProps {
 	onMenuClick?: () => void;
 }
 
 export default function Header({ onMenuClick }: HeaderProps) {
-	const router = useRouter();
-	const { user } = useAuthStore();
 
-	const handleLogout = async () => {
-		try {
-			await AuthService.logout();
-			router.push('/');
-		} catch (error) {
-			console.error('Erro ao fazer logout:', error);
-			router.push('/');
-		}
-	};
+	const { user } = useAuthStore();
 
 	const userInitials = user?.fullName
 		? user.fullName
@@ -62,15 +49,6 @@ export default function Header({ onMenuClick }: HeaderProps) {
 
 			{/* Lado Direito: Pesquisa + Ações */}
 			<div className="flex items-center gap-4 ml-auto">
-				{/* Pesquisa */}
-				<div className="relative hidden w-48 md:w-64 lg:w-80 sm:block">
-					<Search className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-gray-400 pointer-events-none transition-colors group-focus-within:text-primary" />
-					<Input
-						type="search"
-						placeholder="Pesquisar..."
-						className="pl-11 h-11 bg-gray-50/50 border-transparent rounded-2xl text-sm focus-visible:bg-white focus-visible:ring-primary/20 focus-visible:border-primary/30 transition-all placeholder:text-gray-400 shadow-sm shadow-transparent focus-within:shadow-gray-200/50"
-					/>
-				</div>
 
 				{/* Divisor */}
 				<div className="hidden sm:block w-px h-8 bg-gray-200 mx-1" />

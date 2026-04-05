@@ -39,7 +39,13 @@ export default function AdminUserModal({
 	isLoading = false,
 }: AdminUserModalProps) {
 	const { roles, isLoading: loadingRoles } = useAdminRoles();
-	console.log(roles);
+
+	const roleLabels: Record<string, string> = {
+		'CLIENT': 'Cliente',
+		'PROVIDER': 'Prestador de Serviço',
+		'SUPER_ADMIN': 'Administrador',
+		'ADMIN': 'Administrador do Sistema'
+	};
 
 	const {
 		register,
@@ -112,9 +118,13 @@ export default function AdminUserModal({
 								className="w-full px-4 py-2.5 bg-gray-50/50 border border-gray-100 rounded-xl text-xs font-bold text-gray-900 focus:ring-2 focus:ring-primary/5 focus:border-primary/30 transition-all outline-none disabled:opacity-50"
 							>
 								<option value="">Seleccione...</option>
-								{roles.map((r) => (
-									<option key={r.id} value={r.name}>{r.name}</option>
-								))}
+								{roles
+									.filter((r) => r.name !== 'SUPER_ADMIN')
+									.map((r) => (
+										<option key={r.id} value={r.name}>
+											{roleLabels[r.name] || r.name}
+										</option>
+									))}
 							</select>
 							{errors.role && <p className="text-[10px] text-red-500 font-bold mt-1 ml-1">{errors.role.message}</p>}
 						</div>
