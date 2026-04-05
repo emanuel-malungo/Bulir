@@ -64,7 +64,7 @@ export default function ServiceManagement() {
 						/>
 					</div>
 
-					<Button className="h-10 bg-primary text-white rounded-lg shadow-sm text-[11px] font-bold px-6 whitespace-nowrap w-full sm:w-auto">
+					<Button className="h-10 flex items-center bg-primary text-white rounded-lg shadow-sm text-[11px] font-bold px-6 whitespace-nowrap w-full sm:w-auto">
 						<Plus className="w-3.5 h-3.5 mr-2" /> Novo Serviço
 					</Button>
 				</div>
