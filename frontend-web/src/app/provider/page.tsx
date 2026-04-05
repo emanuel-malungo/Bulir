@@ -1,6 +1,5 @@
 'use client';
 import { useState, useEffect } from 'react';
-import Image from "next/image";
 import { Plus, Search, TrendingUp, Edit2, Trash2, Loader2, AlertCircle, X, Wallet, Star, Package, ArrowUpRight, Calendar, ArrowRight }  from "lucide-react";
 import CreateServiceModal from '@/components/layout/provider/CreateServiceModal';
 import { useAuthStore } from '@/modules/auth/auth.store';
@@ -9,7 +8,6 @@ import { useUpdateService, useDeleteService, useServices } from '@/modules/servi
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import iconService from '@/assets/images/service.png';
 
 // Schema para atualizar serviço
 const updateServiceSchema = z.object({
@@ -118,9 +116,7 @@ export default function ProviderDashboard() {
                 <div className="space-y-1">
                     <h1 className="text-xl font-black text-gray-900 tracking-tight uppercase italic flex items-center gap-2">
                         Gestão Profissional
-                        <span className="text-accent text-[10px] not-italic tracking-widest font-black bg-accent/5 px-2 py-0.5 rounded-md border border-accent/10">PRO</span>
-                    </h1>
-                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest italic opacity-60">Controle de performance e catálogo de serviços</p>
+					</h1>
                 </div>
 
                 <div className="flex flex-col sm:flex-row items-center gap-3">
