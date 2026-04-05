@@ -22,6 +22,12 @@ const navigation = [
       { id: 'dashboard', label: 'Painel Central', icon: LayoutDashboard, href: '/provider' },
       { id: 'reservas', label: 'Meus Agendamentos', icon: Calendar, href: '/provider/reservations' },
     ]
+  },
+  {
+    title: "Preferências",
+    items: [
+      { id: 'settings', label: 'Configurações', icon: Settings, href: '/provider/settings' },
+    ]
   }
 ];
 

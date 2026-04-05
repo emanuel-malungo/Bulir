@@ -1,0 +1,1 @@
+export { ProviderProfileCard } from './ProviderProfileCard';
