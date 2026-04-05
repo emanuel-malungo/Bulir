@@ -1,37 +1,37 @@
 
 'use client';
 
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import icon from '@/assets/images/bulir.svg';
-import { Search, Calendar, User, Mail, MessageCircle, Share2, Briefcase, X } from 'lucide-react';
+import { 
+  Search, 
+  Calendar, 
+  User, 
+  Briefcase, 
+  X, 
+  ChevronRight,
+  LogOut,
+  Settings
+} from 'lucide-react';
+import { AuthService } from '@/modules/auth/auth.services';
 
-const menuItems = [
+const navigation = [
   {
-    id: 'explore',
-    label: 'Explorar',
-    icon: Search,
-    href: '/client',
+    title: "Descobrir",
+    items: [
+      { id: 'explore', label: 'Explorar Serviços', icon: Search, href: '/client' },
+      { id: 'servicos', label: 'Meus Pedidos', icon: Briefcase, href: '/client/services' },
+    ]
   },
   {
-    id: 'servicos',
-    label: 'Serviços',
-    icon: Briefcase,
-    href: '/client/services',
-  },
-  {
-    id: 'reservas',
-    label: 'Reservas',
-    icon: Calendar,
-    href: '/client/reservation',
-  },
-  {
-    id: 'conta',
-    label: 'Minha Conta',
-    icon: User,
-    href: '/client/settings',
-  },
+    title: "Gerenciamento",
+    items: [
+      { id: 'reservas', label: 'Minhas Reservas', icon: Calendar, href: '/client/reservation' },
+      { id: 'conta', label: 'Configurações', icon: Settings, href: '/client/settings' },
+    ]
+  }
 ];
 
 interface SidebarProps {
@@ -41,78 +41,115 @@ interface SidebarProps {
 
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      await AuthService.logout();
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Erro ao fazer logout:', error);
+      window.location.href = '/';
+    }
+  };
 
   return (
     <>
       {/* Overlay for mobile */}
       {isOpen && (
         <div 
-          className="fixed inset-0 bg-black/50 z-50 md:hidden" 
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 lg:hidden transition-all duration-300" 
           onClick={onClose}
         />
       )}
       
       <aside className={`
-        fixed md:sticky top-0 left-0 z-50
-        w-64 h-screen bg-gray-100 flex flex-col 
+        flex flex-col w-72 h-screen bg-white border-r border-gray-100 shrink-0 overflow-hidden 
+        fixed lg:sticky top-0 left-0 z-50 
         transition-transform duration-300 ease-in-out
-        ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
-        border-r border-gray-200
+        ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
-        <header className="border-b border-gray-200">
-          <div className="flex items-center justify-between px-4 py-4">
-            <div className="flex items-center space-x-2">
-              <Image src={icon} alt="Bulir" width={32} height={32} />
-              <h1 className="text-xl font-semibold text-gray-900">Bulir</h1>
-            </div>
-            {onClose && (
-              <button onClick={onClose} className="md:hidden p-2 text-gray-500 hover:bg-gray-200 rounded-lg">
-                <X className="w-5 h-5" />
-              </button>
-            )}
+        {/* Logo Section */}
+        <div className="flex items-center justify-between px-8 h-20 shrink-0 border-b border-gray-50">
+          <div className="flex items-center gap-3">
+            <Image src={icon} alt="Bulir" width={32} height={32} className="object-contain" />
+            <span className="font-bold text-gray-900 text-xl tracking-tighter">Bulir</span>
           </div>
-        </header>
+          {onClose && (
+            <button onClick={onClose} className="lg:hidden p-2 text-gray-400 hover:bg-gray-100 rounded-xl transition-all">
+              <X className="w-5 h-5" />
+            </button>
+          )}
+        </div>
 
-        <nav className="flex-1 p-6 space-y-2 overflow-y-auto">
-          {menuItems.map((item) => {
-            const IconComponent = item.icon;
-            const isActive = item.href === '/client' 
-              ? pathname === '/client' 
-              : pathname.startsWith(item.href);
-            
+        {/* Navigation */}
+        <nav className="flex-1 px-4 overflow-y-auto custom-scrollbar flex flex-col gap-8 py-8">
+          {navigation.map((section) => {
+            const isAnyActive = section.items.some(item => 
+              item.href === '/client' ? pathname === '/client' : pathname.startsWith(item.href)
+            );
+
             return (
-              <Link
-                key={item.id}
-                href={item.href}
-                onClick={onClose}
-                className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 ${
-                  isActive
-                    ? 'bg-accent text-white font-semibold shadow-md shadow-accent/20'
-                    : 'text-gray-600 hover:bg-gray-200 hover:text-accent'
-                }`}
-              >
-                <IconComponent className={`w-5 h-5 ${isActive ? 'text-white' : 'text-gray-500'}`} />
-                <div className="flex-1">
-                  <p className="text-sm font-medium">{item.label}</p>
+              <div key={section.title} className="flex flex-col gap-3">
+                <h3 className={`px-4 text-[10px] uppercase font-black tracking-[0.2em] ${isAnyActive ? 'text-accent' : 'text-gray-300'}`}>
+                  {section.title}
+                </h3>
+
+                <div className="flex flex-col gap-1.5">
+                  {section.items.map((item) => {
+                    const Icon = item.icon;
+                    const active = item.href === '/client' 
+                      ? pathname === '/client' 
+                      : pathname.startsWith(item.href);
+                    
+                    return (
+                      <Link
+                        key={item.id}
+                        href={item.href}
+                        onClick={onClose}
+                        className={`group relative flex items-center justify-between px-4 py-3 rounded-xl text-[13px] font-bold transition-all duration-300 ${active 
+                          ? "bg-accent text-white shadow-lg shadow-accent/20" 
+                          : "text-gray-500 hover:bg-accent/5 hover:text-accent ml-1"}`}
+                      >
+                        <div className="flex items-center gap-3 relative z-10">
+                          <Icon className={`w-5 h-5 shrink-0 transition-all duration-300 ${active ? "text-white scale-110" : "text-gray-400 group-hover:text-accent group-hover:rotate-3"}`} />
+                          {item.label}
+                        </div>
+                        {active && (
+                          <ChevronRight className="w-4 h-4 opacity-70 animate-in slide-in-from-left-2 duration-300 relative z-10" />
+                        )}
+                      </Link>
+                    );
+                  })}
                 </div>
-              </Link>
+              </div>
             );
           })}
         </nav>
 
-        <footer className="border-t border-gray-200 px-6 py-4">
-          <div className="flex items-center justify-center space-x-8">
-            <a href="#" className="text-gray-500 hover:text-accent transition-colors" title="Email">
-              <Mail className="w-4 h-4" />
-            </a>
-            <a href="#" className="text-gray-500 hover:text-accent transition-colors" title="Mensagem">
-              <MessageCircle className="w-4 h-4" />
-            </a>
-            <a href="#" className="text-gray-500 hover:text-accent transition-colors" title="Compartilhar">
-              <Share2 className="w-4 h-4" />
-            </a>
-          </div>
-        </footer>
+        {/* Footer */}
+        <div className="p-6 shrink-0 border-t border-gray-50">
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-xl text-xs font-bold text-red-500 bg-red-50/50 hover:bg-red-50 transition-all border border-transparent hover:border-red-100 uppercase tracking-widest"
+          >
+            <LogOut className="w-4 h-4" />
+            Sair da Conta
+          </button>
+        </div>
+
+        <style jsx global>{`
+          .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+          }
+          .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+          }
+          .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #f1f1f1;
+            border-radius: 10px;
+          }
+        `}</style>
       </aside>
     </>
   );

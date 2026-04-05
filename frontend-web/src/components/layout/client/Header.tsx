@@ -1,115 +1,84 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Clock, LogOut, Wallet, Menu } from 'lucide-react';
-import { useWallet } from '@/modules/wallet/useWallet';
+import { Bell, Settings, ChevronDown, Menu, Wallet } from 'lucide-react';
 import { useAuthStore } from '@/modules/auth/auth.store';
-import { AuthService } from '@/modules/auth/auth.services';
-import { useRouter } from 'next/navigation';
-import Image from 'next/image';
-import icon from '@/assets/images/bulir.svg';
+import { useWallet } from '@/modules/wallet/useWallet';
 
 interface HeaderProps {
-  onMenuClick?: () => void;
+	onMenuClick?: () => void;
 }
 
 export default function Header({ onMenuClick }: HeaderProps) {
-  const router = useRouter();
-  const { user } = useAuthStore();
-  const { data: wallet } = useWallet();
-  const [time, setTime] = useState<string>('');
+	const { user } = useAuthStore();
+	const { data: wallet } = useWallet();
 
-  useEffect(() => {
-    const updateTime = () => {
-      const now = new Date();
-      const formatted = now.toLocaleTimeString('pt-BR', {
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-      });
-      setTime(formatted);
-    };
+	const balance = wallet?.balance ?? 0;
 
-    updateTime();
-    const interval = setInterval(updateTime, 1000);
+	const userInitials = user?.fullName
+		? user.fullName
+			.split(' ')
+			.map((name: string) => name.charAt(0).toUpperCase())
+			.slice(0, 2)
+			.join('')
+		: 'U';
 
-    return () => clearInterval(interval);
-  }, []);
+	return (
+		<header className="fixed top-0 left-0 lg:left-72 right-0 h-20 bg-white border-b border-gray-100 flex items-center px-4 md:px-8 gap-4 md:gap-6 z-40 transition-all duration-300">
+			{/* User Profile — Lado Esquerdo */}
+			<div className="flex items-center gap-4">
+				<button
+					onClick={onMenuClick}
+					className="lg:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-xl transition-all"
+				>
+					<Menu className="w-6 h-6" />
+				</button>
 
-  const handleLogout = async () => {
-    try {
-      await AuthService.logout();
-      router.push('/');
-    } catch (error) {
-      console.error('Erro ao fazer logout:', error);
-      router.push('/');
-    }
-  };
+				<button className="flex items-center gap-3 pl-1 pr-2 py-1 rounded-2xl hover:bg-gray-50 transition-all cursor-pointer group">
+					<div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center text-accent text-sm font-bold shrink-0 shadow-sm border border-accent/5 uppercase">
+						{userInitials}
+					</div>
+					<div className="hidden md:flex flex-col text-left leading-tight">
+						<span className="text-sm font-semibold text-gray-700 group-hover:text-accent transition-colors">
+							{user?.fullName || 'Usuário Bulir'}
+						</span>
+						<span className="text-[11px] text-gray-400 font-medium capitalize">
+							Cliente
+						</span>
+					</div>
+					<ChevronDown className="w-4 h-4 text-gray-300 group-hover:text-gray-400 transition-colors hidden sm:block" />
+				</button>
+			</div>
 
-  const balance = wallet?.balance ?? 0;
-  const userInitials = user?.fullName
-    ? user.fullName
-        .split(' ')
-        .map((name) => name.charAt(0).toUpperCase())
-        .slice(0, 2)
-        .join('')
-    : 'U';
+			{/* Lado Direito: Saldo + Ações */}
+			<div className="flex items-center gap-4 ml-auto">
+				{/* Saldo — Destaque Premium */}
+				<div className="flex items-center gap-3 px-4 py-2 bg-accent/5 rounded-2xl border border-accent/10 group hover:bg-accent/10 transition-all">
+					<div className="w-8 h-8 rounded-xl bg-accent flex items-center justify-center shadow-md shadow-accent/20">
+						<Wallet className="w-4 h-4 text-white" />
+					</div>
+					<div className="flex flex-col -space-y-0.5">
+						<span className="text-[9px] font-black text-accent uppercase tracking-widest opacity-70">Saldo Disponível</span>
+						<span className="text-sm font-black text-gray-900 tabular-nums">
+							Kz {balance.toLocaleString('pt-BR')}
+						</span>
+					</div>
+				</div>
 
-  return (
-    <header className="fixed top-0 left-0 md:left-64 right-0 h-16 bg-white/80 backdrop-blur-md border-b border-gray-200 z-40 transition-all duration-300">
-      <div className="flex items-center justify-between px-4 md:px-6 py-4 h-full">
-        
-        {/* Lado Esquerdo: Mobile Menu, Logo (Mobile Only) e Relógio (Desktop Only) */}
-        <div className="flex items-center space-x-2 md:space-x-4">
-          <button 
-            onClick={onMenuClick}
-            className="p-2 md:hidden text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            <Menu className="w-6 h-6" />
-          </button>
+				{/* Divisor */}
+				<div className="hidden sm:block w-px h-8 bg-gray-100 mx-1" />
 
-          {/* Logo exibida apenas no Mobile */}
-          <div className="flex md:hidden items-center space-x-2">
-            <Image src={icon} alt="Bulir" width={28} height={28} />
-            <span className="font-bold text-gray-900 text-lg">Bulir</span>
-          </div>
+				<div className="flex items-center gap-1 md:gap-2">
+					<button className="relative p-2.5 rounded-2xl text-gray-400 hover:bg-gray-50 hover:text-accent transition-all cursor-pointer group">
+						<Bell className="w-5 h-5" />
+						<span className="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white group-hover:scale-110 transition-transform" />
+					</button>
 
-          <div className="hidden md:flex items-center space-x-2">
-            <Clock className="w-4 h-4 text-gray-400" />
-            <span className="text-sm font-medium text-gray-500 tabular-nums">{time}</span>
-          </div>
-        </div>
-
-        {/* Menu do Usuário */}
-        <div className="flex items-center space-x-2 md:space-x-4">
-          {/* Saldo do Usuário - Escondido no Mobile, exceto se for explicitamente necessário */}
-          <div className="hidden sm:flex items-center space-x-2 px-3 py-1.5 bg-gray-50 rounded-full border border-gray-100">
-            <div className="p-1 bg-accent/10 rounded-full">
-              <Wallet className="w-4 h-4 text-accent" />
-            </div>
-            <span className="text-sm font-bold text-gray-900 whitespace-nowrap">
-              {balance.toLocaleString('pt-BR', { style: 'currency', currency: 'AOA' })}
-            </span>
-          </div>
-
-          <div className="h-6 w-px bg-gray-200 hidden sm:block mx-1"></div>
-
-          {/* Botão Sair - Visível em todos */}
-          <button 
-            onClick={handleLogout}
-            className="flex items-center space-x-1 p-2 text-gray-500 hover:bg-red-50 hover:text-red-600 rounded-lg transition-all group"
-            title="Sair"
-          >
-            <LogOut className="w-5 h-5 group-hover:scale-110 transition-transform" />
-          </button>
-
-          {/* Avatar do Usuário */}
-          <div className="w-9 h-9 rounded-full bg-accent flex items-center justify-center shadow-lg shadow-accent/20 border-2 border-white overflow-hidden">
-            <span className="text-xs font-bold text-white">{userInitials}</span>
-          </div>
-        </div>
-      </div>
-    </header>
-  );
-}
+					<button className="p-2.5 rounded-2xl text-gray-400 hover:bg-gray-50 hover:text-accent transition-all cursor-pointer">
+						<Settings className="w-5 h-5" />
+					</button>
+				</div>
+			</div>
+		</header>
+	);
+}
