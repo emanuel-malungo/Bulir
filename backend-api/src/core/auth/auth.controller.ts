@@ -55,12 +55,21 @@ export class AuthController {
 
   static async login(req: Request, res: Response<ILoginResponse | IApiError>) {
     try {
+      console.log('🔐 [BACKEND] ===== LOGIN INICIADO =====');
+      console.log('📧 [BACKEND] Identifier:', req.body?.identifier?.substring(0, 5) + '...');
+      
       const validatedData = loginSchema.parse(req.body);
+      console.log('✅ [BACKEND] Validação do schema passou');
       
       const userAgent = req.get("user-agent") || "unknown";
       const ipAddress = req.ip || "unknown";
+      console.log('🖥️ [BACKEND] UserAgent:', userAgent);
+      console.log('📍 [BACKEND] IP Address:', ipAddress);
       
       const result = await AuthService.login(validatedData, userAgent, ipAddress);
+      console.log('✅ [BACKEND] AuthService.login retornou com sucesso');
+      console.log('👤 [BACKEND] Usuário:', result.user?.email);
+      console.log('🔑 [BACKEND] AccessToken gerado:', (result as any).accessToken?.substring(0, 20) + '...');
       
       // Set HttpOnly Cookie with refreshToken (7 days)
       const maxAge = 7 * 24 * 60 * 60 * 1000;
@@ -71,14 +80,18 @@ export class AuthController {
         maxAge: maxAge,
         path: '/'
       });
+      console.log('🍪 [BACKEND] Cookie refreshToken setado (maxAge:', maxAge, 'ms)');
       
       // Set Access Token in Authorization header for the response
       res.set('Authorization', `Bearer ${(result as any).accessToken}`);
+      console.log('📤 [BACKEND] Header Authorization setado no response');
       
       // Return response WITH accessToken
       const { refreshToken, ...responseWithToken } = result as any;
+      console.log('📊 [BACKEND] Response enviado com dados do usuário:', Object.keys(responseWithToken));
       res.status(200).json(responseWithToken);
     } catch (err) {
+      console.error('❌ [BACKEND] ERRO NO LOGIN:', err);
       if (err instanceof ValidationError) {
         return res.status(401).json({ error: err.message });
       }
@@ -96,16 +109,24 @@ export class AuthController {
 
   static async refresh(req: Request, res: Response<IRefreshResponse | IApiError>) {
     try {
+      console.log('🔄 [BACKEND] ===== REFRESH TOKEN INICIADO =====');
+      
       const refreshToken = req.cookies['refreshToken'];
+      console.log('🍪 [BACKEND] RefreshToken encontrado:', !!refreshToken);
       
       if (!refreshToken) {
+        console.error('❌ [BACKEND] ERRO: Refresh token não fornecido');
         return res.status(401).json({ error: "Refresh token não fornecido" });
       }
       
+      console.log('🔐 [BACKEND] Validando refresh token...');
       const result = await AuthService.refresh(refreshToken);
+      console.log('✅ [BACKEND] Refresh token validado com sucesso');
       
       // Set Access Token in Authorization header for the response
       res.set('Authorization', `Bearer ${result.accessToken}`);
+      console.log('📤 [BACKEND] Novo AccessToken enviado no header');
+      console.log('🔑 [BACKEND] AccessToken:', result.accessToken?.substring(0, 20) + '...');
       
       res.status(200).json(result);
     } catch (err) {

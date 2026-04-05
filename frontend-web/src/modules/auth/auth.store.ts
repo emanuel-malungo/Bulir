@@ -39,18 +39,28 @@ export const useAuthStore = create<AuthStore>()(
       isCheckingAuth: true,
       error: null,
 
-      setUser: (user) => set({ user, error: null }),
+      setUser: (user) => {
+        console.log('👤 [STORE] Atualizando usuário:', user ? user.email : 'null');
+        set({ user, error: null });
+      },
       setLoading: (isLoading) => set({ isLoading }),
-      setError: (error) => set({ error }),
+      setError: (error) => {
+        if (error) console.error('❌ [STORE] Erro:', error);
+        set({ error });
+      },
       syncWalletBalance: (balance) => {
         const { user } = get();
         if (user) {
+          console.log('💰 [STORE] Sincronizando saldo da carteira:', balance);
           set({ user: { ...user, walletBalance: balance } });
         }
       },
       
       
-      logout: () => set({ user: null, error: null }),
+      logout: () => {
+        console.log('🚪 [STORE] Executando logout');
+        set({ user: null, error: null });
+      },
       
       isAuthenticated: () => !!get().user,
       
@@ -68,24 +78,40 @@ export const useAuthStore = create<AuthStore>()(
 
       checkAuth: async () => {
         const { user } = get();
+        console.log('🔍 [STORE] ===== VERIFICANDO AUTENTICAÇÃO =====');
+        console.log('👤 [STORE] Usuário no store:', user ? user.email : 'NENHUM');
+        console.log('🔐 [STORE] isCheckingAuth começando...');
+        
         if (!user) {
+          console.log('⚠️ [STORE] Nenhum usuário no store, pulando verificação');
           set({ isCheckingAuth: false });
           return;
         }
 
         try {
+          console.log('🔄 [STORE] Chamando AuthService.verifySession()...');
           // Import dynamic para evitar dependência circular
           const { AuthService } = await import('./auth.services');
           const updatedUser = await AuthService.verifySession();
+          
           if (updatedUser) {
+            console.log('✅ [STORE] Sessão válida!');
+            console.log('👤 [STORE] Usuário verificado:', updatedUser.email);
+            console.log('🎫 [STORE] Role:', updatedUser.role);
+            console.log('🔐 [STORE] Permissões:', updatedUser.permissions?.length || 0);
             set({ user: updatedUser });
+          } else {
+            console.warn('⚠️ [STORE] Sessão válida mas usuário vazio');
           }
         } catch (error) {
-          console.error('Falha na verificação de sessão:', error);
+          console.error('❌ [STORE] ERRO AO VERIFICAR SESSÃO:', error);
+          console.error('❌ [STORE] Erro detalhado:', error instanceof Error ? error.message : 'Desconhecido');
           // O interceptor já trata o logout em caso de 401, 
           // mas por segurança limpamos se falhar aqui também
+          console.log('🚪 [STORE] Limpando user do store (logout por segurança)');
           set({ user: null });
         } finally {
+          console.log('✅ [STORE] isCheckingAuth finalizado');
           set({ isCheckingAuth: false });
         }
       },

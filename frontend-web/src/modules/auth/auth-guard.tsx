@@ -13,6 +13,17 @@ const PUBLIC_ROUTES = [
   '/forgot-password',
 ];
 
+/**
+ * Verifica se a rota é pública usando exact match ou prefix match apropriado
+ */
+const isPublicRoutePath = (pathname: string): boolean => {
+  // Rota home deve ser exatamente '/'
+  if (pathname === '/') return true;
+  
+  // Outras rotas públicas podem ter sub-rotas
+  return pathname.startsWith('/register') || pathname.startsWith('/forgot-password');
+};
+
 interface AuthGuardProps {
   children: React.ReactNode;
   requiredRole?: 'CLIENT' | 'PROVIDER' | 'SUPER_ADMIN';
@@ -30,21 +41,38 @@ export function AuthGuard({ children, requiredRole }: AuthGuardProps) {
   useEffect(() => {
     // A verificação de autenticação só deve ocorrer se não estivermos em uma rota pública
     // e se houver um token (isAuthenticated), ou se o estado de verificação ainda não foi iniciado.
-    const isPublicRoute = PUBLIC_ROUTES.some((route) => pathname.startsWith(route));
+    const isPublicRoute = isPublicRoutePath(pathname);
+    console.log('🛡️ [AUTH-GUARD] useEffect 1 - Verificando rota');
+    console.log('📍 [AUTH-GUARD] Rota atual:', pathname);
+    console.log('🔐 [AUTH-GUARD] É rota pública:', isPublicRoute);
+    
     if (!isPublicRoute) {
+      console.log('🔄 [AUTH-GUARD] Chamando checkAuth para rota protegida');
       checkAuth();
     } else {
       // Em rotas públicas, garantimos que o loading não seja exibido desnecessariamente
+      console.log('⏭️ [AUTH-GUARD] Rota pública, pulando checkAuth');
       useAuthStore.setState({ isCheckingAuth: false });
     }
   }, [pathname, checkAuth]);
 
   useEffect(() => {
     // Não faz nada enquanto a autenticação está sendo verificada
-    if (isCheckingAuth) return;
+    if (isCheckingAuth) {
+      console.log('⏳ [AUTH-GUARD] useEffect 2 - Ainda verificando autenticação, aguardando...');
+      return;
+    }
 
+    console.log('🛡️ [AUTH-GUARD] useEffect 2 - Autenticação verificada');
+    
     const authenticated = isAuthenticated();
-    const isPublicRoute = PUBLIC_ROUTES.some((route) => pathname.startsWith(route));
+    const isPublicRoute = isPublicRoutePath(pathname);
+    
+    console.log('📊 [AUTH-GUARD] Estado:');
+    console.log('  - Autenticado:', authenticated);
+    console.log('  - Rota pública:', isPublicRoute);
+    console.log('  - User:', user?.email);
+    console.log('  - Role:', user?.role);
 
     // Cenário 1: Usuário autenticado tentando acessar uma rota pública (login/registro)
     // Redireciona para a página principal baseada na sua role.
@@ -53,6 +81,8 @@ export function AuthGuard({ children, requiredRole }: AuthGuardProps) {
       if (user?.role === 'SUPER_ADMIN') homePath = '/admin';
       else if (user?.role === 'PROVIDER') homePath = '/provider';
       
+      console.log('🔄 [AUTH-GUARD] Cenário 1: Usuário autenticado em rota pública');
+      console.log('📍 [AUTH-GUARD] Redirecionando para:', homePath);
       router.push(homePath);
       return;
     }
@@ -60,6 +90,8 @@ export function AuthGuard({ children, requiredRole }: AuthGuardProps) {
     // Cenário 2: Usuário não autenticado tentando acessar uma rota protegida.
     // Redireciona para a página de login.
     if (!authenticated && !isPublicRoute) {
+      console.log('🔄 [AUTH-GUARD] Cenário 2: Usuário NÃO autenticado em rota protegida');
+      console.log('📍 [AUTH-GUARD] Redirecionando para: /');
       router.push('/');
       return;
     }
@@ -69,6 +101,10 @@ export function AuthGuard({ children, requiredRole }: AuthGuardProps) {
       // Se um requiredRole foi fornecido, valida contra ele
       if (requiredRole && !hasRole(requiredRole)) {
         const fallbackPath = requiredRole === 'PROVIDER' ? '/client' : '/provider';
+        console.log('🔄 [AUTH-GUARD] Cenário 3a: Role requerida não corresponde');
+        console.log('  - Role requerida:', requiredRole);
+        console.log('  - Role do usuário:', user?.role);
+        console.log('📍 [AUTH-GUARD] Redirecionando para:', fallbackPath);
         router.push(fallbackPath);
         return;
       }
@@ -78,18 +114,24 @@ export function AuthGuard({ children, requiredRole }: AuthGuardProps) {
       const isProviderRoute = pathname.startsWith('/provider');
 
       if (isClientRoute && !hasRole('CLIENT')) {
+        console.log('🔄 [AUTH-GUARD] Cenário 3b: Rota /client mas usuário não é CLIENT');
+        console.log('📍 [AUTH-GUARD] Redirecionando para: /provider');
         router.push('/provider');
         return;
       }
       if (isProviderRoute && !hasRole('PROVIDER')) {
+        console.log('🔄 [AUTH-GUARD] Cenário 3c: Rota /provider mas usuário não é PROVIDER');
+        console.log('📍 [AUTH-GUARD] Redirecionando para: /client');
         router.push('/client');
         return;
       }
     }
+
+    console.log('✅ [AUTH-GUARD] Acesso permitido, renderizando children');
   }, [isAuthenticated, isCheckingAuth, pathname, router, user, hasRole, requiredRole]);
 
   // Exibe um loader apenas se a verificação estiver em andamento em uma rota protegida.
-  const isPublicRoute = PUBLIC_ROUTES.some((route) => pathname.startsWith(route));
+  const isPublicRoute = isPublicRoutePath(pathname);
   if (isCheckingAuth && !isPublicRoute) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-linear-to-br from-accent/5 via-white to-accent/10 relative overflow-hidden">
