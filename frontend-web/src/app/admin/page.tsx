@@ -7,21 +7,83 @@ import {
 	UserPlus,
 	ChevronLeft,
 	ChevronRight,
+	MoreHorizontal,
+	Trash2,
+	Edit,
 } from 'lucide-react';
 import Button from '@/components/common/Button';
-import { useUsers } from '@/modules/user/useUser';
+import { useUsers, useUpdateUser, useDeleteUser } from '@/modules/user/useUser';
+import AdminUserModal from './components/AdminUserModal';
+import { ConfirmDeleteModal } from '@/components/common';
 
 export default function UserManagement() {
 	const [searchTerm, setSearchTerm] = useState('');
+	
+	// Modal states
+	const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+	const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+	const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+	const [selectedUser, setSelectedUser] = useState<any>(null);
 
-	const { data: userResponse, isLoading: loading } = useUsers();
+	const { data: userResponse, isLoading: loading, refetch } = useUsers();
 	const users = userResponse?.data || [];
 	
+	const updateUser = useUpdateUser({
+		onSuccess: () => {
+			setIsUpdateModalOpen(false);
+			setSelectedUser(null);
+			refetch();
+		}
+	});
+
+	const deleteUser = useDeleteUser({
+		onSuccess: () => {
+			setIsDeleteModalOpen(false);
+			setSelectedUser(null);
+			refetch();
+		}
+	});
+
 	const filteredUsers = users.filter(user =>
 		user.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
 		user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
 		user.nif?.toLowerCase().includes(searchTerm.toLowerCase())
 	);
+
+	const handleCreateSubmit = (data: any) => {
+		console.log('Create user:', data);
+		// Aqui chamaria o hook de criação (que precisaria ser criado no módulo)
+		setIsCreateModalOpen(false);
+	};
+
+	const handleUpdateSubmit = (data: any) => {
+		if (selectedUser) {
+			updateUser.mutate({
+				userId: selectedUser.id,
+				data: {
+					fullName: data.fullName,
+					email: data.email,
+					nif: data.nif,
+				}
+			});
+		}
+	};
+
+	const handleDeleteConfirm = () => {
+		if (selectedUser) {
+			deleteUser.mutate(selectedUser.id);
+		}
+	};
+
+	const openUpdateModal = (user: any) => {
+		setSelectedUser(user);
+		setIsUpdateModalOpen(true);
+	};
+
+	const openDeleteModal = (user: any) => {
+		setSelectedUser(user);
+		setIsDeleteModalOpen(true);
+	};
 
 	return (
 		<div className="space-y-6 animate-in fade-in duration-500">
@@ -29,29 +91,32 @@ export default function UserManagement() {
 			<div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-gray-100 mt-2">
 				<div className="space-y-1">
 					<h1 className="text-xl font-bold text-gray-900 tracking-tight">Gestão de Utilizadores</h1>
+					<p className="text-[10px] text-gray-400 font-bold uppercase tracking-[0.2em] italic opacity-60">Bulir Platform Administration</p>
 				</div>
 
 				<div className="flex flex-col sm:flex-row items-center gap-3">
-					{/* Search integrado no Header */}
 					<div className="relative group w-full sm:w-72">
 						<Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 group-focus-within:text-primary transition-all shadow-sm" />
 						<input
 							type="text"
 							placeholder="Pesquisar por nome, email ou NIF..."
-							className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-lg text-[11px] focus:ring-2 focus:ring-primary/5 focus:border-primary/30 transition-all outline-none text-gray-900 font-bold placeholder:text-gray-400 placeholder:font-medium"
+							className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-[11px] focus:ring-2 focus:ring-primary/5 focus:border-primary/30 transition-all outline-none text-gray-900 font-bold placeholder:text-gray-400 placeholder:font-medium"
 							value={searchTerm}
 							onChange={(e) => setSearchTerm(e.target.value)}
 						/>
 					</div>
 
-					<Button className="h-10 flex items-center bg-primary text-white rounded-lg shadow-sm text-[11px] font-bold px-6 whitespace-nowrap w-full sm:w-auto">
+					<Button 
+						onClick={() => setIsCreateModalOpen(true)}
+						className="h-10 flex items-center bg-primary text-white rounded-xl shadow-lg shadow-primary/20 text-[11px] font-bold px-6 whitespace-nowrap w-full sm:w-auto hover:scale-[1.02] transition-transform"
+					>
 						<UserPlus className="w-3.5 h-3.5 mr-2" /> Adicionar Utilizador
 					</Button>
 				</div>
 			</div>
 
 			{/* Tabela Direta — Ultra Minimalista */}
-			<div className="border border-gray-100 rounded-lg overflow-hidden bg-white shadow-sm shadow-gray-50/50">
+			<div className="border border-gray-100 rounded-2xl overflow-hidden bg-white shadow-sm shadow-gray-50/50">
 				<div className="overflow-x-auto">
 					<table className="w-full text-left whitespace-nowrap">
 						<thead>
@@ -90,7 +155,7 @@ export default function UserManagement() {
 										</td>
 										<td className="px-6 py-4">
 											<div className="flex flex-wrap gap-1">
-												{user.userRoles?.map((ur, idx) => (
+												{user.userRoles?.map((ur: any, idx: number) => (
 													<span key={idx} className="inline-flex items-center px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-gray-50 text-gray-600 border border-gray-200">
 														{ur.role.name}
 													</span>
@@ -114,11 +179,17 @@ export default function UserManagement() {
 										</td>
 										<td className="px-6 py-4 text-right">
 											<div className="flex items-center justify-end gap-2">
-												<button className="flex items-center gap-1.5 px-3 py-1.5 bg-white text-gray-600 hover:bg-primary hover:text-white rounded-lg text-[10px] font-bold transition-all border border-gray-100 shadow-sm hover:shadow-primary/20">
-													Actualizar
+												<button 
+													onClick={() => openUpdateModal(user)}
+													className="flex items-center gap-1.5 px-3 py-1.5 bg-white text-gray-600 hover:bg-primary hover:text-white rounded-lg text-[10px] font-bold transition-all border border-gray-100 shadow-sm hover:shadow-primary/20"
+												>
+													<Edit className="w-3.5 h-3.5" /> Actualizar
 												</button>
-												<button className="p-1.5 text-gray-400 hover:text-primary rounded-lg hover:bg-primary/5 transition-all">
-													<UserPlus className="w-3.5 h-3.5" />
+												<button 
+													onClick={() => openDeleteModal(user)}
+													className="p-1.5 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50 transition-all opacity-0 group-hover:opacity-100"
+												>
+													<Trash2 className="w-3.5 h-3.5" />
 												</button>
 											</div>
 										</td>
@@ -150,6 +221,32 @@ export default function UserManagement() {
 					</div>
 				</div>
 			</div>
+
+			{/* Modais */}
+			<AdminUserModal 
+				isOpen={isCreateModalOpen}
+				onClose={() => setIsCreateModalOpen(false)}
+				onSubmit={handleCreateSubmit}
+				title="Novo Utilizador"
+			/>
+
+			<AdminUserModal 
+				isOpen={isUpdateModalOpen}
+				onClose={() => setIsUpdateModalOpen(false)}
+				onSubmit={handleUpdateSubmit}
+				initialData={selectedUser}
+				title="Actualizar Utilizador"
+				isLoading={updateUser.isPending}
+			/>
+
+			<ConfirmDeleteModal 
+				isOpen={isDeleteModalOpen}
+				onClose={() => setIsDeleteModalOpen(false)}
+				onConfirm={handleDeleteConfirm}
+				title="Eliminar Utilizador"
+				message={`Tem a certeza que deseja eliminar o utilizador ${selectedUser?.fullName}?`}
+				isLoading={deleteUser.isPending}
+			/>
 
 			<style jsx global>{`
 					.custom-scrollbar::-webkit-scrollbar {
