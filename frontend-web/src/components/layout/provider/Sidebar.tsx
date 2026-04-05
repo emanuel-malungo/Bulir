@@ -22,25 +22,10 @@ import { useAuthStore } from '@/modules/auth/auth.store';
 
 const navigation = [
   {
-    title: "Operações",
+    title: "Operações Pro",
     items: [
       { id: 'dashboard', label: 'Painel Central', icon: LayoutDashboard, href: '/provider' },
-      { id: 'reservas', label: 'Agendamentos', icon: Calendar, href: '/provider/reservations' },
-      { id: 'servicos', label: 'Meus Serviços', icon: Briefcase, href: '/provider/services' },
-    ]
-  },
-  {
-    title: "Financeiro & Performance",
-    items: [
-      { id: 'extratos', label: 'Extratos & Vendas', icon: Wallet, href: '/provider/wallet' },
-      { id: 'analytics', label: 'Minha Performance', icon: TrendingUp, href: '/provider/analytics' },
-    ]
-  },
-  {
-    title: "Configurações",
-    items: [
-      { id: 'conta', label: 'Dados da Conta', icon: Settings, href: '/provider/settings' },
-      { id: 'suporte', label: 'Centro de Ajuda', icon: MessageCircle, href: '/provider/help' },
+      { id: 'reservas', label: 'Meus Agendamentos', icon: Calendar, href: '/provider/reservations' },
     ]
   }
 ];
