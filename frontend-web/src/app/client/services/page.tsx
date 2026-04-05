@@ -76,16 +76,17 @@ export default function ClientServices() {
           <table className="w-full text-left whitespace-nowrap">
             <thead>
               <tr className="bg-gray-50/30">
-                <th className="px-8 py-5 text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] border-b border-gray-100">Serviço</th>
-                <th className="px-8 py-5 text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] border-b border-gray-100 font-mono italic">Prestador</th>
-                <th className="px-8 py-5 text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] border-b border-gray-100 text-right">Preço Base</th>
+                <th className="px-8 py-5 text-[10px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100">Serviço</th>
+                <th className="px-8 py-5 text-[10px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 font-mono italic">Prestador</th>
+                <th className="px-8 py-5 text-[10px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100">Status</th>
+                <th className="px-8 py-5 text-[10px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 text-right">Preço Base</th>
                 <th className="px-8 py-5 border-b border-gray-100 text-right"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
               {isLoading ? (
                 <tr>
-                  <td colSpan={4} className="px-8 py-20 text-center">
+                  <td colSpan={5} className="px-8 py-20 text-center">
                     <div className="flex flex-col items-center gap-3">
                       <div className="w-8 h-8 rounded-full border-2 border-gray-100 border-t-accent animate-spin"></div>
                       <p className="text-[10px] font-black text-gray-300 uppercase italic tracking-widest">Sincronizando Catálogo...</p>
@@ -94,7 +95,7 @@ export default function ClientServices() {
                 </tr>
               ) : error ? (
                 <tr>
-                  <td colSpan={4} className="px-8 py-16 text-center text-red-400 text-[11px] font-bold uppercase tracking-widest italic opacity-60">
+                  <td colSpan={5} className="px-8 py-16 text-center text-red-400 text-[11px] font-bold uppercase tracking-widest italic opacity-60">
                     <div className="flex items-center justify-center gap-2">
                        <AlertCircle className="w-4 h-4" /> Erro ao carregar serviços
                     </div>
@@ -102,8 +103,8 @@ export default function ClientServices() {
                 </tr>
               ) : services.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="px-8 py-20 text-center text-gray-300 font-bold text-xs uppercase tracking-widest opacity-50 italic">
-                    Nenhum serviço encontrado.
+                  <td colSpan={5} className="px-8 py-20 text-center text-gray-300 font-bold text-[10px] uppercase tracking-widest opacity-50 italic">
+                    Nenhum serviço encontrado no catálogo atual.
                   </td>
                 </tr>
               ) : (
@@ -121,15 +122,21 @@ export default function ClientServices() {
                       </div>
                     </td>
                     <td className="px-8 py-5">
-                      <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-md bg-gray-100 flex items-center justify-center text-[10px] font-black text-gray-400 border border-gray-100">
+                      <div className="flex items-center gap-2 group/provider cursor-default">
+                        <div className="w-6 h-6 rounded-md bg-gray-100 flex items-center justify-center text-[10px] font-black text-gray-400 border border-gray-100 group-hover/provider:bg-accent/10 group-hover/provider:text-accent transition-colors">
                           {service.provider?.fullName.charAt(0)}
                         </div>
-                        <span className="text-xs font-bold text-gray-600">{service.provider?.fullName}</span>
+                        <span className="text-xs font-bold text-gray-600 transition-colors group-hover/provider:text-gray-900">{service.provider?.fullName}</span>
                       </div>
                     </td>
+                    <td className="px-8 py-5">
+                      <span className="inline-flex items-center px-3 py-1 rounded-lg text-[9px] font-bold uppercase tracking-widest bg-green-50 text-green-600 border border-green-100">
+                        <div className="w-1 h-1 rounded-full bg-current mr-2" />
+                        Disponível
+                      </span>
+                    </td>
                     <td className="px-8 py-5 text-right">
-                      <span className="text-sm font-black text-gray-900 tabular-nums italic">
+                      <span className="text-[10px] font-mono text-accent font-extrabold bg-accent/5 px-2.5 py-1 rounded-lg border border-accent/10 shadow-sm">
                         Kz {(service.price || 0).toLocaleString()}
                       </span>
                     </td>

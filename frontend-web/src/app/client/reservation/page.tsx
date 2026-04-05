@@ -99,7 +99,7 @@ export default function ReservasPage() {
                                     <td colSpan={5} className="px-8 py-20 text-center">
                                         <div className="flex flex-col items-center gap-3">
                                             <div className="w-8 h-8 rounded-full border-2 border-gray-100 border-t-accent animate-spin"></div>
-                                            <p className="text-[10px] font-black text-gray-300 uppercase tracking-widest italic tracking-[0.2em]">Sincronizando Reservas...</p>
+                                            <p className="text-[10px] font-black text-gray-300 uppercase italic tracking-widest">Sincronizando Reservas...</p>
                                         </div>
                                     </td>
                                 </tr>
