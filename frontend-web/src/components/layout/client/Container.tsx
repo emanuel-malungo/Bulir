@@ -4,7 +4,6 @@
 import { useState } from 'react';
 import Header from "./Header";
 import Sidebar from "./Sidebar";
-import { Check } from "lucide-react";
 
 export default function Container({ children }: { children: React.ReactNode }) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -28,29 +27,6 @@ export default function Container({ children }: { children: React.ReactNode }) {
                         </div>
                     </main>
 
-                    {/* Footer fixo na base */}
-                    <footer className="fixed bottom-0 left-0 md:left-64 right-0 border-t border-gray-200 px-6 py-4 bg-white/80 backdrop-blur-md z-40">
-                      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                        {/* Esquerda */}
-                        <p className="text-xs text-gray-400 font-medium">© 2026 Bulir — Todos os direitos reservados</p>
-                        
-                        {/* Direita */}
-                        <div className="flex items-center space-x-6">
-                          <div className="flex items-center space-x-1.5 group">
-                            <div className="p-0.5 bg-accent/10 rounded-full group-hover:bg-accent/20 transition-colors">
-                              <Check className="w-3.5 h-3.5 text-accent" />
-                            </div>
-                            <span className="text-xs text-gray-500 font-medium">Verificado</span>
-                          </div>
-                          <div className="flex items-center space-x-1.5 group">
-                            <div className="p-0.5 bg-accent/10 rounded-full group-hover:bg-accent/20 transition-colors">
-                              <Check className="w-3.5 h-3.5 text-accent" />
-                            </div>
-                            <span className="text-xs text-gray-500 font-medium">Confiável</span>
-                          </div>
-                        </div>
-                      </div>
-                    </footer>
                 </div>
             </div>
         </div>

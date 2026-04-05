@@ -1,14 +1,13 @@
 
 'use client';
 
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import icon from '@/assets/images/bulir.svg';
 import { 
   Search, 
   Calendar, 
-  User, 
   Briefcase, 
   X, 
   ChevronRight,
@@ -41,7 +40,6 @@ interface SidebarProps {
 
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
-  const router = useRouter();
 
   const handleLogout = async () => {
     try {
@@ -108,7 +106,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                         href={item.href}
                         onClick={onClose}
                         className={`group relative flex items-center justify-between px-4 py-3 rounded-xl text-[13px] font-bold transition-all duration-300 ${active 
-                          ? "bg-accent text-white shadow-lg shadow-accent/20" 
+                          ? "bg-accent text-white " 
                           : "text-gray-500 hover:bg-accent/5 hover:text-accent ml-1"}`}
                       >
                         <div className="flex items-center gap-3 relative z-10">
