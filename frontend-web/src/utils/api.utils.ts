@@ -75,7 +75,7 @@ api.interceptors.response.use(
 		console.error('❌ [API-ERROR] Erro na requisição');
 		console.error('❌ [API-ERROR] URL:', originalRequest?.url);
 		console.error('❌ [API-ERROR] Status:', error.response?.status);
-		console.error('❌ [API-ERROR] Mensagem:', error.response?.data?.error || error.message);
+		console.error('❌ [API-ERROR] Mensagem:', (error.response?.data as any)?.error || error.message);
 
 		// Se 401 e ainda não tentou refresh
 		// NÃO fazer refresh em rotas de auth (login, register, refresh)

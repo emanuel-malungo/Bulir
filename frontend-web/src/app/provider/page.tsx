@@ -284,7 +284,7 @@ export default function ProviderDashboard() {
 
             {/* Modal de Edição — Sincronizado */}
             {isEditServiceOpen && selectedService && (
-                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4 scale-in-center">
+                <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-100 flex items-center justify-center p-4 animate-in fade-in duration-300">
                     <div className="bg-white rounded-3xl max-w-md w-full overflow-hidden border border-gray-200">
                         <div className="flex items-center justify-between border-b border-gray-200 p-8">
                             <div className="space-y-1 text-left">
@@ -342,7 +342,7 @@ export default function ProviderDashboard() {
 
             {/* Modal de Confirmação de Delete */}
             {isDeleteConfirmOpen && selectedService && (
-                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
+                <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-100 p-4 animate-in fade-in duration-300">
                     <div className="bg-white rounded-3xl max-w-sm w-full p-10 text-center border border-gray-200">
                         <div className="w-20 h-20 bg-red-50 border border-red-100 rounded-3xl flex items-center justify-center mx-auto mb-6 text-red-600">
                             <AlertCircle className="w-10 h-10" />
