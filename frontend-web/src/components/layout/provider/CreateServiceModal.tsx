@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { X } from 'lucide-react';
+import { X, Loader2 } from 'lucide-react';
 import { Button } from '@/components/common';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -59,100 +59,89 @@ export default function CreateServiceModal({ isOpen, onClose }: CreateServiceMod
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-lg max-w-md w-full">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden border border-gray-100">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-900">Criar Novo Serviço</h2>
-          <button
-            onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 transition-colors"
-            title="Fechar"
-          >
-            <X className="w-5 h-5" />
-          </button>
+        <div className="flex items-center justify-between border-b border-gray-100 p-8">
+            <div className="space-y-1">
+                <h2 className="text-sm font-black text-gray-900 uppercase tracking-widest italic text-left">Novo Catálogo</h2>
+                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest italic opacity-60 text-left">Registe um novo serviço profissional</p>
+            </div>
+            <button
+                onClick={onClose}
+                className="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all"
+                title="Fechar"
+            >
+                <X className="w-5 h-5" />
+            </button>
         </div>
 
         {/* Content */}
-        <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="p-8 space-y-6">
           {/* Nome do Serviço */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+          <div className="space-y-2 text-left">
+            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest italic ml-1">
               Nome do Serviço
             </label>
             <input
               type="text"
               {...register('name')}
               placeholder="Ex: Corte de cabelo"
-              className={`w-full px-4 py-2 border rounded-lg outline-none transition ${
-                errors.name ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-accent'
-              } focus:ring-2 focus:border-transparent`}
+              className={`w-full px-5 py-4 bg-gray-50 border rounded-xl text-sm font-bold outline-none transition focus:bg-white ${
+                errors.name ? 'border-red-500 focus:ring-4 focus:ring-red-500/5' : 'border-gray-100 focus:border-accent/30 focus:ring-4 focus:ring-accent/5'
+              }`}
             />
             {errors.name && (
-              <p className="text-xs text-red-500 mt-1">{errors.name.message}</p>
+              <p className="text-[9px] font-bold text-red-500 uppercase italic tracking-widest mt-1 ml-1">{errors.name.message}</p>
             )}
           </div>
 
           {/* Descrição */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Descrição (até 500 caracteres)
+          <div className="space-y-2 text-left">
+            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest italic ml-1">
+              Descrição Detalhada
             </label>
             <textarea
               {...register('description')}
-              placeholder="Descreva seu serviço"
-              className={`w-full px-4 py-2 border rounded-lg outline-none transition resize-none ${
-                errors.description ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-accent'
-              } focus:ring-2 focus:border-transparent`}
+              placeholder="Descreva o que o cliente pode esperar..."
+              className={`w-full px-5 py-4 bg-gray-50 border rounded-xl text-sm font-bold outline-none transition resize-none focus:bg-white ${
+                errors.description ? 'border-red-500 focus:ring-4 focus:ring-red-500/5' : 'border-gray-100 focus:border-accent/30 focus:ring-4 focus:ring-accent/5'
+              }`}
               rows={4}
             />
             {errors.description && (
-              <p className="text-xs text-red-500 mt-1">{errors.description.message}</p>
+              <p className="text-[9px] font-bold text-red-500 uppercase italic tracking-widest mt-1 ml-1">{errors.description.message}</p>
             )}
           </div>
 
           {/* Preço */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Preço (Kz)
+          <div className="space-y-2 text-left">
+            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest italic ml-1">
+              Preço Público (Kz)
             </label>
             <input
               type="number"
               step="0.01"
               {...register('price')}
-              placeholder="Digite o preço"
-              className={`w-full px-4 py-2 border rounded-lg outline-none transition ${
-                errors.price ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-accent'
-              } focus:ring-2 focus:border-transparent`}
+              placeholder="0.00"
+              className={`w-full px-5 py-4 bg-gray-50 border rounded-xl text-sm font-black font-mono outline-none transition focus:bg-white ${
+                errors.price ? 'border-red-500 focus:ring-4 focus:ring-red-500/5' : 'border-gray-100 focus:border-accent/30 focus:ring-4 focus:ring-accent/5'
+              }`}
             />
             {errors.price && (
-              <p className="text-xs text-red-500 mt-1">{errors.price.message}</p>
+              <p className="text-[9px] font-bold text-red-500 uppercase italic tracking-widest mt-1 ml-1">{errors.price.message}</p>
             )}
-            <p className="text-xs text-gray-500 mt-1">Mínimo: 0.01 Kz</p>
           </div>
 
-
-
           {/* Buttons */}
-          <div className="flex gap-3 pt-4">
+          <div className="flex gap-4 pt-4">
             <button
-              type="button"
-              onClick={onClose}
-              disabled={createService.isPending}
-              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium disabled:opacity-50"
-            >
-              Cancelar
-            </button>
-            <Button
               type="submit"
               disabled={createService.isPending}
-              isLoading={createService.isPending}
-              variant="primary"
-              size="md"
-              className="flex-1"
+              className="flex-1 py-4 bg-gray-900 text-white rounded-xl font-black uppercase text-[11px] tracking-[0.2em] italic hover:bg-accent transition-all shadow-lg hover:shadow-accent/20 active:scale-95 disabled:opacity-50 flex items-center justify-center gap-3"
             >
-              Criar
-            </Button>
+              {createService.isPending ? <Loader2 className="w-4 h-4 animate-spin text-accent" /> : 'Confirmar Criação'}
+            </button>
           </div>
         </form>
       </div>
