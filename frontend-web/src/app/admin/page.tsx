@@ -1,172 +1,203 @@
 
 'use client';
 
-import { Users, Briefcase, Calendar, Wallet, TrendingUp, UserCheck, UserX, ArrowUpRight, ArrowDownRight, Activity, Shield } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import {
+	Users,
+	Search,
+	Filter,
+	MoreHorizontal,
+	UserPlus,
+	UserX,
+	UserCheck,
+	Mail,
+	Shield,
+	ChevronLeft,
+	ChevronRight,
+	Download,
+	Calendar,
+	Eye
+} from 'lucide-react';
+import { UserAPI } from '@/modules/user/user.services';
+import type { IUserDetail } from '@/modules/user/user.types';
+import Button from '@/components/common/Button';
+import Input from '@/components/common/Input';
 
-// Card simplificado para evitar dependência de componentes inexistentes
-const Card = ({ children, className = "" }: { children: React.ReactNode, className?: string }) => (
-  <div className={`bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden ${className}`}>{children}</div>
-);
+export default function UserManagement() {
+	const [users, setUsers] = useState<IUserDetail[]>([]);
+	const [loading, setLoading] = useState(true);
+	const [searchTerm, setSearchTerm] = useState('');
 
-// Mock data para demonstração enquanto não temos a API completa para admin
-const stats = [
-  { label: 'Total Usuários', value: '1,284', icon: Users, change: '+12%', trend: 'up' },
-  { label: 'Provedores Ativos', value: '312', icon: Briefcase, change: '+5%', trend: 'up' },
-  { label: 'Serviços Atuais', value: '456', icon: Activity, change: '+8%', trend: 'up' },
-  { label: 'Reservas do Mês', value: '892', icon: Calendar, change: '-2%', trend: 'down' },
-  { label: 'Faturamento Total', value: 'Kz 45.2M', icon: Wallet, change: '+24%', trend: 'up' },
-];
+	useEffect(() => {
+		fetchUsers();
+	}, []);
 
-const recentUsers = [
-  { name: 'Emanuel Malungo', email: 'emanuel@exemplo.com', role: 'CLIENT', date: '2 horas atrás', status: 'active' },
-  { name: 'Maria Silva', email: 'maria@exemplo.com', role: 'PROVIDER', date: '5 horas atrás', status: 'active' },
-  { name: 'João Carlos', email: 'joao@exemplo.com', role: 'CLIENT', date: '1 dia atrás', status: 'inactive' },
-  { name: 'Ana Paula', email: 'ana@exemplo.com', role: 'PROVIDER', date: '2 dias atrás', status: 'active' },
-];
+	const fetchUsers = async () => {
+		try {
+			setLoading(true);
+			const response = await UserAPI.listUsers();
+			setUsers(response.data);
+		} catch (error) {
+			console.error('Erro ao buscar usuários:', error);
+		} finally {
+			setLoading(false);
+		}
+	};
 
-export default function AdminDashboard() {
-  return (
-    <div className="space-y-8 animate-in fade-in duration-500">
-      {/* Header e Boas-vindas */}
-      <div className="flex flex-col space-y-2">
-        <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Overview da Plataforma</h1>
-        <p className="text-gray-500 font-medium">Bem-vindo ao painel central, aqui você tem o controle total sobre o ecossistema Bulir.</p>
-      </div>
+	const filteredUsers = users.filter(user =>
+		user.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+		user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+		user.nif?.toLowerCase().includes(searchTerm.toLowerCase())
+	);
 
-      {/* Grid de Estatísticas */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-        {stats.map((stat, i) => {
-          const Icon = stat.icon;
-          return (
-            <div key={i} className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 group">
-              <div className="flex justify-between items-start mb-4">
-                <div className="p-2.5 bg-gray-50 rounded-xl group-hover:bg-accent/5 transition-colors">
-                  <Icon className="w-5 h-5 text-gray-400 group-hover:text-accent transition-colors" />
-                </div>
-                {stat.trend === 'up' ? (
-                  <span className="flex items-center text-[10px] font-bold text-green-600 bg-green-50 px-1.5 py-0.5 rounded-md">
-                    {stat.change} <ArrowUpRight className="w-2.5 h-2.5 ml-0.5" />
-                  </span>
-                ) : (
-                  <span className="flex items-center text-[10px] font-bold text-red-600 bg-red-50 px-1.5 py-0.5 rounded-md">
-                    {stat.change} <ArrowDownRight className="w-2.5 h-2.5 ml-0.5" />
-                  </span>
-                )}
-              </div>
-              <div className="space-y-1">
-                <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">{stat.label}</p>
-                <h3 className="text-xl font-extrabold text-gray-900">{stat.value}</h3>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+	const activeUsers = users.filter(u => u.isActive).length;
+	const totalUsers = users.length;
+	const providerUsers = users.filter(u => u.userRoles?.some(r => r.role.name === 'PROVIDER')).length;
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Gráfico Placeholder / Resumo Financeiro */}
-        <div className="lg:col-span-2 bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden flex flex-col h-[400px]">
-          <div className="p-6 border-b border-gray-50 flex items-center justify-between">
-            <div>
-              <h2 className="text-lg font-bold text-gray-900">Evolução de Usuários</h2>
-              <p className="text-xs text-gray-400 font-medium tracking-tight">Crescimento de novos registros nos últimos 30 dias</p>
-            </div>
-            <button className="text-xs font-bold text-accent bg-accent/5 px-3 py-1.5 rounded-lg border border-accent/10 hover:bg-accent/10 transition-colors">Exportar Dados</button>
-          </div>
-          <div className="flex-1 flex items-center justify-center bg-gray-50/50">
-            {/* Placeholder Visual Simples */}
-            <div className="text-center space-y-3 px-6">
-              <TrendingUp className="w-12 h-12 text-accent/20 mx-auto" />
-              <p className="text-sm font-bold text-gray-400 uppercase tracking-widest leading-relaxed">Visualização de Gráficos <br/> Estará disponível em breve</p>
-            </div>
-          </div>
-        </div>
+	return (
+		<div className="space-y-6 animate-in fade-in duration-500">
+			{/* Header com Ações — Minimalista Integrado */}
+			<div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-gray-100 mt-2">
+				<div className="space-y-1">
+					<h1 className="text-xl font-bold text-gray-900 tracking-tight">Gestão de Utilizadores</h1>
+					<p className="text-[11px] text-gray-400 font-bold uppercase tracking-widest">Painel de Controlo de Acessos</p>
+				</div>
 
-        {/* Usuários Recentes */}
-        <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden flex flex-col h-[400px]">
-          <div className="p-6 border-b border-gray-50">
-            <h2 className="text-lg font-bold text-gray-900">Novos Usuários</h2>
-            <p className="text-xs text-gray-400 font-medium tracking-tight">Últimos registros realizados</p>
-          </div>
-          <div className="flex-1 overflow-y-auto p-4 space-y-3">
-            {recentUsers.map((user, i) => (
-              <div key={i} className="flex items-center justify-between p-3 rounded-2xl hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-100">
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center font-bold text-accent text-sm">
-                    {user.name.charAt(0)}
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold text-gray-900 leading-tight">{user.name}</p>
-                    <div className="flex items-center space-x-1.5 group">
-                      <div className="p-0.5 bg-accent/5 rounded-full border border-accent/10 group-hover:bg-accent/10 transition-colors">
-                        <Shield className="w-3 h-3 text-accent" />
-                      </div>
-                      <span className="text-[10px] text-gray-500 font-bold uppercase">Segurança Ativa</span>
-                    </div>
-                    <p className="text-[10px] text-gray-400 font-medium uppercase tracking-tight">{user.role}</p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="text-[10px] text-gray-500 font-bold mb-1">{user.date}</p>
-                  <span className={`text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full ${
-                    user.status === 'active' ? 'bg-green-50 text-green-600' : 'bg-gray-100 text-gray-500'
-                  }`}>
-                    {user.status}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="p-4 border-t border-gray-50 text-center">
-            <button className="text-xs font-bold text-gray-500 hover:text-accent transition-colors">Ver todos os usuários</button>
-          </div>
-        </div>
-      </div>
-      
-      {/* Botões de Ação Rápida */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-gray-900 p-6 rounded-3xl border border-gray-800 shadow-xl flex flex-col justify-between group cursor-pointer hover:bg-black transition-all duration-300">
-          <div className="space-y-4">
-            <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-              <UserCheck className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <h3 className="text-xl font-bold text-white tracking-tight">Validar Provedores</h3>
-              <p className="text-sm text-gray-400 font-medium">Você tem 5 provedores pendentes de validação cadastral.</p>
-            </div>
-          </div>
-          <div className="mt-8 flex items-center text-white text-xs font-bold">
-            Ir para validações <ArrowUpRight className="w-4 h-4 ml-2" />
-          </div>
-        </div>
-        <div className="bg-accent p-6 rounded-3xl border border-accent/20 shadow-xl flex flex-col justify-between group cursor-pointer hover:brightness-105 transition-all duration-300 shadow-accent/20">
-          <div className="space-y-4">
-            <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center group-hover:scale-110 transition-transform">
-              <Briefcase className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <h3 className="text-xl font-bold text-white tracking-tight">Serviços Destacados</h3>
-              <p className="text-sm text-white/80 font-medium">Ajuste as prioridades de exibição na busca principal.</p>
-            </div>
-          </div>
-          <div className="mt-8 flex items-center text-white text-xs font-bold">
-            Gerenciar destaque <ArrowUpRight className="w-4 h-4 ml-2" />
-          </div>
-        </div>
-        <div className="bg-white p-6 rounded-3xl border border-gray-200 shadow-xl flex flex-col justify-between group cursor-pointer hover:border-accent/40 transition-all duration-300">
-          <div className="space-y-4">
-            <div className="w-12 h-12 rounded-2xl bg-red-50 flex items-center justify-center group-hover:scale-110 transition-transform">
-              <UserX className="w-6 h-6 text-red-500" />
-            </div>
-            <div>
-              <h3 className="text-xl font-bold text-gray-900 tracking-tight">Monitorar Fraudes</h3>
-              <p className="text-sm text-gray-400 font-medium">Nenhum alerta crítico de segurança detectado nas últimas 24h.</p>
-            </div>
-          </div>
-          <div className="mt-8 flex items-center text-gray-900 text-xs font-bold">
-            Relatório de segurança <ArrowUpRight className="w-4 h-4 ml-2" />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+				<div className="flex flex-col sm:flex-row items-center gap-3">
+					{/* Search integrado no Header */}
+					<div className="relative group w-full sm:w-72">
+						<Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 group-focus-within:text-primary transition-all shadow-sm" />
+						<input
+							type="text"
+							placeholder="Pesquisar por nome, email ou NIF..."
+							className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-lg text-[11px] focus:ring-2 focus:ring-primary/5 focus:border-primary/30 transition-all outline-none text-gray-900 font-bold placeholder:text-gray-400 placeholder:font-medium"
+							value={searchTerm}
+							onChange={(e) => setSearchTerm(e.target.value)}
+						/>
+					</div>
+
+					<Button className="h-10 flex items-center bg-primary text-white rounded-lg shadow-sm text-[11px] font-bold px-6 whitespace-nowrap w-full sm:w-auto">
+						<UserPlus className="w-3.5 h-3.5 mr-2" /> Adicionar Utilizador
+					</Button>
+				</div>
+			</div>
+
+			{/* Tabela Direta — Ultra Minimalista */}
+			<div className="border border-gray-100 rounded-lg overflow-hidden bg-white shadow-sm shadow-gray-50/50">
+				<div className="overflow-x-auto">
+					<table className="w-full text-left whitespace-nowrap">
+						<thead>
+							<tr className="bg-gray-50/30">
+								<th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100">Utilizador</th>
+								<th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100">Papel / Nível</th>
+								<th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100">NIF / Identidade</th>
+								<th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100">Status</th>
+								<th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100">Cadastro</th>
+								<th className="px-6 py-4 border-b border-gray-100 text-right">Acções</th>
+							</tr>
+						</thead>
+						<tbody className="divide-y divide-gray-50">
+							{loading ? (
+								<tr><td colSpan={6} className="px-6 py-16 text-center">
+									<div className="flex flex-col items-center space-y-3">
+										<div className="w-8 h-8 rounded-full border-2 border-gray-100 border-t-primary animate-spin"></div>
+										<p className="text-gray-400 font-bold text-[10px] uppercase tracking-widest italic opacity-50">Sincronizando Plataforma...</p>
+									</div>
+								</td></tr>
+							) : filteredUsers.length === 0 ? (
+								<tr><td colSpan={6} className="px-6 py-16 text-center text-gray-300 font-bold text-xs uppercase tracking-widest opacity-50 italic">Nenhum utilizador encontrado.</td></tr>
+							) : (
+								filteredUsers.map((user) => (
+									<tr key={user.id} className="hover:bg-gray-50/50 transition-all duration-200 group">
+										<td className="px-6 py-4">
+											<div className="flex items-center space-x-3">
+												<div className="w-10 h-10 rounded-lg bg-gray-100 border border-gray-100 flex items-center justify-center font-bold text-gray-400 text-[10px] shadow-sm">
+													{user.fullName.charAt(0)}
+												</div>
+												<div className="flex flex-col">
+													<span className="text-sm font-semibold text-gray-900 leading-tight">{user.fullName}</span>
+													<span className="text-[10px] text-gray-400 font-medium flex items-center mt-0.5">{user.email}</span>
+												</div>
+											</div>
+										</td>
+										<td className="px-6 py-4">
+											<div className="flex flex-wrap gap-1">
+												{user.userRoles?.map((ur, idx) => (
+													<span key={idx} className="inline-flex items-center px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-gray-50 text-gray-600 border border-gray-200">
+														{ur.role.name}
+													</span>
+												))}
+											</div>
+										</td>
+										<td className="px-6 py-4">
+											<span className="text-[10px] font-mono text-gray-500 font-bold bg-gray-50 px-2.5 py-1 rounded border border-gray-100">{user.nif || '---'}</span>
+										</td>
+										<td className="px-6 py-4">
+											<span className={`inline-flex items-center px-2.5 py-1 rounded text-[9px] font-bold uppercase tracking-widest ${user.isActive
+													? 'bg-green-50 text-green-600 border border-green-100'
+													: 'bg-red-50 text-red-600 border border-red-100'
+												}`}>
+												<span className={`w-1 h-1 rounded-full mr-2 ${user.isActive ? 'bg-green-500' : 'bg-red-500'}`}></span>
+												{user.isActive ? 'Ativo' : 'Inativo'}
+											</span>
+										</td>
+										<td className="px-6 py-4 text-xs text-gray-400 font-bold uppercase tracking-tight">
+											{new Date(user.createdAt || Date.now()).toLocaleDateString('pt-AO')}
+										</td>
+										<td className="px-6 py-4 text-right">
+											<div className="flex items-center justify-end gap-2">
+												<button className="flex items-center gap-1.5 px-3 py-1.5 bg-white text-gray-600 hover:bg-primary hover:text-white rounded-lg text-[10px] font-bold transition-all border border-gray-100 shadow-sm hover:shadow-primary/20">
+													Actualizar
+												</button>
+												<button className="p-1.5 text-gray-400 hover:text-primary rounded-lg hover:bg-primary/5 transition-all">
+													<UserPlus className="w-3.5 h-3.5" />
+												</button>
+											</div>
+										</td>
+									</tr>
+								))
+							)}
+						</tbody>
+					</table>
+				</div>
+
+				{/* Paginação */}
+				<div className="p-6 border-t border-gray-50 flex items-center justify-between bg-gray-50/10">
+					<p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest italic opacity-60">Sincronizado com o servidor</p>
+					<div className="flex items-center space-x-2">
+						<button className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:bg-white hover:text-primary transition-all disabled:opacity-30" disabled>
+							<ChevronLeft className="w-4 h-4" />
+						</button>
+						<div className="flex items-center space-x-1">
+							{[1, 2, 3].map((p) => (
+								<button key={p} className={`w-8 h-8 rounded-lg text-[10px] font-bold transition-all ${p === 1 ? 'bg-primary text-white shadow-sm' : 'text-gray-400 hover:bg-white border border-transparent hover:border-gray-200'
+									}`}>
+									{p}
+								</button>
+							))}
+						</div>
+						<button className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:bg-white hover:text-primary transition-all">
+							<ChevronRight className="w-4 h-4" />
+						</button>
+					</div>
+				</div>
+			</div>
+
+			<style jsx global>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          height: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: #f8f9fa;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: #dee2e6;
+          border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: #ced4da;
+        }
+      `}</style>
+		</div>
+	);
 }

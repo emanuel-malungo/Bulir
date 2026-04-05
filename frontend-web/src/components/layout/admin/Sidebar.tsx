@@ -1,152 +1,148 @@
 
 'use client';
 
-import { usePathname } from 'next/navigation';
-import Link from 'next/link';
-import Image from 'next/image';
-import icon from '@/assets/images/bulir.svg';
-import { 
-  LayoutDashboard, 
-  Users, 
-  Briefcase, 
-  Calendar, 
-  Wallet, 
-  Settings, 
-  ShieldCheck,
-  X,
-  Mail,
-  MessageCircle,
-  Share2
-} from 'lucide-react';
+import { useState, useEffect } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import {
+	Users,
+	HelpCircle,
+	LogOut,
+	Box,
+	ChevronRight,
+	X,
+} from "lucide-react";
+import icon from "@/assets/images/bulir.svg";
+import { AuthService } from "@/modules/auth/auth.services";
 
-const menuItems = [
-  {
-    id: 'dashboard',
-    label: 'Dashboard',
-    icon: LayoutDashboard,
-    href: '/admin',
-  },
-  {
-    id: 'users',
-    label: 'Usuários',
-    icon: Users,
-    href: '/admin/users',
-  },
-  {
-    id: 'services',
-    label: 'Serviços',
-    icon: Briefcase,
-    href: '/admin/services',
-  },
-  {
-    id: 'reservations',
-    label: 'Reservas',
-    icon: Calendar,
-    href: '/admin/reservations',
-  },
-  {
-    id: 'finance',
-    label: 'Financeiro',
-    icon: Wallet,
-    href: '/admin/finance',
-  },
-  {
-    id: 'roles',
-    label: 'Cargos & Permissões',
-    icon: ShieldCheck,
-    href: '/admin/roles',
-  },
-  {
-    id: 'settings',
-    label: 'Configurações',
-    icon: Settings,
-    href: '/admin/settings',
-  },
-];
+const navigation = [
+	{
+		title: "Menu Principal",
+		items: [
+			{ label: "Usuários", href: "/admin", icon: Users },
+			{ label: "Serviços", href: "/admin/services", icon: Box },
+		]
+	}
+]
 
 interface SidebarProps {
-  isOpen?: boolean;
-  onClose?: () => void;
+	isOpen?: boolean;
+	onClose?: () => void;
 }
 
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {
-  const pathname = usePathname();
+	const pathname = usePathname();
+	const router = useRouter();
 
-  return (
-    <>
-      {/* Overlay for mobile */}
-      {isOpen && (
-        <div 
-          className="fixed inset-0 bg-black/50 z-50 md:hidden" 
-          onClick={onClose}
-        />
-      )}
-      
-      <aside className={`
-        fixed md:sticky top-0 left-0 z-50
-        w-64 h-screen bg-gray-900 flex flex-col 
-        transition-transform duration-300 ease-in-out
-        ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
-        border-r border-gray-800
-      `}>
-        <header className="border-b border-gray-800">
-          <div className="flex items-center justify-between px-4 py-4">
-            <div className="flex items-center space-x-2">
-              <Image src={icon} alt="Bulir" width={32} height={32} className="brightness-110" />
-              <h1 className="text-xl font-bold text-white tracking-tight">Bulir <span className="text-accent text-xs font-medium px-1.5 py-0.5 bg-accent/10 rounded-md border border-accent/20 ml-1">Admin</span></h1>
-            </div>
-            {onClose && (
-              <button onClick={onClose} className="md:hidden p-2 text-gray-400 hover:bg-gray-800 rounded-lg">
-                <X className="w-5 h-5" />
-              </button>
-            )}
-          </div>
-        </header>
+	const handleLogout = async () => {
+		try {
+			await AuthService.logout();
+			router.push('/');
+		} catch (error) {
+			console.error('Erro ao fazer logout:', error);
+			router.push('/');
+		}
+	};
 
-        <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto">
-          <div className="px-3 mb-2">
-            <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Menu Principal</p>
-          </div>
-          {menuItems.map((item) => {
-            const IconComponent = item.icon;
-            const isActive = item.href === '/admin' 
-              ? pathname === '/admin' 
-              : pathname.startsWith(item.href);
-            
-            return (
-              <Link
-                key={item.id}
-                href={item.href}
-                onClick={onClose}
-                className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 group ${
-                  isActive
-                    ? 'bg-accent text-white font-semibold shadow-lg shadow-accent/20'
-                    : 'text-gray-400 hover:bg-white/5 hover:text-white'
-                }`}
-              >
-                <IconComponent className={`w-5 h-5 transition-colors ${isActive ? 'text-white' : 'text-gray-500 group-hover:text-accent'}`} />
-                <div className="flex-1">
-                  <p className="text-sm font-medium">{item.label}</p>
-                </div>
-              </Link>
-            );
-          })}
-        </nav>
+	return (
+		<>
+			{/* Overlay for mobile */}
+			{isOpen && (
+				<div
+					className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 lg:hidden transition-all duration-300"
+					onClick={onClose}
+				/>
+			)}
 
-        <footer className="border-t border-gray-800 px-6 py-6 mt-auto">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center border border-accent/30">
-                <ShieldCheck className="w-4 h-4 text-accent" />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-xs font-bold text-white leading-none">Super Admin</span>
-                <span className="text-[10px] text-gray-500 font-medium">Acesso Total</span>
-              </div>
-            </div>
-          </div>
-        </footer>
-      </aside>
-    </>
-  );
+			<aside className={`flex flex-col w-72 h-screen bg-white border-r border-gray-100 shrink-0 overflow-hidden fixed lg:sticky top-0 left-0 z-50 transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+
+				{/* Logo Section — Fixed at Top */}
+				<div className="flex items-center justify-between p-8 shrink-0">
+					<div className="flex items-center gap-3">
+						<Image src={icon} alt="Bulir" width={32} height={32} className="object-contain" />
+						<span className="font-bold text-gray-900 text-xl tracking-tight">Bulir</span>
+					</div>
+					{onClose && (
+						<button onClick={onClose} className="lg:hidden p-2 text-gray-400 hover:bg-gray-50 rounded-xl transition-all">
+							<X className="size-5" />
+						</button>
+					)}
+				</div>
+
+				{/* Navigation — Scrollable Center */}
+				<nav className="flex-1 px-4 overflow-y-auto custom-scrollbar flex flex-col gap-6 py-8">
+					{navigation.map((section) => {
+						const isAnyChildActive = section.items.some(item => pathname === item.href)
+
+						return (
+							<div key={section.title} className="flex flex-col gap-3">
+								{/* Section Title */}
+								<h3 className={`px-4 text-[10px] uppercase tracking-widest font-extrabold ${isAnyChildActive ? 'text-primary' : 'text-gray-400'}`}>
+									{section.title}
+								</h3>
+
+								{/* Section Items */}
+								<div className="flex flex-col gap-1.5">
+									{section.items.map(({ label, href, icon: Icon }) => {
+										const active = pathname === href
+										return (
+											<Link
+												key={href}
+												href={href}
+												onClick={onClose}
+												className={`group flex items-center justify-between px-4 py-2.5 rounded-lg text-[13px] font-semibold transition-all duration-300 ${active ? "bg-primary text-white scale-[1.02]" : "text-gray-500 hover:bg-gray-50 hover:text-primary ml-1"}`}
+											>
+												<div className="flex items-center gap-3">
+													<Icon className={`size-5 shrink-0 transition-colors ${active ? "text-white" : "text-gray-400 group-hover:text-primary"}`} />
+													{label}
+												</div>
+												{active && <ChevronRight className="size-4 opacity-70 animate-in slide-in-from-left-2 duration-300" />}
+											</Link>
+										)
+									})}
+								</div>
+							</div>
+						)
+					})}
+				</nav>
+
+				{/* Footer — Fixed at Bottom */}
+				<div className="p-4 shrink-0 border-t border-gray-50">
+					<div className="bg-gray-50/50 rounded-xl p-4 flex flex-col gap-2 border border-gray-100/50">
+						<Link
+							href="/admin/ajuda"
+							className="flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium text-gray-500 hover:bg-white hover:text-primary transition-all border border-transparent hover:border-gray-100"
+						>
+							<HelpCircle className="size-4 shrink-0" />
+							Central de Ajuda
+						</Link>
+						<button
+							onClick={handleLogout}
+							className="flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium text-red-500 hover:bg-red-50 transition-all cursor-pointer border border-transparent hover:border-red-100"
+						>
+							<LogOut className="size-4 shrink-0" />
+							Terminar Sessão
+						</button>
+					</div>
+				</div>
+
+				<style jsx global>{`
+            .custom-scrollbar::-webkit-scrollbar {
+                width: 4px;
+            }
+            .custom-scrollbar::-webkit-scrollbar-track {
+                background: transparent;
+            }
+            .custom-scrollbar::-webkit-scrollbar-thumb {
+                background: #f1f1f1;
+                border-radius: 10px;
+            }
+            .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+                background: #e5e5e5;
+            }
+            `}</style>
+			</aside>
+		</>
+	)
 }
