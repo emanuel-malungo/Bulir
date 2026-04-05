@@ -1,6 +1,6 @@
 "use client";
 
-import { Calendar, Clock, X, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
+import { Calendar, Clock, X, CheckCircle, AlertCircle, Loader2, CalendarClock, Trash2, ArrowRight } from "lucide-react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import api from "@/utils/api.utils";
@@ -25,7 +25,7 @@ export default function ReservasPage() {
         enabled: mounted && !!user,
     });
 
-    const reservas: IReservation[] = reservasData || [];
+    const reservas: IReservation[] = (reservasData || []).reverse();
 
     const cancelMutation = useMutation({
         mutationFn: async (reservationId: number) => {
@@ -36,17 +36,13 @@ export default function ReservasPage() {
         },
     });
 
-    const getStatusColor = (status: string) => {
-        const statusMap: { [key: string]: string } = {
-            CONFIRMED: "bg-green-100 text-green-700",
-            PENDING: "bg-yellow-100 text-yellow-700",
-            CANCELED: "bg-red-100 text-red-700",
+    const getStatusStyle = (status: string) => {
+        const styles: { [key: string]: string } = {
+            CONFIRMED: "bg-green-50 text-green-600 border-green-100",
+            PENDING: "bg-yellow-50 text-yellow-600 border-yellow-100",
+            CANCELED: "bg-red-50 text-red-600 border-red-100",
         };
-        return statusMap[status] || "bg-gray-100 text-gray-700";
-    };
-
-    const getStatusIcon = (status: string) => {
-        return status === "CONFIRMED" ? <CheckCircle className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />;
+        return styles[status] || "bg-gray-50 text-gray-500 border-gray-100";
     };
 
     const formatDate = (dateString: string) => {
@@ -70,112 +66,137 @@ export default function ReservasPage() {
     if (!mounted) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
-                <Loader2 className="w-8 h-8 animate-spin text-accent" />
+                <div className="w-8 h-8 rounded-full border-2 border-gray-100 border-t-accent animate-spin" />
             </div>
         );
     }
 
     return (
-        <>
-            <header className="grid grid-cols-2 gap-10 mb-8">
-                <div>
-                    <h1 className="text-2xl font-medium flex items-center space-x-1">
-                        <Calendar className="w-6 h-6 text-accent" />
-                        <span>Minhas Reservas ({reservas.length})</span>
-                    </h1>
-                    <p className="text-xs text-gray-400">Acompanhe suas reservas agendadas</p>
+        <div className="space-y-6 animate-in fade-in duration-500">
+            {/* Header com Ações — Estilo Unificado Admin */}
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-gray-100 mt-2 px-2">
+                <div className="space-y-1">
+                    <h1 className="text-xl font-bold text-gray-900 tracking-tight">Minhas Reservas</h1>
+                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-[0.2em] italic opacity-60">Bulir User Appointments Control</p>
                 </div>
-            </header>
+            </div>
 
-            <div className="space-y-4">
-                {isLoading ? (
-                    <div className="bg-white border border-gray-200 rounded-lg p-12 flex items-center justify-center">
-                        <Loader2 className="w-8 h-8 animate-spin text-accent" />
-                    </div>
-                ) : error ? (
-                    <div className="bg-white border border-gray-200 rounded-lg p-12 flex items-center justify-center flex-col space-y-4 min-h-80">
-                        <AlertCircle className="w-16 h-16 text-red-300" />
-                        <h2 className="text-xl font-semibold text-gray-900">Erro ao carregar reservas</h2>
-                        <p className="text-gray-600">Tente recarregar a página</p>
-                        <button 
-                            onClick={() => refetch()}
-                            className="mt-4 px-6 py-2 bg-accent text-white rounded-lg hover:bg-accent/90 transition-colors"
-                        >
-                            Tentar Novamente
-                        </button>
-                    </div>
-                ) : reservas.length > 0 ? (
-                    <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-                        <table className="w-full">
-                            <thead>
-                                <tr className="bg-primary text-white">
-                                    <th className="px-6 py-4 text-left text-sm font-semibold">Serviço</th>
-                                    <th className="px-6 py-4 text-left text-sm font-semibold">Data</th>
-                                    <th className="px-6 py-4 text-left text-sm font-semibold">Hora</th>
-                                    <th className="px-6 py-4 text-left text-sm font-semibold">Preço</th>
-                                    <th className="px-6 py-4 text-left text-sm font-semibold">Status</th>
-                                    <th className="px-6 py-4 text-left text-sm font-semibold">Ações</th>
+            <div className="border border-gray-100 rounded-2xl overflow-hidden bg-white shadow-sm shadow-gray-50/50 transition-all hover:shadow-xl hover:shadow-gray-200/20">
+                <div className="overflow-x-auto custom-scrollbar">
+                    <table className="w-full text-left whitespace-nowrap">
+                        <thead>
+                            <tr className="bg-gray-50/30">
+                                <th className="px-8 py-5 text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] border-b border-gray-100">Serviço</th>
+                                <th className="px-8 py-5 text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] border-b border-gray-100 font-mono italic">Agendamento</th>
+                                <th className="px-8 py-5 text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] border-b border-gray-100">Status</th>
+                                <th className="px-8 py-5 text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] border-b border-gray-100 text-right">Preço</th>
+                                <th className="px-8 py-5 border-b border-gray-100 text-right"></th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-50">
+                            {isLoading ? (
+                                <tr>
+                                    <td colSpan={5} className="px-8 py-20 text-center">
+                                        <div className="flex flex-col items-center gap-3">
+                                            <div className="w-8 h-8 rounded-full border-2 border-gray-100 border-t-accent animate-spin"></div>
+                                            <p className="text-[10px] font-black text-gray-300 uppercase tracking-widest italic tracking-[0.2em]">Sincronizando Reservas...</p>
+                                        </div>
+                                    </td>
                                 </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-200">
-                                {reservas.map((reserva) => (
-                                    <tr key={reserva.id} className="hover:bg-gray-50 transition-colors">
-                                        <td className="px-6 py-4">
-                                            <span className="text-sm font-medium text-gray-900">{reserva.serviceName}</span>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center space-x-2 text-gray-700">
-                                                <Calendar className="w-4 h-4 text-accent shrink-0" />
-                                                <span className="text-sm">{formatDate(reserva.scheduledAt)}</span>
+                            ) : error ? (
+                                <tr>
+                                    <td colSpan={5} className="px-8 py-16 text-center text-red-400 text-[11px] font-bold uppercase tracking-widest italic opacity-60">
+                                        <div className="flex items-center justify-center gap-2">
+                                            <AlertCircle className="w-4 h-4" /> Erro ao carregar agendamentos
+                                        </div>
+                                    </td>
+                                </tr>
+                            ) : reservas.length === 0 ? (
+                                <tr>
+                                    <td colSpan={5} className="px-8 py-20 text-center">
+                                        <div className="flex flex-col items-center gap-4 py-8">
+                                            <CalendarClock className="w-12 h-12 text-gray-100" />
+                                            <p className="text-[11px] font-bold text-gray-300 uppercase tracking-widest italic opacity-50">Nenhuma reserva agendada</p>
+                                            <a href="/client/services" className="px-6 py-2 bg-accent/5 text-accent border border-accent/10 rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-accent hover:text-white transition-all shadow-sm active:scale-95">Explorar Catálogo</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ) : (
+                                reservas.map((reserva) => (
+                                    <tr key={reserva.id} className="hover:bg-gray-50/50 transition-all duration-300 group">
+                                        <td className="px-8 py-5">
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-10 h-10 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center font-bold text-gray-400 text-xs shadow-sm group-hover:scale-110 group-hover:bg-accent/10 group-hover:text-accent transition-all">
+                                                    {reserva.serviceName.charAt(0)}
+                                                </div>
+                                                <div className="flex flex-col">
+                                                    <span className="text-sm font-bold text-gray-900 leading-tight group-hover:text-accent transition-colors">{reserva.serviceName}</span>
+                                                </div>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center space-x-2 text-gray-700">
-                                                <Clock className="w-4 h-4 text-accent shrink-0" />
-                                                <span className="text-sm">{formatTime(reserva.scheduledAt)}</span>
+                                        <td className="px-8 py-5">
+                                            <div className="flex flex-col">
+                                                <span className="text-xs font-bold text-gray-700">{formatDate(reserva.scheduledAt)}</span>
+                                                <span className="text-[10px] text-gray-400 font-medium mt-1 italic">{formatTime(reserva.scheduledAt)}</span>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4">
-                                            <span className="text-sm font-bold text-accent">{reserva.servicePrice}</span>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <span className={`px-3 py-1 rounded-full text-xs font-medium flex items-center space-x-1 w-fit ${getStatusColor(reserva.status)}`}>
-                                                {getStatusIcon(reserva.status)}
-                                                <span className="capitalize">
-                                                    {reserva.status === "CONFIRMED" ? "Confirmada" : 
-                                                     reserva.status === "PENDING" ? "Pendente" : 
-                                                     "Cancelada"}
-                                                </span>
+                                        <td className="px-8 py-5">
+                                            <span className={`inline-flex items-center px-3 py-1 rounded-lg text-[9px] font-bold uppercase tracking-widest border ${getStatusStyle(reserva.status)}`}>
+                                                <div className="w-1 h-1 rounded-full bg-current mr-2" />
+                                                {reserva.status === "CONFIRMED" ? "Confirmada" : 
+                                                 reserva.status === "PENDING" ? "Pendente" : 
+                                                 "Cancelada"}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center space-x-2">
+                                        <td className="px-8 py-5 text-right">
+                                            <span className="text-sm font-black text-gray-900 tabular-nums italic">
+                                                Kz {reserva.servicePrice?.toLocaleString()}
+                                            </span>
+                                        </td>
+                                        <td className="px-8 py-5 text-right">
+                                            <div className="flex items-center justify-end">
                                                 <button 
-                                                    onClick={() => cancelMutation.mutate(reserva.id)}
                                                     disabled={reserva.status === "CANCELED" || cancelMutation.isPending}
-                                                    className="px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors text-xs font-medium flex items-center space-x-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                    onClick={() => cancelMutation.mutate(reserva.id)}
+                                                    className="p-2 text-gray-300 hover:text-red-500 rounded-lg hover:bg-red-50 transition-all disabled:opacity-0 group-hover:opacity-100 opacity-0"
+                                                    title="Cancelar Reserva"
                                                 >
-                                                    <X className="w-3 h-3" />
-                                                    <span>{cancelMutation.isPending ? "Cancelando..." : "Cancelar"}</span>
+                                                    <Trash2 className="w-4 h-4" />
                                                 </button>
                                             </div>
                                         </td>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+
+                {/* Rodapé da Tabela */}
+                <div className="px-8 py-6 border-t border-gray-50 flex items-center justify-between bg-gray-50/10">
+                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest italic opacity-60">Histórico Completo de Agendamentos</p>
+                    <div className="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest italic">
+                        {reservas.length} Transações Registradas
                     </div>
-                ) : (
-                    <div className="bg-white border border-gray-200 rounded-lg p-12 flex items-center justify-center flex-col space-y-4 min-h-80">
-                        <Calendar className="w-16 h-16 text-gray-300" />
-                        <h2 className="text-xl font-semibold text-gray-900">Nenhuma reserva encontrada</h2>
-                        <p className="text-gray-600">Você ainda não possui reservas agendadas</p>
-                        <a href="/client/services" className="mt-4 px-6 py-2 bg-accent text-white rounded-lg hover:bg-accent/90 transition-colors">
-                            Explorar Serviços
-                        </a>
-                    </div>
-                )}
+                </div>
             </div>
-        </>
-    )
+
+            <style jsx global>{`
+                .custom-scrollbar::-webkit-scrollbar {
+                    height: 6px;
+                    width: 4px;
+                }
+                .custom-scrollbar::-webkit-scrollbar-track {
+                    background: transparent;
+                }
+                .custom-scrollbar::-webkit-scrollbar-thumb {
+                    background: #f1f1f1;
+                    border-radius: 10px;
+                }
+                .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+                    background: #e5e5e5;
+                }
+            `}</style>
+        </div>
+    );
 }
