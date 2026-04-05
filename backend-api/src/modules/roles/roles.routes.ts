@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { RoleController } from "./roles.controller.js";
-import { authMiddleware } from "../../core/middleware/auth.middleware.js";
+import { authMiddleware, requirePermission } from "../../core/middleware/auth.middleware.js";
+import { PERMISSIONS } from "../../core/rbac/permission.constants.js";
 
 const router = Router();
 
@@ -8,8 +9,8 @@ const router = Router();
 router.use(authMiddleware);
 
 // ===== ROLES =====
-// Listar todos os papéis
-router.get("/", RoleController.getAllRoles);
+// Listar todos os papéis (Admin only via permission)
+router.get("/", requirePermission(PERMISSIONS.ROLE_VIEW), RoleController.getAllRoles);
 
 // Criar novo papel
 router.post("/", RoleController.createRole);

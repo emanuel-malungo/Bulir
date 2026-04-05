@@ -53,7 +53,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
 							{user?.fullName || 'Emanuel Malungo'}
 						</span>
 						<span className="text-[11px] text-gray-400 font-medium capitalize">
-							{user?.role || 'Administrador'}
+							{user?.role === 'SUPER_ADMIN' ? 'Administrador' : (user?.role || 'Administrador')}
 						</span>
 					</div>
 					<ChevronDown className="size-4 text-gray-300 group-hover:text-gray-400 transition-colors hidden sm:block" />

@@ -153,6 +153,14 @@ export class AuthService {
   }
 
   /**
+   * Get all available roles for admin (private route)
+   */
+  static async getAdminRoles(): Promise<IRole[]> {
+    const response = await api.get<{ data: IRole[] }>('roles');
+    return response.data.data;
+  }
+
+  /**
    * Get permissions for a specific role (public route)
    * - Used to show UI based on role before login
    */

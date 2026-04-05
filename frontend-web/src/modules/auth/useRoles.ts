@@ -37,3 +37,37 @@ export function useRoles() {
     error,
   };
 }
+
+/**
+ * Hook para carregar a lista completa de roles (Admin)
+ * Rota privada - requer autenticação e papel de admin
+ */
+export function useAdminRoles() {
+  const [roles, setRoles] = useState<IRole[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchRoles = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const data = await AuthService.getAdminRoles();
+        setRoles(data);
+      } catch (err) {
+        console.error('Erro ao carregar admin roles:', err);
+        setError('Erro ao carregar tipos de conta');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchRoles();
+  }, []);
+
+  return {
+    roles,
+    isLoading,
+    error,
+  };
+}

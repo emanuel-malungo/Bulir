@@ -5,13 +5,13 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Modal, Button, Input } from '@/components/common';
 import { useEffect } from 'react';
+import { useAdminRoles } from '@/modules/auth/useRoles';
 
 const userSchema = z.object({
 	fullName: z.string().min(3, 'Nome deve ter no mínimo 3 caracteres'),
 	email: z.string().email('Email inválido'),
 	nif: z.string().min(9, 'NIF deve ter no mínimo 9 caracteres').max(14, 'NIF máximo 14 caracteres').optional().or(z.literal('')),
 	role: z.string().min(1, 'Selecione um papel'),
-	isActive: z.boolean().default(true),
 });
 
 type UserFormData = {
@@ -19,7 +19,6 @@ type UserFormData = {
 	email: string;
 	nif?: string;
 	role: string;
-	isActive: boolean;
 };
 
 interface AdminUserModalProps {
@@ -39,6 +38,9 @@ export default function AdminUserModal({
 	title,
 	isLoading = false,
 }: AdminUserModalProps) {
+	const { roles, isLoading: loadingRoles } = useAdminRoles();
+	console.log(roles);
+
 	const {
 		register,
 		handleSubmit,
@@ -50,8 +52,7 @@ export default function AdminUserModal({
 			fullName: '',
 			email: '',
 			nif: '',
-			role: 'CLIENT',
-			isActive: true,
+			role: '',
 		},
 	});
 
@@ -61,16 +62,14 @@ export default function AdminUserModal({
 				fullName: initialData.fullName || '',
 				email: initialData.email || '',
 				nif: initialData.nif || '',
-				role: initialData.role || 'CLIENT',
-				isActive: initialData.isActive !== undefined ? initialData.isActive : true,
+				role: initialData.role || '',
 			});
 		} else {
 			reset({
 				fullName: '',
 				email: '',
 				nif: '',
-				role: 'CLIENT',
-				isActive: true,
+				role: '',
 			});
 		}
 	}, [initialData, reset, isOpen]);
@@ -109,28 +108,15 @@ export default function AdminUserModal({
 							<label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Papel / Nível</label>
 							<select
 								{...register('role')}
-								className="w-full px-4 py-2.5 bg-gray-50/50 border border-gray-100 rounded-xl text-xs font-bold text-gray-900 focus:ring-2 focus:ring-primary/5 focus:border-primary/30 transition-all outline-none"
+								disabled={loadingRoles}
+								className="w-full px-4 py-2.5 bg-gray-50/50 border border-gray-100 rounded-xl text-xs font-bold text-gray-900 focus:ring-2 focus:ring-primary/5 focus:border-primary/30 transition-all outline-none disabled:opacity-50"
 							>
-								<option value="CLIENT">Cliente</option>
-								<option value="PROVIDER">Prestador</option>
-								<option value="ADMIN">Administrador</option>
+								<option value="">Seleccione...</option>
+								{roles.map((r) => (
+									<option key={r.id} value={r.name}>{r.name}</option>
+								))}
 							</select>
 							{errors.role && <p className="text-[10px] text-red-500 font-bold mt-1 ml-1">{errors.role.message}</p>}
-						</div>
-					</div>
-
-					<div className="flex items-center space-x-3 p-4 bg-gray-50/50 rounded-xl border border-gray-100">
-						<div className="flex-1">
-							<p className="text-[11px] font-bold text-gray-900 uppercase tracking-tight">Status da Conta</p>
-							<p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest italic leading-tight">Define se o utilizador pode aceder à plataforma.</p>
-						</div>
-						<div className="relative inline-flex items-center cursor-pointer">
-							<input 
-								type="checkbox" 
-								{...register('isActive')}
-								className="sr-only peer" 
-							/>
-							<div className="w-10 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
 						</div>
 					</div>
 				</div>
