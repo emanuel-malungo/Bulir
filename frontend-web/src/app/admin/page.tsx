@@ -60,7 +60,6 @@ export default function UserManagement() {
 			<div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-gray-100 mt-2">
 				<div className="space-y-1">
 					<h1 className="text-xl font-bold text-gray-900 tracking-tight">Gestão de Utilizadores</h1>
-					<p className="text-[11px] text-gray-400 font-bold uppercase tracking-widest">Painel de Controlo de Acessos</p>
 				</div>
 
 				<div className="flex flex-col sm:flex-row items-center gap-3">

@@ -34,7 +34,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
 		: 'EM';
 
 	return (
-		<header className="fixed top-0 left-0 lg:left-72 right-0 h-20 bg-white border-b border-gray-100 flex items-center px-4 md:px-8 gap-4 md:gap-6 z-40 transition-all duration-300">
+		<header className="fixed top-0 left-0 lg:left-72 right-0 h-20 bg-white border-b border-gray-200 flex items-center px-4 md:px-8 gap-4 md:gap-6 z-40 transition-all duration-300">
 			{/* User Profile — Lado Esquerdo */}
 			<div className="flex items-center gap-4">
 				<button
@@ -73,7 +73,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
 				</div>
 
 				{/* Divisor */}
-				<div className="hidden sm:block w-px h-8 bg-gray-100 mx-1" />
+				<div className="hidden sm:block w-px h-8 bg-gray-200 mx-1" />
 
 				<div className="flex items-center gap-1 md:gap-2">
 					{/* Notificações */}
