@@ -34,8 +34,8 @@ export default function Header({ onMenuClick }: HeaderProps) {
 					<Menu className="w-6 h-6" />
 				</button>
 
-				<button className="flex items-center gap-3 pl-1 pr-2 py-1 rounded-2xl hover:bg-gray-50 transition-all cursor-pointer group">
-					<div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center text-accent text-sm font-bold shrink-0 shadow-sm border border-accent/5 uppercase">
+				<button className="flex items-center gap-3 pl-1 pr-2 py-1 rounded-xl hover:bg-gray-50 transition-all cursor-pointer group">
+					<div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center text-accent text-sm font-bold shrink-0 shadow-sm border border-accent/5 uppercase">
 						{userInitials}
 					</div>
 					<div className="hidden md:flex flex-col text-left leading-tight">
@@ -53,12 +53,11 @@ export default function Header({ onMenuClick }: HeaderProps) {
 			{/* Lado Direito: Saldo + Ações */}
 			<div className="flex items-center gap-4 ml-auto">
 				{/* Saldo — Destaque Premium */}
-				<div className="flex items-center gap-3 px-4 py-2 bg-accent/5 rounded-2xl border border-accent/10 group hover:bg-accent/10 transition-all">
-					<div className="w-8 h-8 rounded-xl bg-accent flex items-center justify-center shadow-md shadow-accent/20">
+				<div className="flex items-center gap-3 px-4 py-2 bg-accent/5 rounded-xl border border-accent/10 group hover:bg-accent/10 transition-all">
+					<div className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center shadow-md shadow-accent/20">
 						<Wallet className="w-4 h-4 text-white" />
 					</div>
 					<div className="flex flex-col -space-y-0.5">
-						<span className="text-[9px] font-black text-accent uppercase tracking-widest opacity-70">Saldo Disponível</span>
 						<span className="text-sm font-black text-gray-900 tabular-nums">
 							Kz {balance.toLocaleString('pt-BR')}
 						</span>
@@ -69,16 +68,16 @@ export default function Header({ onMenuClick }: HeaderProps) {
 				<div className="hidden sm:block w-px h-8 bg-gray-100 mx-1" />
 
 				<div className="flex items-center gap-1 md:gap-2">
-					<button className="relative p-2.5 rounded-2xl text-gray-400 hover:bg-gray-50 hover:text-accent transition-all cursor-pointer group">
+					<button className="relative p-2.5 rounded-xl text-gray-400 hover:bg-gray-50 hover:text-accent transition-all cursor-pointer group">
 						<Bell className="w-5 h-5" />
 						<span className="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white group-hover:scale-110 transition-transform" />
 					</button>
 
-					<button className="p-2.5 rounded-2xl text-gray-400 hover:bg-gray-50 hover:text-accent transition-all cursor-pointer">
+					<button className="p-2.5 rounded-xl text-gray-400 hover:bg-gray-50 hover:text-accent transition-all cursor-pointer">
 						<Settings className="w-5 h-5" />
 					</button>
 				</div>
 			</div>
 		</header>
 	);
-}
+}

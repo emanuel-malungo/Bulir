@@ -12,7 +12,7 @@ export default function Container({ children }: { children: React.ReactNode }) {
     const closeSidebar = () => setIsSidebarOpen(false);
 
     return (
-        <div className="min-h-screen flex flex-col bg-gray-50/50">
+        <div className="min-h-screen flex flex-col bg-white">
             <div className="flex flex-1">
                 {/* Sidebar */}
                 <Sidebar isOpen={isSidebarOpen} onClose={closeSidebar} />
