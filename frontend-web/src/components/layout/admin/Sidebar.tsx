@@ -38,10 +38,11 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
 	const handleLogout = async () => {
 		try {
 			await AuthService.logout();
-			router.push('/');
+			// Redirecionamento completo para limpar todos os estados em memória
+			window.location.href = '/';
 		} catch (error) {
 			console.error('Erro ao fazer logout:', error);
-			router.push('/');
+			window.location.href = '/';
 		}
 	};
 
@@ -117,13 +118,6 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
 				{/* Footer — Fixed at Bottom */}
 				<div className="p-4 shrink-0 border-t border-gray-50">
 					<div className="bg-gray-50/50 rounded-xl p-4 flex flex-col gap-2 border border-gray-100/50">
-						<Link
-							href="/admin/ajuda"
-							className="flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium text-gray-500 hover:bg-white hover:text-primary transition-all border border-transparent hover:border-gray-100"
-						>
-							<HelpCircle className="size-4 shrink-0" />
-							Central de Ajuda
-						</Link>
 						<button
 							onClick={handleLogout}
 							className="flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium text-red-500 hover:bg-red-50 transition-all cursor-pointer border border-transparent hover:border-red-100"

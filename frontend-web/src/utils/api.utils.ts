@@ -24,6 +24,10 @@ const onRefreshed = (token: string) => {
   refreshSubscribers = [];
 };
 
+export const clearAccessToken = () => {
+  lastAccessToken = '';
+};
+
 const addRefreshSubscriber = (callback: (token: string) => void) => {
   refreshSubscribers.push(callback);
 };

@@ -1,5 +1,5 @@
 import axios, { AxiosError } from 'axios';
-import api from '@/utils/api.utils';
+import api, { clearAccessToken } from '@/utils/api.utils';
 import { useAuthStore } from './auth.store';
 import type {
   IRegisterRequest,
@@ -131,6 +131,7 @@ export class AuthService {
     } catch {
       // Ignore errors on logout, still clear store
     } finally {
+      clearAccessToken();
       useAuthStore.getState().logout();
     }
   }

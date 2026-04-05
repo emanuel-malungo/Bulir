@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
 	Search,
 	UserPlus,
@@ -9,39 +9,19 @@ import {
 	ChevronRight,
 } from 'lucide-react';
 import Button from '@/components/common/Button';
-import { UserAPI } from '@/modules/user/user.services';
-import type { IUserDetail } from '@/modules/user/user.types';
+import { useUsers } from '@/modules/user/useUser';
 
 export default function UserManagement() {
-	const [users, setUsers] = useState<IUserDetail[]>([]);
-	const [loading, setLoading] = useState(true);
 	const [searchTerm, setSearchTerm] = useState('');
 
-	useEffect(() => {
-		fetchUsers();
-	}, []);
-
-	const fetchUsers = async () => {
-		try {
-			setLoading(true);
-			const response = await UserAPI.listUsers();
-			setUsers(response.data);
-		} catch (error) {
-			console.error('Erro ao buscar usuários:', error);
-		} finally {
-			setLoading(false);
-		}
-	};
-
+	const { data: userResponse, isLoading: loading } = useUsers();
+	const users = userResponse?.data || [];
+	
 	const filteredUsers = users.filter(user =>
 		user.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
 		user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
 		user.nif?.toLowerCase().includes(searchTerm.toLowerCase())
 	);
-
-	const activeUsers = users.filter(u => u.isActive).length;
-	const totalUsers = users.length;
-	const providerUsers = users.filter(u => u.userRoles?.some(r => r.role.name === 'PROVIDER')).length;
 
 	return (
 		<div className="space-y-6 animate-in fade-in duration-500">
@@ -172,19 +152,19 @@ export default function UserManagement() {
 			</div>
 
 			<style jsx global>{`
-        .custom-scrollbar::-webkit-scrollbar {
-          height: 8px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: #f8f9fa;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: #dee2e6;
-          border-radius: 10px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: #ced4da;
-        }
+					.custom-scrollbar::-webkit-scrollbar {
+					height: 8px;
+					}
+					.custom-scrollbar::-webkit-scrollbar-track {
+					background: #f8f9fa;
+					}
+					.custom-scrollbar::-webkit-scrollbar-thumb {
+					background: #dee2e6;
+					border-radius: 10px;
+					}
+					.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+					background: #ced4da;
+					}
       `}</style>
 		</div>
 	);

@@ -14,28 +14,17 @@ import {
 } from 'lucide-react';
 import { ServiceAPI } from '@/modules/service/service.services';
 import type { IServiceListItem } from '@/modules/service/service.types';
+
+import { useServices } from '@/modules/service/useService';
 import Button from '@/components/common/Button';
 
 export default function ServiceManagement() {
-	const [services, setServices] = useState<IServiceListItem[]>([]);
-	const [loading, setLoading] = useState(true);
 	const [searchTerm, setSearchTerm] = useState('');
 
-	useEffect(() => {
-		fetchServices();
-	}, []);
-
-	const fetchServices = async () => {
-		try {
-			setLoading(true);
-			const response = await ServiceAPI.getServices();
-			setServices(response.data);
-		} catch (error) {
-			console.error('Erro ao buscar serviços:', error);
-		} finally {
-			setLoading(false);
-		}
-	};
+	// Utilizando o hook useServices do módulo de serviços
+	const { data: serviceResponse, isLoading: loading } = useServices();
+	
+	const services = serviceResponse?.data || [];
 
 	const filteredServices = services.filter(service =>
 		service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
