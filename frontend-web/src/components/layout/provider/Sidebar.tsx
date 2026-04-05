@@ -1,28 +1,23 @@
 
 'use client';
 
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import icon from '@/assets/images/bulir.svg';
 import { 
   LayoutDashboard, 
   Calendar, 
-  Briefcase, 
-  Settings, 
   X, 
   ChevronRight,
   LogOut,
-  Wallet,
-  MessageCircle,
-  TrendingUp
+  Settings
 } from 'lucide-react';
 import { AuthService } from '@/modules/auth/auth.services';
-import { useAuthStore } from '@/modules/auth/auth.store';
 
 const navigation = [
   {
-    title: "Operações Pro",
+    title: "Operações",
     items: [
       { id: 'dashboard', label: 'Painel Central', icon: LayoutDashboard, href: '/provider' },
       { id: 'reservas', label: 'Meus Agendamentos', icon: Calendar, href: '/provider/reservations' },
@@ -37,17 +32,14 @@ interface SidebarProps {
 
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
-  const router = useRouter();
-  const { logout } = useAuthStore();
 
   const handleLogout = async () => {
     try {
       await AuthService.logout();
-      logout();
-      router.push('/');
+      window.location.href = '/';
     } catch (error) {
       console.error('Erro ao fazer logout:', error);
-      router.push('/');
+      window.location.href = '/';
     }
   };
 
@@ -71,7 +63,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         <div className="flex items-center justify-between px-8 h-20 shrink-0 border-b border-gray-50">
           <div className="flex items-center gap-3">
             <Image src={icon} alt="Bulir" width={32} height={32} className="object-contain" />
-            <span className="font-bold text-gray-900 text-xl tracking-tighter italic">Bulir</span>
+            <span className="font-bold text-gray-900 text-xl tracking-tighter">Bulir</span>
           </div>
           {onClose && (
             <button onClick={onClose} className="lg:hidden p-2 text-gray-400 hover:bg-gray-100 rounded-xl transition-all">
@@ -89,7 +81,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
 
             return (
               <div key={section.title} className="flex flex-col gap-3">
-                <h3 className={`px-4 text-[10px] uppercase font-black tracking-[0.2em] italic ${isAnyActive ? 'text-accent' : 'text-gray-300'}`}>
+                <h3 className={`px-4 text-[10px] uppercase font-black tracking-[0.2em] ${isAnyActive ? 'text-accent' : 'text-gray-300'}`}>
                   {section.title}
                 </h3>
 
@@ -105,8 +97,8 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                         key={item.id}
                         href={item.href}
                         onClick={onClose}
-                        className={`group relative flex items-center justify-between px-4 py-3 rounded-xl text-[13px] font-bold transition-all duration-300 ${active 
-                          ? "bg-accent text-white shadow-lg shadow-accent/20" 
+                        className={`group relative flex items-center justify-between px-4 py-3 rounded-lg text-[13px] font-bold transition-all duration-300 ${active 
+                          ? "bg-accent text-white shadow-sm" 
                           : "text-gray-500 hover:bg-accent/5 hover:text-accent ml-1"}`}
                       >
                         <div className="flex items-center gap-3 relative z-10">
@@ -129,10 +121,10 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         <div className="p-6 shrink-0 border-t border-gray-50">
           <button
             onClick={handleLogout}
-            className="w-full flex items-center justify-center gap-3 px-4 py-4 rounded-xl text-xs font-bold text-red-500 bg-red-50/50 hover:bg-red-50 transition-all border border-transparent hover:border-red-100 uppercase tracking-widest italic"
+            className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-lg text-xs font-bold text-red-500 bg-red-50/50 hover:bg-red-50 transition-all border border-transparent hover:border-red-100 uppercase tracking-widest"
           >
             <LogOut className="w-4 h-4" />
-            Terminar Turno
+            Sair da Conta
           </button>
         </div>
 
