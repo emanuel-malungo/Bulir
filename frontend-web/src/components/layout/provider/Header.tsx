@@ -1,38 +1,21 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Clock, LogOut, Wallet } from 'lucide-react';
+import { Wallet, Bell, ChevronDown } from 'lucide-react';
 import { useAuthStore } from '@/modules/auth/auth.store';
 import { AuthService } from '@/modules/auth/auth.services';
 import { useRouter } from 'next/navigation';
 import { useProviderStats } from '@/modules/reservation/useReservation';
 
 export default function Header() {
-  const [time, setTime] = useState<string>('');
   const { user, logout } = useAuthStore();
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    // Define a hora inicial
-    const updateTime = () => {
-      const now = new Date();
-      const formatted = now.toLocaleTimeString('pt-BR', {
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-      });
-      setTime(formatted);
-    };
-
-    updateTime();
-    const interval = setInterval(updateTime, 1000);
-
-    return () => clearInterval(interval);
   }, []);
 
-  // Fetch stats usando o hook
   const { data: stats } = useProviderStats({
     enabled: mounted && !!user,
   });
@@ -50,49 +33,48 @@ export default function Header() {
 
   if (!mounted || !user) return null;
 
-  // Obter inicial do nome
   const userInitial = user.fullName ? user.fullName.charAt(0).toUpperCase() : 'U';
   const monthlyEarnings = stats?.monthlyEarnings || 0;
 
   return (
-    <header className="fixed top-0 left-56 right-0 h-16 bg-white border-b border-gray-200 z-40">
-      <div className="flex items-center justify-between px-6 py-4 h-full">
-        
-        {/* Relógio do Sistema */}
-        <div className="flex items-center space-x-2">
-          <Clock className="w-5 h-5 text-gray-600" />
-          <span className="text-sm font-medium text-gray-600">{time}</span>
-        </div>
-        
-        <div className="flex items-center space-x-6">
-
-          {/* Menu do Usuário */}
-          <div className="flex items-center space-x-4">
-            {/* Ganhos este Mês */}
-            <div className="flex items-center space-x-2 px-3 py-2 bg-gray-50 rounded-lg">
-              <Wallet className="w-5 h-5 text-accent" />
-              <div className="flex flex-col">
-                <span className="text-sm font-semibold text-gray-900">
-                  Kz {monthlyEarnings.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                </span>
-              </div>
-            </div>
-
-            {/* Botão Sair */}
-            <button 
-              onClick={handleLogout}
-              className="flex items-center space-x-1 p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors group"
-              title="Sair"
-            >
-              <LogOut className="w-5 h-5 group-hover:text-red-500 transition-colors" />
-            </button>
-
-            {/* Avatar do Usuário */}
-            <div className="w-9 h-9 rounded-lg bg-accent text-white flex items-center justify-center">
-              <span className="text-sm font-semibold">{userInitial}</span>
-            </div>
+    <header className="fixed top-0 left-72 right-0 h-20 bg-white/80 backdrop-blur-md border-b border-gray-100 z-40 flex items-center px-10 gap-6">
+      
+      {/* Lado Esquerdo: Perfil do Prestador */}
+      <div className="flex items-center gap-3 group cursor-pointer">
+          <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center text-accent font-black text-sm transition-all ring-4 ring-accent/5 shrink-0 border border-accent/5">
+              {userInitial}
           </div>
-        </div>
+          <div className="flex flex-col text-left leading-tight">
+              <span className="text-sm font-bold text-gray-900 tracking-tight group-hover:text-accent transition-colors">{user.fullName}</span>
+              <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest italic opacity-60">
+                  Prestador de Serviço
+              </span>
+          </div>
+          <ChevronDown className="w-4 h-4 text-gray-400 group-hover:text-accent transition-colors" />
+      </div>
+
+      {/* Lado Direito: Rendimentos + Notificações */}
+      <div className="flex items-center gap-6 ml-auto">
+          
+          {/* Rendimentos — Foco Financeiro */}
+          <div className="flex items-center gap-3 px-4 py-2 bg-accent/5 rounded-xl border border-accent/10 group hover:bg-accent/10 transition-all">
+              <div className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center">
+                  <Wallet className="w-4 h-4 text-white" />
+              </div>
+              <div className="flex flex-col -space-y-0.5">
+                  <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest italic opacity-70">Ganhos do Mês</span>
+                  <span className="text-sm font-bold text-gray-900 font-mono tracking-tight tabular-nums">
+                      Kz {monthlyEarnings.toLocaleString('pt-AO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </span>
+              </div>
+          </div>
+
+          <div className="flex items-center gap-1 md:gap-2 border-l border-gray-100 pl-6">
+              <button className="relative p-2.5 rounded-xl text-gray-400 hover:bg-gray-50 hover:text-accent transition-all cursor-pointer group">
+                  <Bell className="w-5 h-5" />
+                  <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-accent rounded-full border-2 border-white" />
+              </button>
+          </div>
       </div>
     </header>
   );
